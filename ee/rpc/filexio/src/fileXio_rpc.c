@@ -15,7 +15,7 @@
 #include <kernel.h>
 #include <sifrpc.h>
 #include <kernel/string.h>
-#include <fcntl.h>
+#include <sys/fcntl.h>
 
 #include <fileXio_rpc.h>
 

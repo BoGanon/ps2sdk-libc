@@ -8,7 +8,9 @@
 #
 # $Id$
 
-EE_INCS := $(EE_INCS) -I$(PS2SDKSRC)/ee/kernel/include -I$(PS2SDKSRC)/common/include -I$(PS2SDKSRC)/ee/libc/include -I$(PS2SDKSRC)/ee/erl/include -I$(EE_INC_DIR)
+EE_INCS := $(EE_INCS) -I$(PS2SDKSRC)/ee/kernel/include \
+	  -I$(PS2SDKSRC)/common/include -I$(PS2SDKSRC)/ee/erl/include \
+	  -I$(EE_INC_DIR)
 
 # C compiler flags
 EE_CFLAGS := -D_EE -G0 -O2 -Wall $(EE_CFLAGS)

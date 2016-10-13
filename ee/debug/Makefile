@@ -18,7 +18,10 @@ EE_SAMPLE_DIR = samples/
 
 LIBDEBUG_LIB  = $(EE_LIB_DIR)libdebug.a
 
-EE_INCS = -I../graph/include -I../rpc/cdvd/include
+EE_INCS = -I../graph/include \
+	  -I../rpc/cdvd/include \
+	  -I../rpc/fileio/include \
+	  -I../libc/include
 
 EE_LIB = $(LIBDEBUG_LIB)
 

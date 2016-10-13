@@ -12,7 +12,8 @@ EE_LIB_DIR = lib/
 EE_SRC_DIR = src/
 EE_INC_DIR = include/
 
-EE_INCS += -I../draw/include -I../math3d/include
+EE_INCS += -I../draw/include -I../math3d/include -I../libc/include \
+	   -I../rpc/fileio/include
 
 EE_OBJS = fontx.o fsfont.o erl-support.o
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)

@@ -12,7 +12,7 @@ EE_LIB_DIR = lib/
 EE_SRC_DIR = src/
 EE_INC_DIR = include/
 
-EE_INCS += -I../rpc/padx/include -I../rpc/multitap/include
+EE_INCS += -I../rpc/padx/include -I../rpc/multitap/include -I../libc/include
 
 EE_OBJS = input.o erl-support.o
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)

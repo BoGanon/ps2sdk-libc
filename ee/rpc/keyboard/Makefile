@@ -7,6 +7,8 @@
 # Review ps2sdk README & LICENSE files for further details.
 #
 
+EE_INCS = -I$(PS2SDKSRC)/ee/libc/include -I$(PS2SDKSRC)/ee/rpc/fileio/include
+
 EE_OBJS_DIR = obj/
 EE_LIB_DIR = lib/
 EE_SRC_DIR = src/
@@ -16,8 +18,6 @@ EE_OBJS = libkbd.o erl-support.o
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)
 
 EE_LIB = $(EE_LIB_DIR)libkbd.a
-
-#EE_INCS = -I../../iop/include -I../include
 
 all: $(EE_OBJS_DIR) $(EE_LIB_DIR) $(EE_LIB)
 

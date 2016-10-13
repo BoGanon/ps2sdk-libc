@@ -46,7 +46,8 @@ ifdef PS2IP_DNS
 EE_CFLAGS += -DPS2IP_DNS
 endif
 
-EE_INCS += -I$(LWIP)/src/include -I$(LWIP)/src/include/ipv4 -Isrc/include
+EE_INCS += -I$(LWIP)/src/include -I$(LWIP)/src/include/ipv4 \
+	   -Isrc/include -I$(PS2SDKSRC)/ee/libc/include
 EE_CFLAGS += -Wall -fno-builtin -DLWIP_NOASSERT -DLWIP_COMPAT_MUTEX $(DEBUG_FLAGS) -mno-gpopt -O2 -G0 -mno-check-zero-division
 
 EE_LIB = $(EE_LIB_DIR)libps2ip.a
