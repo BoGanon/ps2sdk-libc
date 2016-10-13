@@ -16,8 +16,8 @@
 #include <kernel.h>
 #include <sifcmd.h>
 #include <sifrpc.h>
-#include <string.h>
-#include <stdio.h>
+#include "kernel/string.h"
+#include "sio.h"
 
 #include <iopcontrol.h>
 
@@ -87,15 +87,15 @@ int SifIopReboot(const char* arg)
 
 	if(strlen(arg) + 11 > RESET_ARG_MAX)
 	{
-		printf("too long parameter \'%s\'\n", arg);
+		//printf("too long parameter \'%s\'\n", arg););
 		return 0;
 	}
 
 	SifInitRpc(0);
 	SifExitRpc();
 
-	strcpy(param_str, "rom0:UDNL ");
-	strcat(param_str, arg);
+	strncpy(param_str, "rom0:UDNL ", 10);
+	strncpy(param_str+10, arg, strlen(arg)+1);
 
 	return SifIopReset(param_str, 0);
 }

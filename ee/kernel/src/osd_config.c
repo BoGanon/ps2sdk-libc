@@ -13,12 +13,11 @@
 # turned off or reset!
 */
 
-#include <fcntl.h>
+#include <sys/fcntl.h>
 
 #include <tamtypes.h>
 #include <kernel.h>
-#include <stdio.h>
-#include <string.h>
+#include "kernel/string.h"
 #include <osd_config.h>
 
 // config param data as stored on a DTL-T10000(H) TOOL

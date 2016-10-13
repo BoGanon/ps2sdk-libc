@@ -14,7 +14,7 @@ EE_INC_DIR = include/
 
 LIBEEDEBUG_LIB = $(EE_LIB_DIR)libeedebug.a
 
-EE_INCS =
+EE_INCS = -I$(PS2SDKSRC)/ee/kernel/src
 
 EE_OBJS  = ee_debug.o ee_exceptions.o ee_dbg_low.o
 EE_OBJS += erl-support.o

@@ -14,7 +14,7 @@
 #include <tamtypes.h>
 #include <kernel.h>
 #include <sifrpc.h>
-#include <string.h>
+#include <kernel/string.h>
 #include <fcntl.h>
 
 #include <fileXio_rpc.h>

@@ -7,6 +7,8 @@
 # Review ps2sdk README & LICENSE files for further details.
 #
 
+EE_INCS = -I$(PS2SDKSRC)/ee/kernel/src
+
 EE_OBJS_DIR = obj/
 EE_LIB_DIR = lib/
 EE_SRC_DIR = src/

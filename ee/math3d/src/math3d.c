@@ -13,7 +13,7 @@
 
  #include <graph.h>
  #include <math3d.h>
- #include <string.h>
+ #include <kernel/string.h>
  #include <floatlib.h>
 
  //////////////////////

@@ -1,5 +1,4 @@
 #include <kernel.h>
-#include <stdio.h>
 #include <tlbfunc.h>
 
 #define kprintf(args...) //sio_printf(args)

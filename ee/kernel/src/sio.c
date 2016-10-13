@@ -11,13 +11,12 @@
 # Routines for accessing the EE's on-chip serial port.
 */
 
-#include <stdio.h>
 #include <stddef.h>
 #include <stdarg.h>
 
 #include "tamtypes.h"
 #include "kernel.h"
-#include "string.h"
+#include "kernel/string.h"
 #include "sio.h"
 
 #ifndef PS2LIB_STR_MAX

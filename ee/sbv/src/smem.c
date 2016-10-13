@@ -12,7 +12,7 @@
 */
 
 #include <kernel.h>
-#include <string.h>
+#include <kernel/string.h>
 
 #include "smem.h"
 

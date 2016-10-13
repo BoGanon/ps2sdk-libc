@@ -13,14 +13,15 @@
 */
 
 #include <stdarg.h>
-#include <fcntl.h>
+#include <sys/fcntl.h>
+#include <sys/stat.h>
 
 #include <tamtypes.h>
 #include <ps2lib_err.h>
 #include <kernel.h>
 #include <sifrpc.h>
 #include <fileio.h>
-#include <string.h>
+#include "kernel/string.h"
 
 #define D(fmt, args...) printf("(%s:%s:%i):" # fmt, __FILE__, __FUNCTION__, __LINE__, ## args)
 

@@ -1,6 +1,8 @@
 #include <kernel.h>
 #include <ee_debug.h>
-#include <string.h>
+
+// Internal kernel/string.h
+#include <kernel/string.h>
 
 #include "eedebug_defs.h"
 

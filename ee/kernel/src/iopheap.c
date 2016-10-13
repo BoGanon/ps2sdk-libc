@@ -16,7 +16,7 @@
 #include "kernel.h"
 #include "sifrpc.h"
 #include "sifcmd.h"
-#include "string.h"
+#include "kernel/string.h"
 
 #include "iopheap.h"
 

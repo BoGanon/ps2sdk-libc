@@ -2,7 +2,7 @@
 #include <kernel.h>
 #include <sifrpc.h>
 #include <iopheap.h>
-#include <string.h>
+#include <kernel/string.h>
 
 #include "smod.h"
 

@@ -12,15 +12,16 @@
 # IOP executable file loader API.
 */
 
-/** @defgroup loadfile EE LOADFILE: ELF and IRX loader client library. */
+/** @file loadfile.c
+    @defgroup loadfile EE LOADFILE: ELF and IRX loader client library. */
 
-#include <fcntl.h>
+#include <sys/fcntl.h>
 
 #include <tamtypes.h>
 #include <ps2lib_err.h>
 #include <kernel.h>
 #include <sifrpc.h>
-#include <string.h>
+#include "kernel/string.h"
 
 #include <loadfile.h>
 #include <iopheap.h>

@@ -13,7 +13,7 @@
 
 #include <tamtypes.h>
 #include <kernel.h>
-#include <string.h>
+#include <kernel/string.h>
 
 #include "slib.h"
 
