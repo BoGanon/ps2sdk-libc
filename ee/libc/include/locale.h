@@ -29,16 +29,16 @@ extern "C" {
 
 struct lconv
 {
-  char *decimal_point;
-  char *thousands_sep;
-  char *grouping;
-  char *int_curr_symbol;
-  char *currency_symbol;
-  char *mon_decimal_point;
-  char *mon_thousands_sep;
-  char *mon_grouping;
-  char *positive_sign;
-  char *negative_sign;
+  char decimal_point[2];
+  char thousands_sep[2];
+  char grouping[2];
+  char int_curr_symbol[2];
+  char currency_symbol[2];
+  char mon_decimal_point[2];
+  char mon_thousands_sep[2];
+  char mon_grouping[2];
+  char positive_sign[2];
+  char negative_sign[2];
   char int_frac_digits;
   char frac_digits;
   char p_cs_precedes;
@@ -51,7 +51,7 @@ struct lconv
 
 /* Undefined */
 char *setlocale(int cat, const char *loc);
-struct lconf *localeconv(void);
+struct lconv *localeconv(void);
 
 #ifdef __cplusplus
 }

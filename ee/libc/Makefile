@@ -80,6 +80,9 @@ UNISTD_OBJS := $(UNISTD_OBJS:%=$(EE_OBJS_DIR)%)
 LIBGEN_OBJS = basename.o dirname.o
 LIBGEN_OBJS := $(LIBGEN_OBJS:%=$(EE_OBJS_DIR)%)
 
+LOCALE_OBJS = setlocale.o localeconv.o
+LOCALE_OBJS := $(LOCALE_OBJS:%=$(EE_OBJS_DIR)%)
+
 TIME_OBJS = clock.o time.o times.o mktime.o
 TIME_OBJS := $(TIME_OBJS:%=$(EE_OBJS_DIR)%)
 
@@ -89,9 +92,10 @@ DIRENT_OBJS := $(DIRENT_OBJS:%=$(EE_OBJS_DIR)%)
 GPROF_OBJS = mcount.o mcount_internal.o
 GPROF_OBJS := $(GPROF_OBJS:%=$(EE_OBJS_DIR)%)
 
-MULT_OBJS = $(XPRINTF_OBJS) $(WXPRINTF_OBJS) $(XSCANF_OBJS) $(ALLOC_OBJS) $(STRING_C_OBJS) \
-	$(WSTRING_C_OBJS) $(STDIO_OBJS) $(STDLIB_OBJS) $(WSTDLIB_OBJS) $(UNISTD_OBJS) $(TIME_OBJS) \
-	$(GPROF_OBJS) $(LIBGEN_OBJS) $(DIRENT_OBJS) $(INIT_OBJS)
+MULT_OBJS = $(XPRINTF_OBJS) $(WXPRINTF_OBJS) $(XSCANF_OBJS) $(ALLOC_OBJS) \
+	    $(STRING_C_OBJS) $(WSTRING_C_OBJS) $(STDIO_OBJS) $(STDLIB_OBJS) \
+	    $(WSTDLIB_OBJS) $(UNISTD_OBJS) $(TIME_OBJS) $(GPROF_OBJS) \
+	    $(LOCALE_OBJS) $(LIBGEN_OBJS) $(DIRENT_OBJS) $(INIT_OBJS)
 
 # uncomment the following line to enable profile on libc
 # EE_CFLAGS += -pg
@@ -134,6 +138,9 @@ $(UNISTD_OBJS): src/unistd.c
 	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
 
 $(TIME_OBJS): src/time.c
+	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+
+$(LOCALE_OBJS): src/locale.c
 	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
 
 $(LIBGEN_OBJS): src/libgen.c
