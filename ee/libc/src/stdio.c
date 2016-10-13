@@ -21,17 +21,9 @@
 
 #include <stdio.h>
 #include <sio.h>
-#include <fileio.h>
+
 #include <string.h>
 #include <limits.h>
-
-extern int (*_ps2sdk_close)(int);
-extern int (*_ps2sdk_open)(const char*, int);
-extern int (*_ps2sdk_read)(int, void*, int);
-extern int (*_ps2sdk_lseek)(int, int, int);
-extern int (*_ps2sdk_write)(int, const void*, int);
-extern int (*_ps2sdk_remove)(const char*);
-extern int (*_ps2sdk_rename)(const char*, const char*);
 
 void _ps2sdk_stdio_init();
 
@@ -105,7 +97,7 @@ int fclose(FILE *stream)
       ret = EOF;
       break;
     default:
-      if ((stream->fd >= 0) && (ret=_ps2sdk_close(stream->fd) >= 0)) {
+      if ((stream->fd >= 0) && (ret=close(stream->fd) >= 0)) {
         stream->type = STD_IOBUF_TYPE_NONE;
         stream->fd = -1;
         stream->cnt = 0;
@@ -584,7 +576,7 @@ FILE *fopen(const char *fname, const char *mode)
             }
           }
         }
-        if ((fd = _ps2sdk_open((char *)t_fname, iomode)) >= 0) {
+        if ((fd = open((char *)t_fname, iomode, 0666)) >= 0) {
           __iob[i].fd = fd;
           __iob[i].cnt = 0;
           __iob[i].flag = flag;
@@ -598,7 +590,7 @@ FILE *fopen(const char *fname, const char *mode)
             cd_fname[fname_len + 0] = ';';
             cd_fname[fname_len + 1] = '1';
             cd_fname[fname_len + 2] = 0;
-            if ((fd = _ps2sdk_open((char *)cd_fname, iomode)) >= 0) {
+            if ((fd = open((char *)cd_fname, iomode, 0666)) >= 0) {
               __iob[i].fd = fd;
               __iob[i].cnt = 0;
               __iob[i].flag = flag;
@@ -772,7 +764,7 @@ int fputs(const char *s, FILE *stream)
 size_t fread(void *buf, size_t r, size_t n, FILE *stream)
 {
   size_t ret = 0, read_len = r * n;
-  int read;
+  int num_read;
 
   switch(stream->type) {
     case STD_IOBUF_TYPE_NONE:
@@ -793,13 +785,13 @@ size_t fread(void *buf, size_t r, size_t n, FILE *stream)
         /* subtract 1 to read_len to avoid buffer overflow */
         read_len--;
       }
-      read = _ps2sdk_read(stream->fd, buf, read_len);
-      if (read < 0)
-        read = errno = -read;
-      else if(read<read_len)
+      num_read = read(stream->fd, buf, read_len);
+      if (num_read < 0)
+        num_read = errno = -num_read;
+      else if(num_read < read_len)
         stream->flag |= _IOEOF;
 
-      ret +=  read / r;
+      ret +=  num_read / r;
   }
   return (ret);
 }
@@ -839,7 +831,7 @@ int fseek(FILE *stream, long offset, int origin)
       break;
     default:
       /* attempt to seek to offset from origin. */
-      ret = _ps2sdk_lseek(stream->fd, (int)offset, origin);
+      ret = lseek(stream->fd, (int)offset, origin);
   }
   if (ret >= 0)
     return 0;
@@ -906,7 +898,7 @@ long ftell(FILE *stream)
         ret = -1L;
       }
       else {
-        if ((n = _ps2sdk_lseek(stream->fd, 0, SEEK_CUR)) >= 0)
+        if ((n = lseek(stream->fd, 0, SEEK_CUR)) >= 0)
              ret = (long)n;
         else if (n < 0) {
               errno = (n * -1);
@@ -954,7 +946,7 @@ size_t fwrite(const void *buf, size_t r, size_t n, FILE *stream)
       ret = r;
       break;
     case STD_IOBUF_TYPE_STDOUTHOST:
-      written = (_ps2sdk_write(1, (void *) buf, (int)(r * n)) / (int)r);
+      written = (write(1, (void *) buf, (int)(r * n)) / (int)r);
       break;
     case STD_IOBUF_TYPE_SIO:
       for (i = 0, len = (r * n); i < len; ++i) sio_putc((int)((char *)buf)[i]);
@@ -962,7 +954,7 @@ size_t fwrite(const void *buf, size_t r, size_t n, FILE *stream)
       break;
     default:
       /* attempt to write the stream file. */
-      written = (_ps2sdk_write(stream->fd, (void *)buf, (int)(r * n)) / (int)r);
+      written = (write(stream->fd, (void *)buf, (int)(r * n)) / (int)r);
   }
   if (written < 0) {
     /* _ps2sdk_write returns negative errno on error */
@@ -1278,12 +1270,7 @@ int puts(const char *s)
 **  [post] - the s file is deleted.
 **
 */
-int remove(const char *s)
-{
-  int ret = _ps2sdk_remove(s);
-
-  return (ret * -1);
-}
+/* No longer defined here. */
 #endif
 
 
@@ -1304,16 +1291,7 @@ int remove(const char *s)
 **  [post] - oldfn is renamed to newfn
 **
 */
-int rename(const char *oldfn, const char *newfn)
-{
-  int ret = _ps2sdk_rename(oldfn, newfn);
-  if (ret < 0) {
-    errno = (ret * -1);
-    return -1;
-  }
-  else
-    return 0;
-}
+/* No longer defined here. */
 #endif
 
 
@@ -1485,31 +1463,7 @@ void __stdio_update_stdout_xy(int x, int y)
 }
 #endif
 
-
 #ifdef F___stdio_internals
-int (*_ps2sdk_close)(int) = fioClose;
-int (*_ps2sdk_open)(const char*, int) = fioOpen;
-int (*_ps2sdk_read)(int, void*, int) = fioRead;
-int (*_ps2sdk_lseek)(int, int, int) = fioLseek;
-int (*_ps2sdk_write)(int, const void*, int) = fioWrite;
-int (*_ps2sdk_remove)(const char*) = fioRemove;
-int (*_ps2sdk_rmdir)(const char*) = fioRmdir;
-
-int fioMkdirHelper(const char *path, int mode)
-{
-  return fioMkdir(path);
-}
-
-int (*_ps2sdk_mkdir)(const char*, int) = fioMkdirHelper;
-
-int fioRename(const char *old, const char *new)
-{
-  return -ENOSYS;
-}
-
-int (*_ps2sdk_rename)(const char*, const char*) = fioRename;
-
-
 void _ps2sdk_stdio_init()
 {
     int i;

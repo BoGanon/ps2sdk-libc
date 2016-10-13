@@ -73,8 +73,7 @@ STDLIB_OBJS := $(STDLIB_OBJS:%=$(EE_OBJS_DIR)%)
 WSTDLIB_OBJS = wcstod.o wcstol.o wcstoul.o
 WSTDLIB_OBJS := $(WSTDLIB_OBJS:%=$(EE_OBJS_DIR)%)
 
-UNISTD_OBJS = open.o close.o read.o write.o lseek.o mkdir.o rmdir.o stat.o \
-	fstat.o access.o unlink.o getcwd.o sleep.o
+UNISTD_OBJS = fstat.o access.o unlink.o getcwd.o sleep.o
 UNISTD_OBJS := $(UNISTD_OBJS:%=$(EE_OBJS_DIR)%)
 
 LIBGEN_OBJS = basename.o dirname.o

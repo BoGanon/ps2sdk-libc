@@ -1,3 +1,4 @@
+/*
 # _____     ___ ____     ___ ____
 #  ____|   |    ____|   |        | |____|
 # |     ___|   |____ ___|    ____| |    \    PS2DEV Open Source Project.
@@ -6,9 +7,16 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
+# $Id$
+# The erl-tags support
+*/
 
-SUBDIRS = ahx camera cdvd xcdvd fileio filexio hdd keyboard memorycard mouse \
-	  multitap pad poweroff sior tcpips padx remote audsrv ps2snd
+#include <erl.h>
 
-include $(PS2SDKSRC)/Defs.make
-include $(PS2SDKSRC)/Rules.make
+char * erl_id = "libfileio";
+
+char * erl_dependancies[] = {
+    "libkernel",
+    0
+};
+

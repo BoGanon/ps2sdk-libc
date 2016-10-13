@@ -25,13 +25,6 @@ SIFRPC_OBJS = SifBindRpc.o SifCallRpc.o SifRpcGetOtherData.o \
 	_rpc_get_fpacket.o SifCheckStatRpc.o
 SIFRPC_OBJS := $(SIFRPC_OBJS:%=$(EE_OBJS_DIR)%)
 
-FILEIO_OBJS = __fio_internals.o fio_init.o _fio_intr.o fio_sync.o fio_setblockmode.o \
-	fio_exit.o fio_open.o fio_close.o fio_read.o \
-	fio_write.o fio_lseek.o fio_mkdir.o _fio_read_intr.o fio_getc.o fio_putc.o \
-	fio_ioctl.o fio_dopen.o fio_dclose.o fio_dread.o fio_getstat.o fio_chstat.o \
-	fio_remove.o fio_format.o fio_rmdir.o fio_gets.o
-FILEIO_OBJS := $(FILEIO_OBJS:%=$(EE_OBJS_DIR)%)
-
 LOADFILE_OBJS = SifLoadFileInit.o SifLoadFileExit.o _SifLoadModule.o SifLoadModule.o \
 	SifLoadStartModule.o SifLoadModuleEncrypted.o SifStopModule.o SifUnloadModule.o \
 	SifSearchModuleByName.o SifSearchModuleByAddress.o _SifLoadElfPart.o SifLoadElfPart.o \
@@ -116,10 +109,10 @@ KERNEL_OBJS := $(KERNEL_OBJS:%=$(EE_OBJS_DIR)%)
 
 LIBSYSCALL_OBJS = $(EE_OBJS_DIR)dummy.o
 
-EE_OBJS = $(KERNEL_OBJS) $(SIFCMD_OBJS) $(SIFRPC_OBJS) $(FILEIO_OBJS) \
-	$(LOADFILE_OBJS) $(IOPHEAP_OBJS) $(IOPCONTROL_OBJS) $(CONFIG_OBJS) \
-	$(GLUE_OBJS) $(SIO_OBJS) $(TIMER_OBJS) $(GETKERNEL_OBJS) $(LIBKRNLUPD_OBJS)	\
-	$(TLBFUNC_OBJS) $(EE_OBJS_DIR)erl-support.o
+EE_OBJS = $(KERNEL_OBJS) $(SIFCMD_OBJS) $(SIFRPC_OBJS) $(LOADFILE_OBJS) \
+	  $(IOPHEAP_OBJS) $(IOPCONTROL_OBJS) $(CONFIG_OBJS) $(GLUE_OBJS) \
+	  $(SIO_OBJS) $(TIMER_OBJS) $(GETKERNEL_OBJS) $(LIBKRNLUPD_OBJS) \
+	  $(TLBFUNC_OBJS) $(EE_OBJS_DIR)erl-support.o
 
 all: $(EE_OBJS_DIR) $(EE_LIB_DIR) $(LIBSYSCALL_LIB) $(EE_LIB)
 
@@ -136,9 +129,6 @@ $(SIFCMD_OBJS): $(EE_SRC_DIR)sifcmd.c
 	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
 
 $(SIFRPC_OBJS): $(EE_SRC_DIR)sifrpc.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
-
-$(FILEIO_OBJS): $(EE_SRC_DIR)fileio.c
 	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
 
 $(LOADFILE_OBJS): $(EE_SRC_DIR)loadfile.c

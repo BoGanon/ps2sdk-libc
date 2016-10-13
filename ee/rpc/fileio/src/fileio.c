@@ -781,3 +781,172 @@ int fioFormat(const char *name)
 	return result;
 }
 #endif
+
+/* The unistd glue functions.  */
+#ifdef F_fio_unistd
+#include <errno.h>
+#include <limits.h>
+#include <kernel/dirent.h>
+
+int mkdir(const char *path, int mode)
+{
+  return fioMkdir(path);
+}
+
+int rename(const char *old, const char *new)
+{
+  return -ENOSYS;
+}
+
+int link(const char *old, const char *new)
+{
+  return -ENOSYS;
+}
+
+off_t lseek(int fd, off_t offset, int whence)
+{
+  if (offset > INT_MAX)
+    return -EOVERFLOW;
+
+  return fioLseek(fd,offset,whence);
+}
+
+/* fioStat is unstable on an unpatched kernel */
+int stat(const char *path, struct stat *st)
+{
+  long long high;
+  int ret;
+  fio_stat_t f_st;
+
+  if ((ret = fioGetstat(path,&f_st)) < 0)
+    return ret;
+
+  /* Type */
+  if (FIO_SO_ISLNK(f_st.mode))
+    st->st_mode = S_IFLNK;
+  if (FIO_SO_ISREG(f_st.mode))
+    st->st_mode = S_IFREG;
+  if (FIO_SO_ISDIR(f_st.mode))
+    st->st_mode = S_IFDIR;
+
+  /* Access */
+  st->st_mode = st->st_mode + (f_st.mode & FIO_SO_IRWXO);
+
+  /* Size */
+  st->st_size = f_st.size;
+
+  /* I think hisize stores the upper 32-bits of a 64-bit size value */
+  if (f_st.hisize) {
+    high = f_st.hisize;
+    st->st_size += high << 32;
+  }
+
+  /** @todo Add time functions to stat */
+
+  return ret;
+}
+
+int open(const char *name, int flags, ...)
+{
+  return fioOpen(name,flags);
+}
+
+DIR __fileio_dir;
+
+DIR *opendir (const char *path)
+{
+  int fd;
+
+  if ((fd = fioDopen(path)) < 0)
+    return NULL;
+
+  __fileio_dir.d_fd = fd;
+  strncpy(__fileio_dir.d_dir, path, strlen(path)+1);
+
+  return &__fileio_dir;
+}
+
+struct dirent __fileio_dirent;
+fio_dirent_t __fileio_fio_dirent;
+
+struct dirent *readdir(DIR *d)
+{
+  if (d == NULL)
+    return NULL;
+
+  if (d->d_fd >= 0) {
+    if (fioDread(d->d_fd, &__fileio_fio_dirent) < 0)
+      return NULL;
+  }
+
+  __fileio_dirent.d_name = __fileio_fio_dirent.name;
+
+  return &__fileio_dirent;
+}
+
+int closedir(DIR *d)
+{
+  int fd;
+
+  if (d == NULL);
+    return -1;
+
+  if (d->d_fd < 0) {
+    return -1;
+  }
+
+  fd = d->d_fd;
+
+  d->d_fd = 0;
+
+  return fioDclose(fd);
+}
+
+void rewinddir(DIR *d)
+{
+  if (d == NULL)
+    return;
+
+  /* Reinitialize by closing and opening. */
+  if (fioDclose(d->d_fd) < 0) {
+    d->d_fd = -1;
+    return;
+  }
+  
+  if ((d->d_fd = fioDopen(d->d_dir)) < 0)
+    d->d_fd = -1;
+
+  return;
+}
+
+int close(int fd)
+{
+  return fioClose(fd);
+}
+
+int read(int fd, void *buf, size_t count)
+{
+  if (count > INT_MAX)
+    return -1;
+
+  return fioRead(fd,buf,(int)count);
+}
+
+int remove(const char *path)
+{
+  return fioRemove(path);
+}
+
+int rmdir(const char *path)
+{
+  return fioRmdir(path);
+}
+
+int write(int fd, const void *buf, size_t count)
+{
+  if (count > INT_MAX)
+    return -1;
+
+  return fioWrite(fd,buf,(int)count);
+}
+#endif /* F_fio_unistd */

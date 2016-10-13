@@ -11,29 +11,19 @@
 # fileXio RPC client
 */
 
+#define __need__va_list
+#include <stdarg.h>
+#include <limits.h>
+
 #include <tamtypes.h>
 #include <kernel.h>
 #include <sifrpc.h>
 #include <kernel/string.h>
+#include <kernel/dirent.h>
 #include <sys/fcntl.h>
 
 #include <fileXio_rpc.h>
 
-// from stdio.c
-extern int (*_ps2sdk_close)(int);
-extern int (*_ps2sdk_open)(const char*, int);
-extern int (*_ps2sdk_read)(int, void*, int);
-extern int (*_ps2sdk_lseek)(int, long, int); // assume long = int
-extern int (*_ps2sdk_write)(int, const void*, int);
-extern int (*_ps2sdk_remove)(const char*);
-extern int (*_ps2sdk_rename)(const char*,const char*);
-extern int (*_ps2sdk_mkdir)(const char*, int);
-extern int (*_ps2sdk_rmdir)(const char*);
-
-static int fileXioOpenHelper(const char* source, int flags)
-{
-	return fileXioOpen(source, flags, 0666);
-}
 
 extern int _iop_reboot_count;
 static SifRpcClientData_t cd0;
@@ -97,16 +87,6 @@ int fileXioInit(void)
 
 	fileXioInited = 1;
 	fileXioBlockMode = FXIO_WAIT;
-
-	_ps2sdk_close  = fileXioClose;
-	_ps2sdk_open   = fileXioOpenHelper;
-	_ps2sdk_read   = fileXioRead;
-	_ps2sdk_lseek  = fileXioLseek;
-	_ps2sdk_write  = fileXioWrite;
-	_ps2sdk_remove = fileXioRemove;
-	_ps2sdk_rename = fileXioRename;
-	_ps2sdk_mkdir  = fileXioMkdir;
-	_ps2sdk_rmdir  = fileXioRmdir;
 
 	return 0;
 }
@@ -911,3 +891,178 @@ int fileXioSetRWBufferSize(int size){
 	return(rv);
 }
 
+/* The unistd glue functions*/
+int mkdir(const char *path, mode_t mode)
+{
+  return fileXioMkdir(path,mode);
+}
+
+int rename(const char *old, const char *new)
+{
+  return fileXioRename(old, new);
+}
+
+int link(const char *path, const char *link)
+{
+  return fileXioSymlink(path, link);
+}
+
+off_t lseek(int fd, off_t offset, int whence)
+{
+  /* If I remember right, fileXio uses a 64-bit offset value
+     as a trick to read up to 4 gb sized files using the max value of an
+     unsigned int. Otherwise, it would be limited to 2 gb. */
+  if (offset > UINT_MAX)
+    return -EOVERFLOW;
+
+  return fileXioLseek(fd,offset,whence);
+}
+
+int stat(const char *path, struct stat *st)
+{
+  long long high;
+  int ret;
+  iox_stat_t f_st;
+
+  if ((ret = fileXioGetStat(path,&f_st)) < 0)
+    return ret;
+
+  /* Type */
+  if (FIO_S_ISLNK(f_st.mode))
+    st->st_mode = S_IFLNK;
+  if (FIO_S_ISREG(f_st.mode))
+    st->st_mode = S_IFREG;
+  if (FIO_S_ISDIR(f_st.mode))
+    st->st_mode = S_IFDIR;
+
+  /* Access */
+  st->st_mode = st->st_mode + (f_st.mode & FIO_S_IRWXU);
+  st->st_mode = st->st_mode + (f_st.mode & FIO_S_IRWXG);
+  st->st_mode = st->st_mode + (f_st.mode & FIO_S_IRWXO);
+
+  /* Size */
+  st->st_size = f_st.size;
+
+  /* I think hisize stores the upper 32-bits of a 64-bit size value */
+  if (f_st.hisize) {
+    high = f_st.hisize;
+    st->st_size = st->st_size + (high << 32);
+  }
+
+  /** @todo add stat time conversion */
+
+  return ret;
+}
+
+int open(const char *name, int flags, ...)
+{
+  int mode;
+  va_list list;
+
+  va_start(list,flags);
+  mode = va_arg(list,int);
+  va_end(list);
+
+  return fileXioOpen(name, flags, mode);
+}
+
+DIR __filexio_dir;
+
+DIR *opendir (const char *path)
+{
+  int fd;
+
+  if ((fd = fileXioDopen(path)) < 0)
+    return NULL;
+
+  __filexio_dir.d_fd = fd;
+  strncpy(__filexio_dir.d_dir, path, strlen(path)+1);
+
+  return &__filexio_dir;
+}
+
+struct dirent __filexio_dirent;
+iox_dirent_t __filexio_iox_dirent;
+
+struct dirent *readdir(DIR *d)
+{
+  if (d == NULL)
+    return NULL;
+
+  if (d->d_fd > 0) {
+    if (fileXioDread(d->d_fd, &__filexio_iox_dirent) < 0)
+      return NULL;
+  }
+
+  __filexio_dirent.d_name = __filexio_iox_dirent.name;
+
+  return &__filexio_dirent;
+}
+
+int closedir(DIR *d)
+{
+  int fd;
+
+  if (d == NULL);
+    return -1;
+
+  if (d->d_fd < 0) {
+    return -1;
+  }
+
+  fd = d->d_fd;
+
+  d->d_fd = 0;
+
+  return fileXioDclose(fd);
+}
+
+void rewinddir(DIR *d)
+{
+  if (d == NULL)
+    return;
+
+  /* Reinitialize by closing and opening. */
+  if (fileXioDclose(d->d_fd) < 0) {
+    d->d_fd = -1;
+    return;
+  }
+  
+  if ((d->d_fd = fileXioDopen(d->d_dir)) < 0)
+    d->d_fd = -1;
+
+  return;
+}
+
+int close(int fd)
+{ 
+  return fileXioClose(fd);
+}
+
+
+
+int read(int fd, void *buf, size_t count)
+{
+  if (count > INT_MAX)
+    return -1;
+
+  return fileXioRead(fd, buf, (int)count);
+}
+
+int remove(const char *path)
+{
+  return fileXioRemove(path);
+}
+
+int rmdir(const char *path)
+{
+  return fileXioRmdir(path);
+}
+
+int write(int fd, const void *buf, size_t count)
+{
+  if (count > INT_MAX)
+    return -1;
+
+  return fileXioWrite(fd, buf, (int)count);
+}

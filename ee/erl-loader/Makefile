@@ -18,7 +18,10 @@ EE_INCS = -I$(PS2SDKSRC)/ee/erl/include -I$(PS2SDKSRC)/ee/libc/include -I$(PS2SD
 EE_OBJS = erl-loader.o
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)
 
-EE_LDFLAGS = -L$(PS2SDKSRC)/ee/kernel/lib -L$(PS2SDKSRC)/ee/libc/lib -L$(PS2SDKSRC)/ee/erl/lib
+EE_LDFLAGS = -L$(PS2SDKSRC)/ee/kernel/lib \
+	     -L$(PS2SDKSRC)/ee/rpc/fileio/lib \
+	     -L$(PS2SDKSRC)/ee/libc/lib \
+	     -L$(PS2SDKSRC)/ee/erl/lib
 
 # Since we are using non-builtin symbols
 EE_CFLAGS = -fno-builtin-memcmp -fno-builtin-memcpy -fno-builtin-memset
@@ -26,7 +29,7 @@ EE_CFLAGS += -fno-builtin-printf -fno-builtin-strcat -fno-builtin-strchr
 EE_CFLAGS += -fno-builtin-strcmp -fno-builtin-strcpy -fno-builtin-strlen
 EE_CFLAGS += -fno-builtin-strncpy -fno-builtin-strrchr -fno-builtin-strncmp
 
-EE_LIBS = -lerl -lc -lkernel
+EE_LIBS = -lerl -lc -lfileio -lkernel
 
 LOADER_BIN = $(EE_BIN_DIR)erl-loader.elf
 

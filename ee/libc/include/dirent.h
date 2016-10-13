@@ -13,45 +13,37 @@
 #ifndef __DIRENT_H__
 #define __DIRENT_H__
 
+#include <sys/types.h>
+
 struct dirent
 {
-	/** relative filename */
-	char d_name[256];
+	ino_t d_ino;
+	char *d_name;
 };
 
 typedef struct DIR
 {
-	/** handle used against fio */
 	int  d_fd;
-
-	/** entry returned at readdir */
-	struct dirent *d_entry;
+	char d_dir[256];
 } DIR;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** Open a directory
-    @param path
-    @return DIR struct to be used for rest of dirent functions
+/* Open a directory
 */
 DIR *opendir (const char *path);
 
-/** Reads an entry from handle opened previously by opendir
-    @param d
-    @return
+/* Reads an entry from handle opened previously by opendir
 */
 struct dirent *readdir (DIR *d);
 
-/** Rewinds
-    @param d
+/* Rewinds
 */
 void rewinddir (DIR *d);
 
-/** Release DIR handle
-    @param d
-    @return Zero on sucess
+/* Release DIR handle
 */
 int closedir (DIR *d);
 

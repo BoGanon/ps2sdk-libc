@@ -22,10 +22,10 @@
 #include <kernel.h>
 #include <sifrpc.h>
 #include "kernel/string.h"
+#include "kernel/unistd.h"
 
 #include <loadfile.h>
 #include <iopheap.h>
-#include <fileio.h>
 
 enum _lf_functions {
 	LF_F_MOD_LOAD = 0,
@@ -733,13 +733,13 @@ int SifExecModuleFile(const char *path, u32 arg_len, const char *args, int *mod_
 	void *iop_addr;
 	int res, size, fd;
 
-	if ((fd = fioOpen(path, O_RDONLY)) < 0)
+	if ((fd = open(path, O_RDONLY, 0666)) < 0)
 		return fd;
 
-	if ((size = fioLseek(fd, 0, SEEK_END)) < 0)
+	if ((size = lseek(fd, 0, SEEK_END)) < 0)
 		return size;
 
-	fioClose(fd);
+	close(fd);
 
 	if (!(iop_addr = SifAllocIopHeap(size)))
 		return -E_IOP_NO_MEMORY;

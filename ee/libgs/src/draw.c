@@ -10,6 +10,7 @@
 */
 
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <errno.h>
 #include <stdio.h>
@@ -18,10 +19,6 @@
 #include <libgs.h>
 
 #include "internal.h"
-
-extern int (*_ps2sdk_close)(int);
-extern int (*_ps2sdk_open)(const char*, int);
-extern int (*_ps2sdk_read)(int, void*, int);
 
 extern QWORD GsPrimWorkArea[];
 
@@ -59,14 +56,14 @@ int checkModelVersion(void)
 	int fd, result, i;
 	char data[256], *pData;
 
-	if((fd=_ps2sdk_open("rom0:ROMVER", O_RDONLY))>=0)
+	if((fd=open("rom0:ROMVER", O_RDONLY, 0666))>=0)
 	{
 		for(pData=data,i=0; i<sizeof(data); i++)
 		{
-			_ps2sdk_read(fd, pData, 1);
+			read(fd, pData, 1);
 			if(*pData++=='\0') break;
 		}
-		_ps2sdk_close(fd);
+		close(fd);
 
 		//ROMVER string format: VVVVRTYYYYMMDD\n
 		result=(20010608<atoi(data+i-9));

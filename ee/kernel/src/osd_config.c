@@ -18,6 +18,7 @@
 #include <tamtypes.h>
 #include <kernel.h>
 #include "kernel/string.h"
+#include "kernel/unistd.h"
 #include <osd_config.h>
 
 // config param data as stored on a DTL-T10000(H) TOOL
@@ -41,10 +42,6 @@ ConfigParamT10K g_t10KConfig = {540, TV_SCREEN_43, DATE_YYYYMMDD, LANGUAGE_JAPAN
 char g_RomName[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #endif
 
-extern int (*_ps2sdk_close)(int);
-extern int (*_ps2sdk_open)(const char*, int);
-extern int (*_ps2sdk_read)(int, void*, int);
-
 // gets the romname from the current ps2
 // 14 chars - doesnt set a null terminator
 //
@@ -55,9 +52,9 @@ char* GetRomName(char *romname)
 {
 	int fd;
 
-	fd = _ps2sdk_open("rom0:ROMVER", O_RDONLY);
-	_ps2sdk_read(fd, romname, 14);
-	_ps2sdk_close(fd);
+	fd = open("rom0:ROMVER", O_RDONLY, 0666);
+	read(fd, romname, 14);
+	close(fd);
 	return romname;
 }
 #endif

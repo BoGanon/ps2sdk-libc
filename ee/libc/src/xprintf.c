@@ -14,6 +14,8 @@
 /* Code borrowed from mysql's xprintf.c, by Richard Hipp */
 /* This xprintf.c file on which this one is based is in public domain. */
 
+#include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -946,8 +948,6 @@ int printf(const char *format, ...)
 }
 #endif
 
-extern int (*_ps2sdk_write)(int, const void*, int);
-
 #ifdef F_vprintf
 int vprintf(const char *format, va_list args)
 {
@@ -956,7 +956,7 @@ int vprintf(const char *format, va_list args)
 
 	ret = vsnprintf(buf, PS2LIB_STR_MAX, format, args);
 
-	_ps2sdk_write(1, buf, ret);
+	write(1, buf, ret);
 	return ret;
 }
 #endif
@@ -964,7 +964,7 @@ int vprintf(const char *format, va_list args)
 #ifdef F_putchar
 int putchar( int chr )
 {
-	_ps2sdk_write(1, &chr, 1);
+	write(1, &chr, 1);
 	return chr;
 }
 #endif
