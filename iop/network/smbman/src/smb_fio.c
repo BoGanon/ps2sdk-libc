@@ -10,7 +10,6 @@
 #include "ioman.h"
 #include "sifman.h"
 #include "stdio.h"
-#include "fcntl.h"
 #include "sysclib.h"
 #include "thbase.h"
 #include "thsemap.h"

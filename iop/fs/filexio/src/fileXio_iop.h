@@ -15,6 +15,5 @@
 #define _FILEXIO_IOP_H
 
 #include <fileXio.h>
-#include <sys/stat.h>
 
 #endif // _FILEXIO_H

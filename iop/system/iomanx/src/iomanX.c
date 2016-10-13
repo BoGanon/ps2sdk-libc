@@ -18,7 +18,6 @@
 #include "iomanX.h"
 #include "sysclib.h"
 #include "intrman.h"
-#include "fcntl.h"
 
 #define MODNAME "iomanx"
 IRX_ID("IOX/File_Manager", 1, 1);

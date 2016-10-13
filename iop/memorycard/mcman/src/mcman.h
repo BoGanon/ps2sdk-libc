@@ -25,7 +25,6 @@
 #include <cdvdman.h>
 #include <stdio.h>
 #include <errno.h>
-#include <fcntl.h>
 #include "sio2man_imports.h"
 
 #ifdef SIO_DEBUG

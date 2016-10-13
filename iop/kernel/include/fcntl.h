@@ -13,6 +13,13 @@
 #ifndef IOP_FCNTL_H
 #define IOP_FCNTL_H
 
+/** @file fcnt.h */
+/** @warning This file should not be included in external IOP projects.
+	     It's been added to both iomanX.h and ioman.h headers to utilize
+	     their unique header guards.
+	     The standard symbols used for ioman/X's interface functions cause
+	     standard namespace conflicts on the IOP side in sys/stat.h.
+*/
 #include <sys/fcntl.h>
 #include <sys/stat.h>
 

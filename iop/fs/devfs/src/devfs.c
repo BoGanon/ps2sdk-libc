@@ -23,7 +23,6 @@
 #include "sysclib.h"
 #include "devfs.h"
 #include "sysmem.h"
-#include "fcntl.h"
 #include "stdio.h"
 
 #ifdef USE_IOMAN

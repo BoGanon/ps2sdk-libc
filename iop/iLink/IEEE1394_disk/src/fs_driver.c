@@ -15,7 +15,6 @@
 //---------------------------------------------------------------------------
 #include <stdio.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <ioman.h>
 
 #ifdef WIN32

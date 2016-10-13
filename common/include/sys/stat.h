@@ -10,9 +10,13 @@
 # $Id$
 # File attributes and directory entries.
 */
-
 #ifndef SYS_STAT_H
 #define SYS_STAT_H
+/** @file sys/stat.h */
+
+/** @warning The standard symbols used for ioman/X's interface functions cause
+	     standard POSIX namespace conflicts on the IOP side.
+*/
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -92,6 +96,7 @@ typedef struct {
 #define FIO_SO_IFREG		0x0010		// Regular file
 #define FIO_SO_IFDIR		0x0020		// Directory
 
+#define FIO_SO_IRWXO		0x0007		// +rwx
 #define FIO_SO_IROTH		0x0004		// read
 #define FIO_SO_IWOTH		0x0002		// write
 #define FIO_SO_IXOTH		0x0001		// execute
@@ -125,25 +130,59 @@ typedef struct {
 #define	S_IFREG		0100000	/* regular */
 #define	S_IFLNK		0120000	/* symbolic link */
 
-#define	S_ISDIR(m)  (((m)&S_IFMT) == S_IFDIR)
-#define	S_ISREG(m)  (((m)&S_IFMT) == S_IFREG)
-#define	S_ISLNK(m)  (((m)&S_IFMT) == S_IFLNK)
+#define	S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
+#define	S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
+#define	S_ISLNK(m)  (((m) & S_IFMT) == S_IFLNK)
+
+#define S_IRWXU  0700	/* Owner +rwx */
+#define S_IRUSR  0400	/* Owner read */
+#define S_IWUSR  0200	/* Owner write */
+#define S_IXUSR  0100	/* Owner exec */
+#define S_IRWXG   070	/* Group +rwx */
+#define S_IRGRP   040	/* Group read */
+#define S_IWGRP   020	/* Group write */
+#define S_IXGRP   010	/* Group exec */
+#define S_IRWXO    07	/* Everyone +rwx */
+#define S_IROTH    04	/* Everyone read */
+#define S_IWOTH    02	/* Everyone write */
+#define S_IXOTH    01	/* Everyone exec */
+
+#define S_ISUID 04000	/* Set User ID */
+#define S_ISGID 02000	/* Set Group ID */
+#define S_ISVTX 01000	/* Sticky bit */
 
 struct stat {
-	dev_t st_dev;
-	ino_t st_ino;
-	unsigned st_mode;  /* mode */
-	unsigned st_size;  /* file size */
+	dev_t st_dev;		/* Device ID */
+	ino_t st_ino;		/* File inode number */
+	mode_t st_mode;		/* File mode */
+	nlink_t st_nlink;	/* Number of hard links */
 
-	time_t st_mtime;   /* modification time */
-	time_t st_atime;   /* access time */
-	time_t st_ctime;   /* creation time */
+	uid_t st_uid;		/* User ID */
+	gid_t st_gid;		/* Group ID */
+	off_t st_size;		/* Size in bytes */
+
+	time_t st_mtime;	/* modification time */
+	time_t st_atime;	/* access time */
+	time_t st_ctime;	/* creation time */
+
+	blksize_t st_blksize;	/* Size of each block */
+	blkcnt_t st_blocks;	/* Number of blocks */
 };
 
-#if defined(_EE) || defined(_R5900)
-int    fstat(int filedes, struct stat *sbuf);
-int    mkdir(const char *path, mode_t mode);
-int    stat(const char *path, struct stat *sbuf);
-#endif
+/* smbman's ioman_add.h */
+#if !defined(_IOMAN_ADD_H_)
+/* iomanX */
+#if !defined(IOP_IOMANX_H)
+/* ioman */
+#if !defined(IOP_IOMAN_H)
+	/* Unimplemented. Use stat() */
+int     fstat(int fd, struct stat *sbuf);
+int     mkdir(const char *path, mode_t mode);
+int     stat(const char *path, struct stat *sbuf);
+
+#endif /* IOP_IOMAN_H */
+#endif /* IOP_IOMANX_H */
+#endif /* _IOMAN_ADD_H_ */
+
 
 #endif /* SYS_STAT_H */

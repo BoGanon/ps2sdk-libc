@@ -15,10 +15,32 @@
 
 #include <stddef.h>
 
+#if defined(_EE) || defined(_R5900)
+#include <sys/time.h>
+#endif
+
+typedef long long blkcnt_t;
+typedef signed blksize_t;
+
 typedef int dev_t;
-typedef int ino_t;
+
+typedef unsigned fsblkcnt_t;
+typedef unsigned fsfilcnt_t;
+
+typedef int gid_t;
+typedef int pid_t;
+typedef int uid_t;
+typedef int id_t;
+
+typedef unsigned ino_t;
 typedef int mode_t;
-typedef long off_t;
-typedef long ssize_t;
+typedef int nlink_t;
+typedef long long off_t;
+
+typedef long long ssize_t;
+
+/* pthread_* */
+
+/* trace_* */
 
 #endif /*__TYPES_H__*/
