@@ -38,10 +38,10 @@ extern "C" {
 
 clock_t clock(void);
 time_t time(time_t *t);
+time_t mktime(struct tm *timeptr);
 
 // to be implemented...
 double difftime(time_t time1, time_t time0);
-time_t mktime(struct tm *timeptr);
 char *asctime(const struct tm *timeptr);
 char *ctime(const time_t *timep);
 struct tm *gmtime(const time_t *timep);

@@ -80,7 +80,7 @@ UNISTD_OBJS := $(UNISTD_OBJS:%=$(EE_OBJS_DIR)%)
 LIBGEN_OBJS = basename.o dirname.o
 LIBGEN_OBJS := $(LIBGEN_OBJS:%=$(EE_OBJS_DIR)%)
 
-TIME_OBJS = clock.o
+TIME_OBJS = clock.o time.o times.o mktime.o
 TIME_OBJS := $(TIME_OBJS:%=$(EE_OBJS_DIR)%)
 
 DIRENT_OBJS = opendir.o readdir.o rewinddir.o closedir.o

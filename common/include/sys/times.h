@@ -8,27 +8,21 @@
 # Review ps2sdk README & LICENSE files for further details.
 #
 # $Id$
-# POSIX declarations for time
+# POSIX declarations for times
 */
+#ifndef SYS_TIMES_H
+#define SYS_TIMES_H
 
-#ifndef SYS_TIME_H
-#define SYS_TIME_H
+#include <sys/time.h>
 
-#ifndef __clock_t_defined
-typedef unsigned long long clock_t;
-#define __clock_t_defined
-#endif
-
-#ifndef __time_t_defined
-typedef unsigned long time_t;
-#define __time_t_defined
-#endif
-
-#if defined(_EE) || defined(_R5900)
-struct timeval {
-	time_t tv_sec;
-	time_t tv_usec;
+struct tms {
+  clock_t tms_utime;  /* user time */
+  clock_t tms_stime;  /* system time */
+  clock_t tms_cutime; /* user time of children */
+  clock_t tms_cstime; /* system time of children */
 };
-#endif
 
-#endif //SYS_TIME_H
+clock_t times(struct tms *buf);
+
+#endif /* SYS_TIMES_H */
+
