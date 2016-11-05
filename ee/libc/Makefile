@@ -73,7 +73,7 @@ STDLIB_OBJS := $(STDLIB_OBJS:%=$(EE_OBJS_DIR)%)
 WSTDLIB_OBJS = wcstod.o wcstol.o wcstoul.o
 WSTDLIB_OBJS := $(WSTDLIB_OBJS:%=$(EE_OBJS_DIR)%)
 
-UNISTD_OBJS = fstat.o access.o unlink.o getcwd.o sleep.o
+UNISTD_OBJS = fstat.o access.o getcwd.o sleep.o
 UNISTD_OBJS := $(UNISTD_OBJS:%=$(EE_OBJS_DIR)%)
 
 LIBGEN_OBJS = basename.o dirname.o
@@ -85,16 +85,13 @@ LOCALE_OBJS := $(LOCALE_OBJS:%=$(EE_OBJS_DIR)%)
 TIME_OBJS = clock.o time.o times.o mktime.o
 TIME_OBJS := $(TIME_OBJS:%=$(EE_OBJS_DIR)%)
 
-DIRENT_OBJS = opendir.o readdir.o rewinddir.o closedir.o
-DIRENT_OBJS := $(DIRENT_OBJS:%=$(EE_OBJS_DIR)%)
-
 GPROF_OBJS = mcount.o mcount_internal.o
 GPROF_OBJS := $(GPROF_OBJS:%=$(EE_OBJS_DIR)%)
 
 MULT_OBJS = $(XPRINTF_OBJS) $(WXPRINTF_OBJS) $(XSCANF_OBJS) $(ALLOC_OBJS) \
 	    $(STRING_C_OBJS) $(WSTRING_C_OBJS) $(STDIO_OBJS) $(STDLIB_OBJS) \
 	    $(WSTDLIB_OBJS) $(UNISTD_OBJS) $(TIME_OBJS) $(GPROF_OBJS) \
-	    $(LOCALE_OBJS) $(LIBGEN_OBJS) $(DIRENT_OBJS) $(INIT_OBJS)
+	    $(LOCALE_OBJS) $(LIBGEN_OBJS) $(INIT_OBJS)
 
 # uncomment the following line to enable profile on libc
 # EE_CFLAGS += -pg
@@ -143,9 +140,6 @@ $(LOCALE_OBJS): src/locale.c
 	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
 
 $(LIBGEN_OBJS): src/libgen.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
-
-$(DIRENT_OBJS): src/dirent.c
 	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
 
 $(INIT_OBJS): src/init.c

@@ -22,7 +22,7 @@
 struct dirent
 {
 	ino_t d_ino;
-	char *d_name;
+	char d_name[256];
 };
 
 typedef struct DIR

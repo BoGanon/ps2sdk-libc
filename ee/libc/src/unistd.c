@@ -41,13 +41,6 @@ int fstat(int filedes, struct stat *buf)
 }
 #endif
 
-#ifdef F_unlink
-int unlink(const char *path)
-{
-	return remove(path);
-}
-#endif
-
 #ifdef F_sleep
 #include <kernel.h>
 #include <time.h>

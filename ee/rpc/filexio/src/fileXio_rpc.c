@@ -966,60 +966,59 @@ int open(const char *name, int flags, ...)
   return fileXioOpen(name, flags, mode);
 }
 
-DIR __filexio_dir;
-
 DIR *opendir (const char *path)
 {
-  int fd;
+  static DIR dir;
 
-  if ((fd = fileXioDopen(path)) < 0)
+  if ((dir.d_fd = fileXioDopen(path)) < 0)
     return NULL;
 
-  __filexio_dir.d_fd = fd;
-  strncpy(__filexio_dir.d_dir, path, strlen(path)+1);
+  strncpy(dir.d_dir, path, 256);
 
-  return &__filexio_dir;
+  return &dir;
 }
-
-struct dirent __filexio_dirent;
-iox_dirent_t __filexio_iox_dirent;
 
 struct dirent *readdir(DIR *d)
 {
+  iox_dirent_t __iox_entry;
+  static struct dirent entry;
+
   if (d == NULL)
     return NULL;
 
-  if (d->d_fd > 0) {
-    if (fileXioDread(d->d_fd, &__filexio_iox_dirent) < 0)
+  if (d->d_fd < 0)
+    return NULL;
+
+  if (fileXioDread(d->d_fd, &__iox_entry) < 1)
       return NULL;
-  }
 
-  __filexio_dirent.d_name = __filexio_iox_dirent.name;
+  strncpy(entry.d_name, __iox_entry.name, 256);
 
-  return &__filexio_dirent;
+  return &entry;
 }
 
 int closedir(DIR *d)
 {
-  int fd;
-
-  if (d == NULL);
+  if (d == NULL)
     return -1;
 
-  if (d->d_fd < 0) {
+  if (d->d_fd < 0)
     return -1;
+
+  if (fileXioDclose(d->d_fd) < 0)
+    return -1;
+  else {
+    d->d_fd = -1;
+    return 0;
   }
-
-  fd = d->d_fd;
-
-  d->d_fd = 0;
-
-  return fileXioDclose(fd);
 }
 
 void rewinddir(DIR *d)
 {
   if (d == NULL)
+    return;
+
+  if (d->d_fd < 0)
     return;
 
   /* Reinitialize by closing and opening. */
@@ -1039,8 +1038,6 @@ int close(int fd)
   return fileXioClose(fd);
 }
 
-
-
 int read(int fd, void *buf, size_t count)
 {
   if (count > INT_MAX)
@@ -1057,6 +1054,11 @@ int remove(const char *path)
 int rmdir(const char *path)
 {
   return fileXioRmdir(path);
+}
+
+int unlink(const char *path)
+{
+  return fileXioRemove(path);
 }
 
 int write(int fd, const void *buf, size_t count)

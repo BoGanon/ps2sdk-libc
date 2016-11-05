@@ -110,8 +110,8 @@ int read(int fd, void* buf, size_t count);
     @retval <0  Failure
 
     @warning    fileio: Has a major bug on unpatched kernels. The call falls 
-                        through to fioMkdir() so a subsequent check and removal 
-                        of a directory of the same filename is needed.
+			through to fioMkdir() so a subsequent check and removal 
+			of a directory of the same filename is needed.
 */
 int remove(const char *path);
 
@@ -152,6 +152,20 @@ int rmdir(const char *path);
 */
 int stat(const char *path, struct stat *st);
 
+/** Remove a link to a file.
+
+    @param path Name of link to be removed.
+
+    @retval 0   Success
+    @retval <0  Failure
+
+    @note       Utilizes remove() for removal.
+
+    @warning    fileio: Has a major bug on unpatched kernels. The remove call 
+			falls through to fioMkdir() so a subsequent check and
+			removal of a directory of the same filename is needed.
+*/
+int unlink(const char *path);
 
 /** Write information to a file.
 
