@@ -60,6 +60,9 @@ sample-files:
 	      $(ECHO) Installing $$file to $(TARGET) ; \
 	      cp -f $$file $(TARGET) ; \
 	      chmod 644 $(TARGET)/$$file ; \
+	   elif test -d $$file  ; then \
+	      $(ECHO) Installing $$file to $(TARGET) ; \
+	      cp -fr $$file $(TARGET) ; \
 	   fi ; \
 	done
 
