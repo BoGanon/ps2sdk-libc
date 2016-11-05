@@ -22,7 +22,10 @@ char *setlocale(int cat, const char *loc)
 
   if (loc[0] == 'C' && loc[1] == '\0')
     return _ps2sdk_locale;
-  
+
+  if (loc[0] == '\0')
+    return _ps2sdk_locale;
+
   return NULL;
 }
 #endif

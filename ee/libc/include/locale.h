@@ -49,7 +49,6 @@ struct lconv
   char n_sign_posn;
 };
 
-/* Undefined */
 char *setlocale(int cat, const char *loc);
 struct lconv *localeconv(void);
 
