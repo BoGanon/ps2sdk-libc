@@ -945,7 +945,7 @@ static struct erl_record_t * load_erl(const char * fname, u8 * elf_mem, u32 addr
     dprintf("Reading ERL file.\n");
 
     if (fname) {
-        if ((elf_handle = open(fname, O_RDONLY | O_BINARY)) < 0) {
+        if ((elf_handle = open(fname, O_RDONLY | O_BINARY, 0666)) < 0) {
     	    dprintf("Error operning erl file: %s\n", fname);
 	    return 0;
 	}
