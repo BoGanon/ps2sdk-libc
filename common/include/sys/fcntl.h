@@ -28,5 +28,4 @@
 #define SEEK_CUR	1
 #define SEEK_END	2
 
-
 #endif /* SYS_FCNTL_H */
