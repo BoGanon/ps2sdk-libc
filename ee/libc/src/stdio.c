@@ -490,6 +490,7 @@ FILE *fopen(const char *fname, const char *mode)
 {
   FILE *ret = NULL;
   int  fd = 0, flag = 0, i, iomode = 0;
+  char mode_start = 0;
 
   // some people won't use our crt0...
   if (!__stdio_initialised)
@@ -498,6 +499,7 @@ FILE *fopen(const char *fname, const char *mode)
   /* ensure file name and mode are not NULL strings. */
   if ((fname != NULL) && (*fname != '\0')) {
     if ((mode != NULL) && (*mode != '\0')) {
+      mode_start = *mode;
       /* test the file mode. */
       switch(*mode++) {
         case 'r':
@@ -512,15 +514,23 @@ FILE *fopen(const char *fname, const char *mode)
           flag = _IORW;
           iomode = O_APPEND|O_WRONLY;
           break;
+        default:
+          errno = EINVAL;
+          return NULL;
       } // switch
       /* test the extended file mode. */
-      for (; (*mode++ != '\0'); ) {
-        switch(*mode) {
+      for (; (*mode != '\0'); ) {
+        switch(*mode++) {
           case 'b':
             continue;
           case '+':
             flag |= (_IOREAD | _IOWRT);
-            iomode |= (O_RDWR);
+            if (mode_start == 'r')
+              iomode = (O_RDWR);
+            if (mode_start == 'w')
+              iomode = (O_RDWR | O_CREAT | O_TRUNC);
+            if (mode_start == 'a')
+              iomode = (O_RDWR | O_APPEND | O_CREAT);
             continue;
           default:
             break;
@@ -787,7 +797,7 @@ size_t fread(void *buf, size_t r, size_t n, FILE *stream)
       }
       num_read = read(stream->fd, buf, read_len);
       if (num_read < 0)
-        num_read = errno = -num_read;
+        num_read = errno = -1 * num_read;
       else if(num_read < read_len)
         stream->flag |= _IOEOF;
 
@@ -817,6 +827,7 @@ size_t fread(void *buf, size_t r, size_t n, FILE *stream)
 int fseek(FILE *stream, long offset, int origin)
 {
   int ret;
+  int cur = 0;
 
   stream->has_putback = 0;
   stream->flag &= ~_IOEOF;
@@ -827,12 +838,23 @@ int fseek(FILE *stream, long offset, int origin)
     case STD_IOBUF_TYPE_SIO:
     case STD_IOBUF_TYPE_STDOUTHOST:
       /* cannot seek stdout or stderr. */
-      ret = -1;
-      break;
+      return -1;
     default:
       /* attempt to seek to offset from origin. */
+      if (origin == SEEK_CUR)
+        cur = lseek(stream->fd, 0, origin);
+
       ret = lseek(stream->fd, (int)offset, origin);
+      break;
   }
+
+  if (origin == SEEK_CUR) {
+    if (cur + offset == ret)
+      return 0;
+    else
+      return -1;
+  }
+
   if (ret >= 0)
     return 0;
   else {
