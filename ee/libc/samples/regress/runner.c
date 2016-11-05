@@ -15,6 +15,7 @@
 #include "testsuite.h"
 
 #ifdef _EE
+#include <kernel.h>
 #include <sifrpc.h>
 #endif
 
@@ -23,21 +24,26 @@ extern int time_add_tests(test_suite *p);
 
 int main(int argc, char *argv[])
 {
-	test_suite suite;
+  test_suite suite;
 
-	#ifdef _EE
-	SifInitRpc(0);
-	#endif
+#ifdef _EE
+  SifInitRpc(0);
+#endif
 
-	/* initialize test suite */
-	init_testsuite(&suite);
+  /* initialize test suite */
+  init_testsuite(&suite);
 
-	/* add all tests to this suite */
-	libc_add_tests(&suite);
-	time_add_tests(&suite);
+  /* add all tests to this suite */
+  libc_add_tests(&suite);
+  time_add_tests(&suite);
 
-	/* run all tests */
-	run_testsuite(&suite);
+  /* run all tests */
+  run_testsuite(&suite);
 
-	return 0;
+  /* Prevent rebooting. */
+#ifdef _EE
+  SleepThread();
+#endif
+
+  return 0;
 }

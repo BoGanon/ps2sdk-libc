@@ -48,9 +48,54 @@ static const char *test_sleep(void *arg)
     return NULL;
 }
 
+
+/* If local timezones are supported, then this test needs updating. */
+// Seconds since Unix epoch at y2k at GMT-0
+#define THE_YEAR_2000 946684800
+static const char *test_mktime(void *arg)
+{
+    struct tm time_str;
+
+    time_t my_time;
+    time_t my_time2;
+
+    // 1/1/1970 + THE_YEAR_2000 in seconds = 1/1/2000
+    time_str.tm_year = 1970 - 1900;
+    time_str.tm_mon = 0;
+    time_str.tm_mday = 1;
+    time_str.tm_hour = 0;
+    time_str.tm_min = 0;
+    time_str.tm_sec = THE_YEAR_2000;
+    time_str.tm_isdst = -1;
+
+    if ((my_time = mktime(&time_str)) == -1)
+	return "mktime failed 1";
+
+    // 1/1/2000
+    time_str.tm_year = 100;
+    time_str.tm_mon = 0;
+    time_str.tm_mday = 1;
+    time_str.tm_hour = 0;
+    time_str.tm_min = 0;
+    time_str.tm_sec = 0;
+    time_str.tm_isdst = -1;
+
+    if ((my_time2 = mktime(&time_str)) == -1)
+    	return "mktime failed 2";
+
+    if ((my_time != my_time2) || ((my_time != THE_YEAR_2000)
+	|| (my_time2 != THE_YEAR_2000)))
+	return "mktime is not correct";
+
+   return NULL;
+
+}
+
 int time_add_tests(test_suite *p)
 {
     add_test(p, "clock", test_clock, NULL);
     add_test(p, "sleep", test_sleep, NULL);
+    add_test(p, "mktime", test_mktime, NULL);
+
 	return 0;
 }
