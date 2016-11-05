@@ -50,6 +50,8 @@ char        *getcwd(char *buf, int len);
 off_t        lseek(int handle, off_t position, int wheel);
 ssize_t      read(int handle, void * buffer, size_t size);
 int          rmdir(const char *path);
+/* You should never need to use this normally.  */
+void        *sbrk(size_t incr);
 unsigned int sleep(unsigned int seconds);
 int          unlink(const char *path);
 ssize_t      write(int handle, const void * buffer, size_t size);
