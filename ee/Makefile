@@ -7,7 +7,7 @@
 # Review ps2sdk README & LICENSE files for further details.
 #
 
-SUBDIRS = kernel libc rpc startup debug \
+SUBDIRS = kernel libc fdlibm rpc startup debug \
 	  eedebug sbv dma graph math3d math \
 	  packet draw erl erl-loader mpeg libgs \
 	  libvux font input inputx network
