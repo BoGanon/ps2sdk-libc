@@ -1,5 +1,5 @@
 
-/* @(#)s_log1p.c 1.4 96/03/07 */
+/* @(#)s_log1p.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -29,7 +29,7 @@
  *	Let s = f/(2+f) ; based on log(1+f) = log(1+s) - log(1-s)
  *		 = 2s + 2/3 s**3 + 2/5 s**5 + .....,
  *	     	 = 2s + s*R
- *      We use a special Remes algorithm on [0,0.1716] to generate 
+ *      We use a special Reme algorithm on [0,0.1716] to generate 
  * 	a polynomial of degree 14 to approximate R The maximum error 
  *	of this polynomial approximation is bounded by 2**-58.45. In
  *	other words,
@@ -106,7 +106,7 @@ static double zero = 0.0;
 	double hfsq,f,c,s,z,R,u;
 	int k,hx,hu,ax;
 
-	hx = __HI(x);		/* high word of x */
+        GET_HIGH_WORD(hx, x);
 	ax = hx&0x7fffffff;
 
 	k = 1;
@@ -129,22 +129,22 @@ static double zero = 0.0;
 	if(k!=0) {
 	    if(hx<0x43400000) {
 		u  = 1.0+x; 
-	        hu = __HI(u);		/* high word of u */
+                GET_HIGH_WORD(hu, u);
 	        k  = (hu>>20)-1023;
 	        c  = (k>0)? 1.0-(u-x):x-(u-1.0);/* correction term */
 		c /= u;
 	    } else {
 		u  = x;
-	        hu = __HI(u);		/* high word of u */
+                GET_HIGH_WORD(hu, u);
 	        k  = (hu>>20)-1023;
 		c  = 0;
 	    }
 	    hu &= 0x000fffff;
 	    if(hu<0x6a09e) {
-	        __HI(u) = hu|0x3ff00000;	/* normalize u */
+                SET_HIGH_WORD(u, hu|0x3ff00000);/* normalize u */
 	    } else {
-	        k += 1; 
-	        __HI(u) = hu|0x3fe00000;	/* normalize u/2 */
+	        k += 1;
+                SET_HIGH_WORD(u, hu|0x3fe00000);/* normalize u/2 */
 	        hu = (0x00100000-hu)>>2;
 	    }
 	    f = u-1.0;
