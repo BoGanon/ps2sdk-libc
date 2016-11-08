@@ -73,27 +73,20 @@ expm1f(float x)
 	    }
 	    x  = hi - lo;
 	    c  = (hi-x)-lo;
-	} 
-	else if(hx < 0x33000000) {  	/* when |x|<2**-25, return x */
-	    t = huge+x;	/* return x with inexact flags when x!=0 */
-	    return x - (t-(huge+x));	
-	}
-	else k = 0;
 
-    /* x is now in primary range */
-	hfx = (float)0.5*x;
-	hxs = x*hfx;
-	r1 = one+hxs*(Q1+hxs*(Q2+hxs*(Q3+hxs*(Q4+hxs*Q5))));
-	t  = (float)3.0-r1*hfx;
-	e  = hxs*((r1-t)/((float)6.0 - x*t));
-	if(k==0) return x - (x*e-hxs);		/* c is 0 */
-	else {
+	/* x is now in primary range */
+	    hfx = (float)0.5*x;
+	    hxs = x*hfx;
+	    r1 = one+hxs*(Q1+hxs*(Q2+hxs*(Q3+hxs*(Q4+hxs*Q5))));
+	    t  = (float)3.0-r1*hfx;
+	    e  = hxs*((r1-t)/((float)6.0 - x*t));
 	    e  = (x*(e-c)-c);
 	    e -= hxs;
-	    if(k== -1) return (float)0.5*(x-e)-(float)0.5;
-	    if(k==1) 
+	    if(k==-1) return (float)0.5*(x-e)-(float)0.5;
+	    if(k==1) {
 	       	if(x < (float)-0.25) return -(float)2.0*(e-(x+(float)0.5));
 	       	else 	      return  one+(float)2.0*(x-e);
+	    }
 	    if (k <= -2 || k>56) {   /* suffice to return exp(x)-1 */
 	        int32_t i;
 	        y = one-(e-x);
@@ -116,6 +109,21 @@ expm1f(float x)
 		GET_FLOAT_WORD(i,y);
 		SET_FLOAT_WORD(y,i+(k<<23));	/* add k to y's exponent */
 	    }
+	} 
+	else if(hx < 0x33000000) {  	/* when |x|<2**-25, return x */
+	    t = huge+x;	/* return x with inexact flags when x!=0 */
+	    return x - (t-(huge+x));	
 	}
+	else {
+
+	/* x is now in primary range */
+	    hfx = (float)0.5*x;
+	    hxs = x*hfx;
+	    r1 = one+hxs*(Q1+hxs*(Q2+hxs*(Q3+hxs*(Q4+hxs*Q5))));
+	    t  = (float)3.0-r1*hfx;
+	    e  = hxs*((r1-t)/((float)6.0 - x*t));
+	    return x - (x*e-hxs);		/* c is 0 */
+	}
+
 	return y;
 }

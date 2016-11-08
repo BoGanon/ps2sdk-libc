@@ -95,7 +95,7 @@ EE_OBJS = k_standard.o k_rem_pio2.o \
 	e_log2f.o   s_ceilf.o       s_logbf.o     w_gammaf.o        \
 	e_logf.o    s_copysignf.o   w_lgammaf.o   s_finitef.o       \
 	e_lgammaf_r.o 	b_exp.o	    b_log.o	b_tgamma.o s_roundf.o \
-	s_signbit.o
+	s_signbit.o s_isinff.o
 
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)
 

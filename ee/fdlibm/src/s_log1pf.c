@@ -33,7 +33,9 @@ static const float zero = 0.0;
 float
 log1pf(float x)
 {
-	float hfsq,f,c,s,z,R,u;
+	float hfsq,f,s,z,R,u;
+	/* c is initialized when k != 0 */
+	float c = 0;
 	int32_t k,hx,hu,ax;
 
 	GET_FLOAT_WORD(hx,x);
@@ -53,7 +55,7 @@ log1pf(float x)
 		    return x - x*x*(float)0.5;
 	    }
 	    if(hx>0||hx<=((int32_t)0xbe95f61f)) {
-		k=0;f=x;hu=1;}	/* -0.2929<x<0.41422 */
+		k=0;}	/* -0.2929<x<0.41422 */
 	} 
 	if (hx >= 0x7f800000) return x+x;
 	if(k!=0) {
@@ -79,18 +81,20 @@ log1pf(float x)
 	        hu = (0x00800000-hu)>>2;
 	    }
 	    f = u-(float)1.0;
-	}
+	} else { f=x;hu=1; }
 	hfsq=(float)0.5*f*f;
 	if(hu==0) {	/* |f| < 2**-20 */
-	    if(f==zero) if(k==0) return zero;  
-			else {c += k*ln2_lo; return k*ln2_hi+c;}
+	    if(f==zero) {
+		if(k==0) return zero;  
+		else {c += k*ln2_lo; return k*ln2_hi+c;}
+	    }
 	    R = hfsq*((float)1.0-(float)0.66666666666666666*f);
-	    if(k==0) return f-R; else
-	    	     return k*ln2_hi-((R-(k*ln2_lo+c))-f);
+	    if(k==0) return f-R;
+	    else return k*ln2_hi-((R-(k*ln2_lo+c))-f);
 	}
  	s = f/((float)2.0+f); 
 	z = s*s;
 	R = z*(Lp1+z*(Lp2+z*(Lp3+z*(Lp4+z*(Lp5+z*(Lp6+z*Lp7))))));
-	if(k==0) return f-(hfsq-s*(hfsq+R)); else
-		 return k*ln2_hi-((hfsq-(s*(hfsq+R)+(k*ln2_lo+c)))-f);
+	if(k==0) return f-(hfsq-s*(hfsq+R));
+	else return k*ln2_hi-((hfsq-(s*(hfsq+R)+(k*ln2_lo+c)))-f);
 }

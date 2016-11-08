@@ -43,9 +43,8 @@ static double one = 1.0;
 	j0 = ((i0>>20)&0x7ff)-0x3ff;	/* exponent of x */
 	if(j0<20) {			/* integer part in high x */
 	    if(j0<0) {			/* |x|<1 */
-                double tmp;
-                SET_HIGH_WORD(tmp, i0&0x80000000);
-                SET_LOW_WORD(tmp, 0);           /* *iptr = +-0 */
+                double tmp;       
+                INSERT_WORDS(tmp, i0&0x80000000, 0); /* *iptr = +-0 */
                 *iptr = tmp;
 		return x;
 	    } else {
@@ -53,13 +52,11 @@ static double one = 1.0;
 		if(((i0&i)|i1)==0) {		/* x is integral */
 		    *iptr = x;
                     GET_HIGH_WORD(i0, x);
-                    SET_HIGH_WORD(x, i0&0x80000000);
-                    SET_LOW_WORD(x, 0); /* return +-0 */
+                    INSERT_WORDS(x, i0&0x80000000, 0); /* return +-0 */
 		    return x;
 		} else {
                     double tmp;
-                    SET_HIGH_WORD(tmp, i0&(~i));
-                    SET_LOW_WORD(tmp, 0);
+                    INSERT_WORDS(tmp, i0&(~i), 0);
                     *iptr = tmp;
 		    return x - *iptr;
 		}
@@ -67,8 +64,7 @@ static double one = 1.0;
 	} else if (j0>51) {		/* no fraction part */
 	    *iptr = x*one;
             GET_HIGH_WORD(i0, x);
-            SET_HIGH_WORD(x, i0&0x80000000);
-            SET_LOW_WORD(x, 0); /* return +-0 */
+            INSERT_WORDS(x, i0&0x80000000, 0); /* return +-0 */
 	    return x;
 	} else {			/* fraction part in low x */
 	    i = ((unsigned)(0xffffffff))>>(j0-20);
@@ -76,13 +72,11 @@ static double one = 1.0;
 		*iptr = x;
 
                 GET_HIGH_WORD(i0, x);
-                SET_HIGH_WORD(x, i0&0x80000000);
-                SET_LOW_WORD(x, 0); /* return +-0 */
+                INSERT_WORDS(x, i0&0x80000000, 0); /* return +-0 */
 		return x;
 	    } else {
                 double tmp;
-                SET_HIGH_WORD(tmp, i0);
-                SET_LOW_WORD(tmp, i1&(~i));
+                INSERT_WORDS(tmp, i0, i1&(~i));
                 *iptr = tmp;
 		return x - *iptr;
 	    }

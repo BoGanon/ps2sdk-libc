@@ -137,26 +137,31 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 		lo = t*ln2LO[0];
 	    }
 	    x  = hi - lo;
+	    /* x is now in primary range */
+	    t  = x*x;
+	    c  = x - t*(P1+t*(P2+t*(P3+t*(P4+t*P5))));
+
+	    if(k == 0) return one-((x*c)/(c-2.0)-x);
+	    else y = one-((lo-(x*c)/(2.0-c))-hi);
+
+	    if(k >= -1021) {
+		int _hy;
+		GET_HIGH_WORD(_hy, y);
+		SET_HIGH_WORD(y, _hy + (k<<20));	/* add k to y's exponent */
+		return y;
+	    } else {
+		int _hy;
+		GET_HIGH_WORD(_hy, y);
+		SET_HIGH_WORD(y, _hy + ((k+1000)<<20));/* add k to y's exponent */
+		return y*twom1000;
+	    }
 	} 
 	else if(hx < 0x3e300000)  {	/* when |x|<2**-28 */
 	    if(huge+x>one) return one+x;/* trigger inexact */
 	}
-	else k = 0;
 
-    /* x is now in primary range */
+	/* k == 0 */
 	t  = x*x;
 	c  = x - t*(P1+t*(P2+t*(P3+t*(P4+t*P5))));
-	if(k==0) 	return one-((x*c)/(c-2.0)-x); 
-	else 		y = one-((lo-(x*c)/(2.0-c))-hi);
-	if(k >= -1021) {
-            int _hy;
-            GET_HIGH_WORD(_hy, y);
-            SET_HIGH_WORD(y, _hy + (k<<20));	/* add k to y's exponent */
-	    return y;
-	} else {
-            int _hy;
-            GET_HIGH_WORD(_hy, y);
-            SET_HIGH_WORD(y, _hy + ((k+1000)<<20));/* add k to y's exponent */
-	    return y*twom1000;
-	}
+	return one-((x*c)/(c-2.0)-x);
 }

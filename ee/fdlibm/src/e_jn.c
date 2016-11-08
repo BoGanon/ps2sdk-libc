@@ -99,7 +99,8 @@ static double zero  =  0.00000000000000000000e+00;
 		    case 0: temp =  cos(x)+sin(x); break;
 		    case 1: temp = -cos(x)+sin(x); break;
 		    case 2: temp = -cos(x)-sin(x); break;
-		    case 3: temp =  cos(x)-sin(x); break;
+		    /* case 3 */
+		    default: temp =  cos(x)-sin(x); break;
 		}
 		b = invsqrtpi*temp/sqrt(x);
 	    } else {	
@@ -253,7 +254,8 @@ static double zero  =  0.00000000000000000000e+00;
 		    case 0: temp =  sin(x)-cos(x); break;
 		    case 1: temp = -sin(x)-cos(x); break;
 		    case 2: temp = -sin(x)+cos(x); break;
-		    case 3: temp =  sin(x)+cos(x); break;
+		    /* case 3 */
+		    default: temp =  sin(x)+cos(x); break;
 		}
 		b = invsqrtpi*temp/sqrt(x);
 	} else {

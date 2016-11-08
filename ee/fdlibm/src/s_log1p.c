@@ -103,7 +103,9 @@ static double zero = 0.0;
 	double x;
 #endif
 {
-	double hfsq,f,c,s,z,R,u;
+	double hfsq,f,s,z,R,u;
+	/* c is initialized when k != 0 */
+	double c = 0.0;
 	int k,hx,hu,ax;
 
         GET_HIGH_WORD(hx, x);
@@ -123,7 +125,7 @@ static double zero = 0.0;
 		    return x - x*x*0.5;
 	    }
 	    if(hx>0||hx<=((int)0xbfd2bec3)) {
-		k=0;f=x;hu=1;}	/* -0.2929<x<0.41422 */
+		k=0;}	/* -0.2929<x<0.41422 */
 	} 
 	if (hx >= 0x7ff00000) return x+x;
 	if(k!=0) {
@@ -149,10 +151,15 @@ static double zero = 0.0;
 	    }
 	    f = u-1.0;
 	}
+	else { /* k == 0 */
+	    f=x;hu=1;
+	}
 	hfsq=0.5*f*f;
 	if(hu==0) {	/* |f| < 2**-20 */
-	    if(f==zero) if(k==0) return zero;  
-			else {c += k*ln2_lo; return k*ln2_hi+c;}
+	    if(f==zero) { 
+		if(k==0) return zero;  
+		else {c += k*ln2_lo; return k*ln2_hi+c;}
+	    }
 	    R = hfsq*(1.0-0.66666666666666666*f);
 	    if(k==0) return f-R; else
 	    	     return k*ln2_hi-((R-(k*ln2_lo+c))-f);

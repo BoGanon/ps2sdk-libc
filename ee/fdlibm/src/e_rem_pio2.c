@@ -164,9 +164,8 @@ pio2_3t =  8.47842766036889956997e-32; /* 0x397B839A, 0x252049C1 */
     /* set z = scalbn(|x|,ilogb(x)-23) */
         int _lx;
         GET_LOW_WORD(_lx, x);
-        SET_LOW_WORD(z, _lx);
 	e0 	= (ix>>20)-1046;	/* e0 = ilogb(z)-23; */
-        SET_HIGH_WORD(z, ix - (e0<<20));
+	INSERT_WORDS(z, ix - (e0<<20), _lx);
 	for(i=0;i<2;i++) {
 		tx[i] = (double)((int)(z));
 		z     = (z-tx[i])*two24;

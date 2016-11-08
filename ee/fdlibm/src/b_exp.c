@@ -33,7 +33,7 @@
 
 /* @(#)exp.c	8.1 (Berkeley) 6/4/93 */
 #include "math_private.h"
-
+int finite(double x);
 double copysign(double x, double y);
 double scalb(double x, double fn);
 

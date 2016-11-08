@@ -175,27 +175,21 @@ Q5  =  -2.01099218183624371326e-07; /* BE8AFDB7 6E09C32D */
 	    }
 	    x  = hi - lo;
 	    c  = (hi-x)-lo;
-	} 
-	else if(hx < 0x3c900000) {  	/* when |x|<2**-54, return x */
-	    t = huge+x;	/* return x with inexact flags when x!=0 */
-	    return x - (t-(huge+x));	
-	}
-	else k = 0;
 
-    /* x is now in primary range */
-	hfx = 0.5*x;
-	hxs = x*hfx;
-	r1 = one+hxs*(Q1+hxs*(Q2+hxs*(Q3+hxs*(Q4+hxs*Q5))));
-	t  = 3.0-r1*hfx;
-	e  = hxs*((r1-t)/(6.0 - x*t));
-	if(k==0) return x - (x*e-hxs);		/* c is 0 */
-	else {
+	/* x is now in primary range */
+	    hfx = 0.5*x;
+	    hxs = x*hfx;
+	    r1 = one+hxs*(Q1+hxs*(Q2+hxs*(Q3+hxs*(Q4+hxs*Q5))));
+	    t  = 3.0-r1*hfx;
+	    e  = hxs*((r1-t)/(6.0 - x*t));
+
 	    e  = (x*(e-c)-c);
 	    e -= hxs;
 	    if(k== -1) return 0.5*(x-e)-0.5;
-	    if(k==1) 
+	    if(k==1) { 
 	       	if(x < -0.25) return -2.0*(e-(x+0.5));
 	       	else 	      return  one+2.0*(x-e);
+	    }
 	    if (k <= -2 || k>56) {   /* suffice to return exp(x)-1 */
 	        y = one-(e-x);
                 int _hy;
@@ -218,6 +212,19 @@ Q5  =  -2.01099218183624371326e-07; /* BE8AFDB7 6E09C32D */
                 GET_HIGH_WORD(_hy, y);
                 SET_HIGH_WORD(y, _hy + (k<<20)); /* add k to y's exponent */
 	    }
+	} 
+	else if(hx < 0x3c900000) {  	/* when |x|<2**-54, return x */
+	    t = huge+x;	/* return x with inexact flags when x!=0 */
+	    return x - (t-(huge+x));	
 	}
+	else {		/* k == 0 */
+	    hfx = 0.5*x;
+	    hxs = x*hfx;
+	    r1 = one+hxs*(Q1+hxs*(Q2+hxs*(Q3+hxs*(Q4+hxs*Q5))));
+	    t  = 3.0-r1*hfx;
+	    e  = hxs*((r1-t)/(6.0 - x*t));
+	    return x - (x*e-hxs);		/* c is 0 */
+	}
+
 	return y;
 }

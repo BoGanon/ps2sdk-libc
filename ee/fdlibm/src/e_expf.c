@@ -67,26 +67,30 @@ expf(float x)	/* default IEEE double exp */
 		lo = t*ln2LO[0];
 	    }
 	    x  = hi - lo;
+	/* x is now in primary range */
+	    t  = x*x;
+	    c  = x - t*(P1+t*(P2+t*(P3+t*(P4+t*P5))));
+	    y = one-((lo-(x*c)/((float)2.0-c))-hi);
+	    if(k >= -125) {
+		u_int32_t hy;
+		GET_FLOAT_WORD(hy,y);
+		SET_FLOAT_WORD(y,hy+(k<<23));	/* add k to y's exponent */
+		return y;
+	    } else {
+		u_int32_t hy;
+		GET_FLOAT_WORD(hy,y);
+		SET_FLOAT_WORD(y,hy+((k+100)<<23));	/* add k to y's exponent */
+		return y*twom100;
+	    }
 	} 
 	else if(hx < 0x31800000)  {	/* when |x|<2**-28 */
 	    if(huge+x>one) return one+x;/* trigger inexact */
 	}
-	else k = 0;
 
-    /* x is now in primary range */
+	/* k == 0 */
+	/* x is now in primary range */
 	t  = x*x;
 	c  = x - t*(P1+t*(P2+t*(P3+t*(P4+t*P5))));
-	if(k==0) 	return one-((x*c)/(c-(float)2.0)-x); 
-	else 		y = one-((lo-(x*c)/((float)2.0-c))-hi);
-	if(k >= -125) {
-	    u_int32_t hy;
-	    GET_FLOAT_WORD(hy,y);
-	    SET_FLOAT_WORD(y,hy+(k<<23));	/* add k to y's exponent */
-	    return y;
-	} else {
-	    u_int32_t hy;
-	    GET_FLOAT_WORD(hy,y);
-	    SET_FLOAT_WORD(y,hy+((k+100)<<23));	/* add k to y's exponent */
-	    return y*twom100;
-	}
+	return one-((x*c)/(c-(float)2.0)-x);
+
 }

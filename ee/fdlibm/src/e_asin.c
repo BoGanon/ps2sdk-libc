@@ -87,14 +87,15 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 	} else if (ix<0x3fe00000) {	/* |x|<0.5 */
 	    if(ix<0x3e400000) {		/* if |x| < 2**-27 */
 		if(huge+x>one) return x;/* return x with inexact if x!=0*/
-	    } else 
-		t = x*x;
-		p = t*(pS0+t*(pS1+t*(pS2+t*(pS3+t*(pS4+t*pS5)))));
-		q = one+t*(qS1+t*(qS2+t*(qS3+t*qS4)));
-		w = p/q;
-		return x+x*w;
+	    }
+	    /* 0.5 > |x| */
+	    t = x*x;
+	    p = t*(pS0+t*(pS1+t*(pS2+t*(pS3+t*(pS4+t*pS5)))));
+	    q = one+t*(qS1+t*(qS2+t*(qS3+t*qS4)));
+	    w = p/q;
+	    return x+x*w;
 	}
-	/* 1> |x|>= 0.5 */
+	/* 1 > |x| >= 0.5 */
 	w = one-fabs(x);
 	t = w*0.5;
 	p = t*(pS0+t*(pS1+t*(pS2+t*(pS3+t*(pS4+t*pS5)))));
@@ -105,12 +106,14 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 	    t = pio2_hi-(2.0*(s+s*w)-pio2_lo);
 	} else {
 	    w  = s;
-            SET_LOW_WORD(w, 0);
+	    SET_LOW_WORD(w, 0);
 	    c  = (t-w*w)/(s+w);
 	    r  = p/q;
 	    p  = 2.0*s*r-(pio2_lo-2.0*c);
 	    q  = pio4_hi-2.0*w;
 	    t  = pio4_hi-(p-q);
-	}    
-	if(hx>0) return t; else return -t;    
+	}
+
+	if(hx>0) return t;
+	else return -t;
 }

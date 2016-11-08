@@ -24,6 +24,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#include "math.h"
 
 float
 fminf(float x, float y)
@@ -35,11 +36,11 @@ fminf(float x, float y)
 		return (x);
 
 	/* Handle comparisons of signed zeroes. */
-	if (signbit(x) != signbit(y))
+	if (signbit(x) != signbit(y)) {
 		if (signbit(y))
 			return (y);
 		else
 			return (x);
-
+	}
 	return (x < y ? x : y);
 }
