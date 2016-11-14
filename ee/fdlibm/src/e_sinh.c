@@ -29,27 +29,19 @@
  *	only sinh(0)=0 is exact for finite x.
  */
 
-#include "fdlibm.h"
+#include "math.h"
+#include "math_private.h"
 
-#ifdef __STDC__
 static const double one = 1.0, shuge = 1.0e307;
-#else
-static double one = 1.0, shuge = 1.0e307;
-#endif
 
-#ifdef __STDC__
-	double __ieee754_sinh(double x)
-#else
-	double __ieee754_sinh(x)
-	double x;
-#endif
-{	
+double sinh(double x)
+{
 	double t,w,h;
-	int ix,jx;
-	unsigned lx;
+	int32_t ix,jx;
+	u_int32_t lx;
 
     /* High word of |x|. */
-        GET_HIGH_WORD(jx, x);
+	GET_HIGH_WORD(jx,x);
 	ix = jx&0x7fffffff;
 
     /* x is INF or NaN */
@@ -67,12 +59,12 @@ static double one = 1.0, shuge = 1.0e307;
 	}
 
     /* |x| in [22, log(maxdouble)] return 0.5*exp(|x|) */
-	if (ix < 0x40862E42)  return h*__ieee754_exp(fabs(x));
+	if (ix < 0x40862E42)  return h*exp(fabs(x));
 
     /* |x| in [log(maxdouble), overflowthresold] */
-	lx = *( (((*(unsigned*)&one)>>29)) + (unsigned*)&x);
-	if (ix<0x408633CE || ((ix==0x408633ce)&&(lx<=(unsigned)0x8fb9f87d))) {
-	    w = __ieee754_exp(0.5*fabs(x));
+	lx = *( (((*(u_int32_t*)&one)>>29)) + (u_int32_t*)&x);
+	if (ix<0x408633CE || ((ix==0x408633ce)&&(lx<=(u_int32_t)0x8fb9f87d))) {
+	    w = exp(0.5*fabs(x));
 	    t = h*w;
 	    return t*w;
 	}

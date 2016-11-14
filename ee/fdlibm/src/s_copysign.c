@@ -1,12 +1,11 @@
-
 /* @(#)s_copysign.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
- * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -17,18 +16,13 @@
  * with the sign bit of y.
  */
 
-#include "fdlibm.h"
+#include "math_private.h"
 
-#ifdef __STDC__
-	double copysign(double x, double y)
-#else
-	double copysign(x,y)
-	double x,y;
-#endif
+double copysign(double x, double y)
 {
-    int hx, hy;
-    GET_HIGH_WORD(hx, x);
-    GET_HIGH_WORD(hy, y);
-    SET_HIGH_WORD(x, (hx&0x7fffffff)|(hy&0x80000000));
-        return x;
+	u_int32_t hx,hy;
+	GET_HIGH_WORD(hx,x);
+	GET_HIGH_WORD(hy,y);
+	SET_HIGH_WORD(x,(hx&0x7fffffff)|(hy&0x80000000));
+	return x;
 }

@@ -1,12 +1,11 @@
-
-/* @(#)s_finite.c 1.3 95/01/18 */
+/* @(#)s_finite.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
- * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -16,16 +15,11 @@
  * no branching!
  */
 
-#include "fdlibm.h"
+#include "math_private.h"
 
-#ifdef __STDC__
-	int finite(double x)
-#else
-	int finite(x)
-	double x;
-#endif
+int finite(double x)
 {
 	int hx; 
-        GET_HIGH_WORD(hx, x);
-	return  (unsigned)((hx&0x7fffffff)-0x7ff00000)>>31;
+	GET_HIGH_WORD(hx,x);
+	return (int)((u_int32_t)((hx&0x7fffffff)-0x7ff00000)>>31);
 }

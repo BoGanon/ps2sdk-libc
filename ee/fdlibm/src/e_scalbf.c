@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -22,9 +22,7 @@ scalbf(float x, int fn)
 {
 	return scalbnf(x,fn);
 }
-
 #else
-
 float
 scalbf(float x, float fn)
 {
@@ -39,3 +37,4 @@ scalbf(float x, float fn)
 	return scalbnf(x,(int)fn);
 }
 #endif
+

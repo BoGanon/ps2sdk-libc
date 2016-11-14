@@ -37,44 +37,37 @@
  *	
  */
 
-#include "fdlibm.h"
+#include "math.h"
+#include "math_private.h"
 
-#ifdef __STDC__
+static const volatile double vone = 1, vzero = 0;
+
 static const double
-#else
-static double
-#endif
 invsqrtpi=  5.64189583547756279280e-01, /* 0x3FE20DD7, 0x50429B6D */
 two   =  2.00000000000000000000e+00, /* 0x40000000, 0x00000000 */
-one   =  1.00000000000000000000e+00; /* 0x3FF00000, 0x00000000 */
+one   =  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
+zero  =  0.00000000000000000000e+00;
 
-static double zero  =  0.00000000000000000000e+00;
-
-#ifdef __STDC__
-	double __ieee754_jn(int n, double x)
-#else
-	double __ieee754_jn(n,x)
-	int n; double x;
-#endif
+double jn(int n, double x)
 {
-	int i,hx,ix,lx, sgn;
+	int32_t i,hx,ix,lx, sgn;
 	double a, b, temp, di;
 	double z, w;
 
     /* J(-n,x) = (-1)^n * J(n, x), J(n, -x) = (-1)^n * J(n, x)
      * Thus, J(-n,x) = J(n,-x)
      */
-        EXTRACT_WORDS(hx, lx, x);
+	EXTRACT_WORDS(hx,lx,x);
 	ix = 0x7fffffff&hx;
     /* if J(n,NaN) is NaN */
-	if((ix|((unsigned)(lx|-lx))>>31)>0x7ff00000) return x+x;
+	if((ix|((u_int32_t)(lx|-lx))>>31)>0x7ff00000) return x+x;
 	if(n<0){		
 		n = -n;
 		x = -x;
 		hx ^= 0x80000000;
 	}
-	if(n==0) return(__ieee754_j0(x));
-	if(n==1) return(__ieee754_j1(x));
+	if(n==0) return(j0(x));
+	if(n==1) return(j1(x));
 	sgn = (n&1)&(hx>>31);	/* even n -- 0, odd n -- sign(x) */
 	x = fabs(x);
 	if((ix|lx)==0||ix>=0x7ff00000) 	/* if x is 0 or inf */
@@ -104,8 +97,8 @@ static double zero  =  0.00000000000000000000e+00;
 		}
 		b = invsqrtpi*temp/sqrt(x);
 	    } else {	
-	        a = __ieee754_j0(x);
-	        b = __ieee754_j1(x);
+	        a = j0(x);
+	        b = j1(x);
 	        for(i=1;i<n;i++){
 		    temp = b;
 		    b = b*((double)(i+i)/x) - a; /* avoid underflow */
@@ -158,7 +151,7 @@ static double zero  =  0.00000000000000000000e+00;
 		 */
 	    /* determine k */
 		double t,v;
-		double q0,q1,h,tmp; int k,m;
+		double q0,q1,h,tmp; int32_t k,m;
 		w  = (n+n)/(double)x; h = 2.0/(double)x;
 		q0 = w;  z = w+h; q1 = w*z - 1.0; k=1;
 		while(q1<1.0e9) {
@@ -176,12 +169,12 @@ static double zero  =  0.00000000000000000000e+00;
 		 *  single 8.8722839355e+01
 		 *  double 7.09782712893383973096e+02
 		 *  long double 1.1356523406294143949491931077970765006170e+04
-		 *  then recurrent value may overflow and the result is 
+		 *  then recurrent value may overflow and the result is
 		 *  likely underflow to zero
 		 */
 		tmp = n;
 		v = two/x;
-		tmp = tmp*__ieee754_log(fabs(v*tmp));
+		tmp = tmp*log(fabs(v*tmp));
 		if(tmp<7.09782712893383973096e+02) {
 	    	    for(i=n-1,di=(double)(i+i);i>0;i--){
 		        temp = b;
@@ -205,36 +198,38 @@ static double zero  =  0.00000000000000000000e+00;
 			}
 	     	    }
 		}
-	    	b = (t*__ieee754_j0(x)/b);
+		z = j0(x);
+		w = j1(x);
+		if (fabs(z) >= fabs(w))
+		    b = (t*z/b);
+		else
+		    b = (t*w/a);
 	    }
 	}
 	if(sgn==1) return -b; else return b;
 }
 
-#ifdef __STDC__
-	double __ieee754_yn(int n, double x) 
-#else
-	double __ieee754_yn(n,x) 
-	int n; double x;
-#endif
+double yn(int n, double x)
 {
-	int i,hx,ix,lx;
-	int sign;
+	int32_t i,hx,ix,lx;
+	int32_t sign;
 	double a, b, temp;
 
-        EXTRACT_WORDS(hx, lx, x);
+	EXTRACT_WORDS(hx,lx,x);
 	ix = 0x7fffffff&hx;
-    /* if Y(n,NaN) is NaN */
-	if((ix|((unsigned)(lx|-lx))>>31)>0x7ff00000) return x+x;
-	if((ix|lx)==0) return -one/zero;
-	if(hx<0) return zero/zero;
+	/* yn(n,NaN) = NaN */
+	if((ix|((u_int32_t)(lx|-lx))>>31)>0x7ff00000) return x+x;
+	/* yn(n,+-0) = -inf and raise divide-by-zero exception. */
+	if((ix|lx)==0) return -one/vzero;
+	/* yn(n,x<0) = NaN and raise invalid exception. */
+	if(hx<0) return vzero/vzero;
 	sign = 1;
 	if(n<0){
 		n = -n;
 		sign = 1 - ((n&1)<<1);
 	}
-	if(n==0) return(__ieee754_y0(x));
-	if(n==1) return(sign*__ieee754_y1(x));
+	if(n==0) return(y0(x));
+	if(n==1) return(sign*y1(x));
 	if(ix==0x7ff00000) return zero;
 	if(ix>=0x52D00000) { /* x > 2**302 */
     /* (x >> n**2) 
@@ -259,15 +254,15 @@ static double zero  =  0.00000000000000000000e+00;
 		}
 		b = invsqrtpi*temp/sqrt(x);
 	} else {
-	    a = __ieee754_y0(x);
-	    b = __ieee754_y1(x);
+	    u_int32_t high;
+	    a = y0(x);
+	    b = y1(x);
 	/* quit if b is -inf */
-            int hb;
-            GET_HIGH_WORD(hb, b);
-	    for(i=1;i<n&&(hb != 0xfff00000);i++){ 
+	    GET_HIGH_WORD(high,b);
+	    for(i=1;i<n&&high!=0xfff00000;i++){
 		temp = b;
 		b = ((double)(i+i)/x)*b - a;
-                GET_HIGH_WORD(hb, b);
+		GET_HIGH_WORD(high,b);
 		a = temp;
 	    }
 	}

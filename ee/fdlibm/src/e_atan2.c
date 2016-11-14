@@ -39,34 +39,28 @@
  * to produce the hexadecimal values shown.
  */
 
-#include "fdlibm.h"
+#include "math.h"
+#include "math_private.h"
 
-#ifdef __STDC__
-static const double 
-#else
-static double 
-#endif
-tiny  = 1.0e-300,
+static volatile double
+tiny  = 1.0e-300;
+static const double
 zero  = 0.0,
 pi_o_4  = 7.8539816339744827900E-01, /* 0x3FE921FB, 0x54442D18 */
 pi_o_2  = 1.5707963267948965580E+00, /* 0x3FF921FB, 0x54442D18 */
-pi      = 3.1415926535897931160E+00, /* 0x400921FB, 0x54442D18 */
+pi      = 3.1415926535897931160E+00; /* 0x400921FB, 0x54442D18 */
+static volatile double
 pi_lo   = 1.2246467991473531772E-16; /* 0x3CA1A626, 0x33145C07 */
 
-#ifdef __STDC__
-	double __ieee754_atan2(double y, double x)
-#else
-	double __ieee754_atan2(y,x)
-	double  y,x;
-#endif
+double atan2(double y, double x)
 {  
 	double z;
-	int k,m,hx,hy,ix,iy;
-	unsigned lx,ly;
+	int32_t k,m,hx,hy,ix,iy;
+	u_int32_t lx,ly;
 
-        EXTRACT_WORDS(hx, lx, x);
-        EXTRACT_WORDS(hy, ly, y);
+	EXTRACT_WORDS(hx,lx,x);
 	ix = hx&0x7fffffff;
+	EXTRACT_WORDS(hy,ly,y);
 	iy = hy&0x7fffffff;
 	if(((ix|((lx|-lx)>>31))>0x7ff00000)||
 	   ((iy|((ly|-ly)>>31))>0x7ff00000))	/* x or y is NaN */
@@ -109,15 +103,15 @@ pi_lo   = 1.2246467991473531772E-16; /* 0x3CA1A626, 0x33145C07 */
 
     /* compute y/x */
 	k = (iy-ix)>>20;
-	if(k > 60) z=pi_o_2+0.5*pi_lo; 	/* |y/x| >  2**60 */
-	else if(hx<0&&k<-60) z=0.0; 	/* |y|/x < -2**60 */
+	if(k > 60) {		 	/* |y/x| >  2**60 */
+	    z=pi_o_2+0.5*pi_lo;
+	    m&=1;
+	}
+	else if(hx<0&&k<-60) z=0.0; 	/* 0 > |y|/x > -2**-60 */
 	else z=atan(fabs(y/x));		/* safe to do y/x */
-        int _hz;
 	switch (m) {
 	    case 0: return       z  ;	/* atan(+,+) */
-	    case 1: GET_HIGH_WORD(_hz, z);
-                    SET_HIGH_WORD(z, _hz ^ 0x80000000);
-		    return       z  ;	/* atan(-,+) */
+	    case 1: return      -z  ;	/* atan(-,+) */
 	    case 2: return  pi-(z-pi_lo);/* atan(+,-) */
 	    default: /* case 3 */
 	    	    return  (z-pi_lo)-pi;/* atan(-,-) */

@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -35,6 +35,6 @@ frexpf(float x, int *eptr)
 	}
 	*eptr += (ix>>23)-126;
 	hx = (hx&0x807fffff)|0x3f000000;
-	*(int*)&x = hx;
+	SET_FLOAT_WORD(x,hx);
 	return x;
 }

@@ -1,4 +1,4 @@
-/* w_lgammaf.c -- float version of w_lgamma.c.
+/* e_lgammaf.c -- float version of e_lgamma.c.
  * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
  */
 
@@ -8,20 +8,25 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
+ */
+
+/* __ieee754_lgammaf(x)
+ * Return the logarithm of the Gamma function of x.
+ *
+ * Method: call __ieee754_lgammaf_r
  */
 
 #include "math.h"
 #include "math_private.h"
 
-float lgammaf_r_fdlibm(float x, int *signgamp);
-
 extern int signgam;
+float lgammaf_r(float x, int *signgamp);
 
 float
 lgammaf(float x)
 {
-	return lgammaf_r_fdlibm(x,&signgam);
+	return lgammaf_r(x,&signgam);
 }

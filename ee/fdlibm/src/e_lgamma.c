@@ -18,16 +18,12 @@
  * Method: call __ieee754_lgamma_r
  */
 
-#include "fdlibm.h"
+#include "math.h"
+#include "math_private.h"
 
 extern int signgam;
 
-#ifdef __STDC__
-	double __ieee754_lgamma(double x)
-#else
-	double __ieee754_lgamma(x)
-	double x;
-#endif
+double lgamma(double x)
 {
-	return __ieee754_lgamma_r(x,&signgam);
+	return lgamma_r(x,&signgam);
 }

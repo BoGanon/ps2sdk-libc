@@ -1,4 +1,3 @@
-/*	$OpenBSD: s_fmaxf.c,v 1.2 2008/09/11 19:18:12 martynas Exp $	*/
 /*-
  * Copyright (c) 2004 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
@@ -24,24 +23,25 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include "math.h"
+
+#include "math_private.h"
 
 float
 fmaxf(float x, float y)
 {
+	int ix,iy;
+	GET_FLOAT_WORD(ix,x);
+	GET_FLOAT_WORD(iy,y);
+
 	/* Check for NaNs to avoid raising spurious exceptions. */
-	if (isnan(x))
+	if ((ix & 0x7FFFFFFF) > 0x7F800000)
 		return (y);
-	if (isnan(y))
+	if ((iy & 0x7FFFFFFF) > 0x7F800000)
 		return (x);
 
 	/* Handle comparisons of signed zeroes. */
-	if (signbit(x) != signbit(y)) {
-		if (signbit(x))
-			return (y);
-		else
-			return (x);
-	}
+	if ((ix & 0x80000000) != (iy & 0x80000000))
+		return (ix & 0x80000000 ? y : x);
 
 	return (x > y ? x : y);
 }

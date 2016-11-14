@@ -80,27 +80,18 @@
  *---------------
  */
 
-#include "fdlibm.h"
+#include "math_private.h"
 
-#ifdef __STDC__
 static	const double	one	= 1.0, tiny=1.0e-300;
-#else
-static	double	one	= 1.0, tiny=1.0e-300;
-#endif
 
-#ifdef __STDC__
-	double __ieee754_sqrt(double x)
-#else
-	double __ieee754_sqrt(x)
-	double x;
-#endif
+double sqrt(double x)
 {
 	double z;
-	int 	sign = (int)0x80000000; 
-	unsigned r,t1,s1,ix1,q1;
-	int ix0,s0,q,m,t,i;
+	int32_t sign = (int)0x80000000;
+	int32_t ix0,s0,q,m,t,i;
+	u_int32_t r,t1,s1,ix1,q1;
 
-        EXTRACT_WORDS(ix0, ix1, x);
+	EXTRACT_WORDS(ix0,ix1,x);
 
     /* take care of Inf and NaN */
 	if((ix0&0x7ff00000)==0x7ff00000) {			
@@ -173,9 +164,9 @@ static	double	one	= 1.0, tiny=1.0e-300;
 	    z = one-tiny; /* trigger inexact flag */
 	    if (z>=one) {
 	        z = one+tiny;
-	        if (q1==(unsigned)0xffffffff) { q1=0; q += 1;}
+	        if (q1==(u_int32_t)0xffffffff) { q1=0; q += 1;}
 		else if (z>one) {
-		    if (q1==(unsigned)0xfffffffe) q+=1;
+		    if (q1==(u_int32_t)0xfffffffe) q+=1;
 		    q1+=2; 
 		} else
 	            q1 += (q1&1);
@@ -185,7 +176,7 @@ static	double	one	= 1.0, tiny=1.0e-300;
 	ix1 =  q1>>1;
 	if ((q&1)==1) ix1 |= sign;
 	ix0 += (m <<20);
-        INSERT_WORDS(z, ix0, ix1);
+	INSERT_WORDS(z, ix0, ix1);
 	return z;
 }
 

@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -55,6 +55,7 @@ remainderf(float x, float p)
 	    }
 	}
 	GET_FLOAT_WORD(hx,x);
+	if ((hx&0x7fffffff)==0) hx = 0;
 	SET_FLOAT_WORD(x,hx^sx);
 	return x;
 }

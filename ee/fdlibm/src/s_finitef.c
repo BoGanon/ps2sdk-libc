@@ -23,7 +23,7 @@
 
 int finitef(float x)
 {
-    int32_t ix;
-    GET_FLOAT_WORD(ix,x);
-    return (int)((u_int32_t)((ix&0x7fffffff)-0x7f800000)>>31);
+	int32_t ix;
+	GET_FLOAT_WORD(ix,x);
+	return (int)((u_int32_t)((ix&0x7fffffff)-0x7f800000)>>31);
 }

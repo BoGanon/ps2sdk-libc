@@ -73,17 +73,11 @@
  * to produce the hexadecimal values shown.
  */
 
-#include "fdlibm.h"
+#include "math_private.h"
 
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 one	= 1.0,
 halF[2]	= {0.5,-0.5,},
-huge	= 1.0e+300,
-twom1000= 9.33263618503218878990e-302,     /* 2**-1000=0x01700000,0*/
 o_threshold=  7.09782712893383973096e+02,  /* 0x40862E42, 0xFEFA39EF */
 u_threshold= -7.45133219101941108420e+02,  /* 0xc0874910, 0xD52D3051 */
 ln2HI[2]   ={ 6.93147180369123816490e-01,  /* 0x3fe62e42, 0xfee00000 */
@@ -96,29 +90,26 @@ P2   = -2.77777777770155933842e-03, /* 0xBF66C16C, 0x16BEBD93 */
 P3   =  6.61375632143793436117e-05, /* 0x3F11566A, 0xAF25DE2C */
 P4   = -1.65339022054652515390e-06, /* 0xBEBBBD41, 0xC5D26BF1 */
 P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
+static const volatile double
+huge	= 1.0e+300,
+twom1000= 9.33263618503218878990e-302;     /* 2**-1000=0x01700000,0*/
 
-
-#ifdef __STDC__
-	double __ieee754_exp(double x)	/* default IEEE double exp */
-#else
-	double __ieee754_exp(x)	/* default IEEE double exp */
-	double x;
-#endif
+double exp(double x)	/* default IEEE double exp */
 {
-	double y,hi,lo,c,t;
-	int k,xsb;
-	unsigned hx;
+	double y,hi,lo,c,t,twopk;
+	int32_t k,xsb;
+	u_int32_t hx;
 
-        GET_HIGH_WORD(hx, x);
+	GET_HIGH_WORD(hx, x);
 	xsb = (hx>>31)&1;		/* sign bit of x */
 	hx &= 0x7fffffff;		/* high word of |x| */
 
     /* filter out non-finite argument */
 	if(hx >= 0x40862E42) {			/* if |x|>=709.78... */
             if(hx>=0x7ff00000) {
-                int _lx;
-                GET_LOW_WORD(_lx, x);
-		if(((hx&0xfffff)|_lx)!=0) 
+	        u_int32_t lx;
+		GET_LOW_WORD(lx,x);
+		if(((hx&0xfffff)|lx)!=0)
 		     return x+x; 		/* NaN */
 		else return (xsb==0)? x:0.0;	/* exp(+-inf)={inf,0} */
 	    }
@@ -136,8 +127,8 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 		hi = x - t*ln2HI[0];	/* t*ln2HI is exact here */
 		lo = t*ln2LO[0];
 	    }
-	    x  = hi - lo;
-	    /* x is now in primary range */
+	    STRICT_ASSIGN(double, x, hi - lo);
+	/* x is now in primary range */
 	    t  = x*x;
 	    c  = x - t*(P1+t*(P2+t*(P3+t*(P4+t*P5))));
 
@@ -145,22 +136,19 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 	    else y = one-((lo-(x*c)/(2.0-c))-hi);
 
 	    if(k >= -1021) {
-		int _hy;
-		GET_HIGH_WORD(_hy, y);
-		SET_HIGH_WORD(y, _hy + (k<<20));	/* add k to y's exponent */
-		return y;
+		if (k==1024) return y*2.0*0x1p1023;
+		INSERT_WORDS(twopk,0x3ff00000+(k<<20), 0);
+		return y*twopk;
 	    } else {
-		int _hy;
-		GET_HIGH_WORD(_hy, y);
-		SET_HIGH_WORD(y, _hy + ((k+1000)<<20));/* add k to y's exponent */
-		return y*twom1000;
+		INSERT_WORDS(twopk,0x3ff00000+((k+1000)<<20), 0);
+		return y*twopk*twom1000;
 	    }
 	} 
 	else if(hx < 0x3e300000)  {	/* when |x|<2**-28 */
 	    if(huge+x>one) return one+x;/* trigger inexact */
 	}
 
-	/* k == 0 */
+      /* k == 0 */
 	t  = x*x;
 	c  = x - t*(P1+t*(P2+t*(P3+t*(P4+t*P5))));
 	return one-((x*c)/(c-2.0)-x);

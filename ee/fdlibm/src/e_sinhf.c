@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -28,23 +28,23 @@ sinhf(float x)
 	ix = jx&0x7fffffff;
 
     /* x is INF or NaN */
-	if(ix>=0x7f800000) return x+x;	
+	if(ix>=0x7f800000) return x+x;
 
 	h = 0.5;
 	if (jx<0) h = -h;
-    /* |x| in [0,22], return sign(x)*0.5*(E+E/(E+1))) */
-	if (ix < 0x41b00000) {		/* |x|<22 */
-	    if (ix<0x31800000) 		/* |x|<2**-28 */
+    /* |x| in [0,9], return sign(x)*0.5*(E+E/(E+1))) */
+	if (ix < 0x41100000) {		/* |x|<9 */
+	    if (ix<0x39800000) 		/* |x|<2**-12 */
 		if(shuge+x>one) return x;/* sinh(tiny) = tiny with inexact */
 	    t = expm1f(fabsf(x));
 	    if(ix<0x3f800000) return h*((float)2.0*t-t*t/(t+one));
 	    return h*(t+t/(t+one));
 	}
 
-    /* |x| in [22, log(maxdouble)] return 0.5*exp(|x|) */
-	if (ix < 0x42b17180)  return h*expf(fabsf(x));
+    /* |x| in [9, logf(maxfloat)] return 0.5*exp(|x|) */
+	if (ix < 0x42b17217)  return h*expf(fabsf(x));
 
-    /* |x| in [log(maxdouble), overflowthresold] */
+    /* |x| in [log(maxfloat), overflowthresold] */
 	if (ix<=0x42b2d4fc) {
 	    w = expf((float)0.5*fabsf(x));
 	    t = h*w;

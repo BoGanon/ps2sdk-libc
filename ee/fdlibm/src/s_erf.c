@@ -1,12 +1,11 @@
-
-/* @(#)s_erf.c 1.3 95/01/18 */
+/* @(#)s_erf.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
- * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -16,11 +15,11 @@
  *			     x
  *		      2      |\
  *     erf(x)  =  ---------  | exp(-t*t)dt
- *	 	   sqrt(pi) \| 
+ *	 	   sqrt(pi) \|
  *			     0
  *
  *     erfc(x) =  1-erf(x)
- *  Note that 
+ *  Note that
  *		erf(-x) = -erf(x)
  *		erfc(-x) = 2 - erfc(x)
  *
@@ -33,7 +32,7 @@
  *	   Q is an odd poly of degree 10.
  *						 -57.90
  *			| R - (erf(x)-x)/x | <= 2
- *	
+ *
  *
  *	   Remark. The formula is derived by noting
  *          erf(x) = (2/sqrt(pi))*(x - x^3/3 + x^5/10 - x^7/42 + ....)
@@ -56,14 +55,14 @@
  *	   That is, we use rational approximation to approximate
  *			erf(1+s) - (c = (single)0.84506291151)
  *	   Note that |P1/Q1|< 0.078 for x in [0.84375,1.25]
- *	   where 
+ *	   where
  *		P1(s) = degree 6 poly in s
  *		Q1(s) = degree 6 poly in s
  *
- *      3. For x in [1.25,1/0.35(~2.857143)], 
+ *      3. For x in [1.25,1/0.35(~2.857143)],
  *         	erfc(x) = (1/x)*exp(-x*x-0.5625+R1/S1)
  *         	erf(x)  = 1 - erfc(x)
- *	   where 
+ *	   where
  *		R1(z) = degree 7 poly in z, (z=1/x^2)
  *		S1(z) = degree 8 poly in z
  *
@@ -81,7 +80,7 @@
  *	   To compute exp(-x*x-0.5625+R/S), let s be a single
  *	   precision number and s := x; then
  *		-x*x = -s*s + (s-x)*(s+x)
- *	        exp(-x*x-0.5626+R/S) = 
+ *	        exp(-x*x-0.5626+R/S) =
  *			exp(-s*s-0.5625)*exp((s-x)*(s+x)+R/S);
  *      Note2:
  *	   Here 4 and 5 make use of the asymptotic series
@@ -101,29 +100,33 @@
  *
  *      7. Special case:
  *         	erf(0)  = 0, erf(inf)  = 1, erf(-inf) = -1,
- *         	erfc(0) = 1, erfc(inf) = 0, erfc(-inf) = 2, 
+ *         	erfc(0) = 1, erfc(inf) = 0, erfc(-inf) = 2,
  *	   	erfc/erf(NaN) is NaN
  */
 
 
-#include "fdlibm.h"
+#include "math.h"
+#include "math_private.h"
 
-#ifdef __STDC__
+/* XXX Prevent compilers from erroneously constant folding: */
+static const volatile double tiny= 1e-300;
+
 static const double
-#else
-static double
-#endif
-tiny	    = 1e-300,
-half=  5.00000000000000000000e-01, /* 0x3FE00000, 0x00000000 */
-one =  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
-two =  2.00000000000000000000e+00, /* 0x40000000, 0x00000000 */
-	/* c = (float)0.84506291151 */
+half= 0.5,
+one = 1,
+two = 2,
+/* c = (float)0.84506291151 */
 erx =  8.45062911510467529297e-01, /* 0x3FEB0AC1, 0x60000000 */
 /*
- * Coefficients for approximation to  erf on [0,0.84375]
+ * In the domain [0, 2**-28], only the first term in the power series
+ * expansion of erf(x) is used.  The magnitude of the first neglected
+ * terms is less than 2**-84.
  */
 efx =  1.28379167095512586316e-01, /* 0x3FC06EBA, 0x8214DB69 */
 efx8=  1.02703333676410069053e+00, /* 0x3FF06EBA, 0x8214DB69 */
+/*
+ * Coefficients for approximation to erf on [0,0.84375]
+ */
 pp0  =  1.28379167095512558561e-01, /* 0x3FC06EBA, 0x8214DB68 */
 pp1  = -3.25042107247001499370e-01, /* 0xBFD4CD7D, 0x691CB913 */
 pp2  = -2.84817495755985104766e-02, /* 0xBF9D2A51, 0xDBD7194F */
@@ -135,7 +138,7 @@ qq3  =  5.08130628187576562776e-03, /* 0x3F74D022, 0xC4D36B0F */
 qq4  =  1.32494738004321644526e-04, /* 0x3F215DC9, 0x221C1A10 */
 qq5  = -3.96022827877536812320e-06, /* 0xBED09C43, 0x42A26120 */
 /*
- * Coefficients for approximation to  erf  in [0.84375,1.25] 
+ * Coefficients for approximation to erf in [0.84375,1.25]
  */
 pa0  = -2.36211856075265944077e-03, /* 0xBF6359B8, 0xBEF77538 */
 pa1  =  4.14856118683748331666e-01, /* 0x3FDA8D00, 0xAD92B34D */
@@ -151,7 +154,7 @@ qa4  =  1.26171219808761642112e-01, /* 0x3FC02660, 0xE763351F */
 qa5  =  1.36370839120290507362e-02, /* 0x3F8BEDC2, 0x6B51DD1C */
 qa6  =  1.19844998467991074170e-02, /* 0x3F888B54, 0x5735151D */
 /*
- * Coefficients for approximation to  erfc in [1.25,1/0.35]
+ * Coefficients for approximation to erfc in [1.25,1/0.35]
  */
 ra0  = -9.86494403484714822705e-03, /* 0xBF843412, 0x600D6435 */
 ra1  = -6.93858572707181764372e-01, /* 0xBFE63416, 0xE4BA7360 */
@@ -170,7 +173,7 @@ sa6  =  1.08635005541779435134e+02, /* 0x405B28A3, 0xEE48AE2C */
 sa7  =  6.57024977031928170135e+00, /* 0x401A47EF, 0x8E484A93 */
 sa8  = -6.04244152148580987438e-02, /* 0xBFAEEFF2, 0xEE749A62 */
 /*
- * Coefficients for approximation to  erfc in [1/.35,28]
+ * Coefficients for approximation to erfc in [1/.35,28]
  */
 rb0  = -9.86494292470009928597e-03, /* 0xBF843412, 0x39E86F4A */
 rb1  = -7.99283237680523006574e-01, /* 0xBFE993BA, 0x70C285DE */
@@ -187,26 +190,21 @@ sb5  =  2.55305040643316442583e+03, /* 0x40A3F219, 0xCEDF3BE6 */
 sb6  =  4.74528541206955367215e+02, /* 0x407DA874, 0xE79FE763 */
 sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 
-#ifdef __STDC__
-	double erf(double x) 
-#else
-	double erf(x) 
-	double x;
-#endif
+double erf(double x) 
 {
-	int hx,ix,i;
+	int32_t hx,ix,i;
 	double R,S,P,Q,s,y,z,r;
-        GET_HIGH_WORD(hx, x);
+	GET_HIGH_WORD(hx,x);
 	ix = hx&0x7fffffff;
 	if(ix>=0x7ff00000) {		/* erf(nan)=nan */
-	    i = ((unsigned)hx>>31)<<1;
+	    i = ((u_int32_t)hx>>31)<<1;
 	    return (double)(1-i)+one/x;	/* erf(+-inf)=+-1 */
 	}
 
 	if(ix < 0x3feb0000) {		/* |x|<0.84375 */
 	    if(ix < 0x3e300000) { 	/* |x|<2**-28 */
-	        if (ix < 0x00800000) 
-		    return 0.125*(8.0*x+efx8*x);  /*avoid underflow */
+	        if (ix < 0x00800000)
+		    return (8*x+efx8*x)/8;	/* avoid spurious underflow */
 		return x + efx*x;
 	    }
 	    z = x*x;
@@ -227,36 +225,28 @@ sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 	x = fabs(x);
  	s = one/(x*x);
 	if(ix< 0x4006DB6E) {	/* |x| < 1/0.35 */
-	    R=ra0+s*(ra1+s*(ra2+s*(ra3+s*(ra4+s*(
-				ra5+s*(ra6+s*ra7))))));
-	    S=one+s*(sa1+s*(sa2+s*(sa3+s*(sa4+s*(
-				sa5+s*(sa6+s*(sa7+s*sa8)))))));
+	    R=ra0+s*(ra1+s*(ra2+s*(ra3+s*(ra4+s*(ra5+s*(ra6+s*ra7))))));
+	    S=one+s*(sa1+s*(sa2+s*(sa3+s*(sa4+s*(sa5+s*(sa6+s*(sa7+
+		s*sa8)))))));
 	} else {	/* |x| >= 1/0.35 */
-	    R=rb0+s*(rb1+s*(rb2+s*(rb3+s*(rb4+s*(
-				rb5+s*rb6)))));
-	    S=one+s*(sb1+s*(sb2+s*(sb3+s*(sb4+s*(
-				sb5+s*(sb6+s*sb7))))));
+	    R=rb0+s*(rb1+s*(rb2+s*(rb3+s*(rb4+s*(rb5+s*rb6)))));
+	    S=one+s*(sb1+s*(sb2+s*(sb3+s*(sb4+s*(sb5+s*(sb6+s*sb7))))));
 	}
-	z  = x;  
-        SET_LOW_WORD(z, 0);
-	r  =  __ieee754_exp(-z*z-0.5625)*__ieee754_exp((z-x)*(z+x)+R/S);
+	z  = x;
+	SET_LOW_WORD(z,0);
+	r  =  exp(-z*z-0.5625)*exp((z-x)*(z+x)+R/S);
 	if(hx>=0) return one-r/x; else return  r/x-one;
 }
 
-#ifdef __STDC__
-	double erfc(double x) 
-#else
-	double erfc(x) 
-	double x;
-#endif
+double erfc(double x) 
 {
-	int hx,ix;
+	int32_t hx,ix;
 	double R,S,P,Q,s,y,z,r;
-        GET_HIGH_WORD(hx, x);
+	GET_HIGH_WORD(hx,x);
 	ix = hx&0x7fffffff;
 	if(ix>=0x7ff00000) {			/* erfc(nan)=nan */
 						/* erfc(+-inf)=0,2 */
-	    return (double)(((unsigned)hx>>31)<<1)+one/x;
+	    return (double)(((u_int32_t)hx>>31)<<1)+one/x;
 	}
 
 	if(ix < 0x3feb0000) {		/* |x|<0.84375 */
@@ -279,7 +269,7 @@ sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 	    P = pa0+s*(pa1+s*(pa2+s*(pa3+s*(pa4+s*(pa5+s*pa6)))));
 	    Q = one+s*(qa1+s*(qa2+s*(qa3+s*(qa4+s*(qa5+s*qa6)))));
 	    if(hx>=0) {
-	        z  = one-erx; return z - P/Q; 
+	        z  = one-erx; return z - P/Q;
 	    } else {
 		z = erx+P/Q; return one+z;
 	    }
@@ -288,21 +278,17 @@ sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 	    x = fabs(x);
  	    s = one/(x*x);
 	    if(ix< 0x4006DB6D) {	/* |x| < 1/.35 ~ 2.857143*/
-	        R=ra0+s*(ra1+s*(ra2+s*(ra3+s*(ra4+s*(
-				ra5+s*(ra6+s*ra7))))));
-	        S=one+s*(sa1+s*(sa2+s*(sa3+s*(sa4+s*(
-				sa5+s*(sa6+s*(sa7+s*sa8)))))));
+		R=ra0+s*(ra1+s*(ra2+s*(ra3+s*(ra4+s*(ra5+s*(ra6+s*ra7))))));
+		S=one+s*(sa1+s*(sa2+s*(sa3+s*(sa4+s*(sa5+s*(sa6+s*(sa7+
+		    s*sa8)))))));
 	    } else {			/* |x| >= 1/.35 ~ 2.857143 */
 		if(hx<0&&ix>=0x40180000) return two-tiny;/* x < -6 */
-	        R=rb0+s*(rb1+s*(rb2+s*(rb3+s*(rb4+s*(
-				rb5+s*rb6)))));
-	        S=one+s*(sb1+s*(sb2+s*(sb3+s*(sb4+s*(
-				sb5+s*(sb6+s*sb7))))));
+		R=rb0+s*(rb1+s*(rb2+s*(rb3+s*(rb4+s*(rb5+s*rb6)))));
+		S=one+s*(sb1+s*(sb2+s*(sb3+s*(sb4+s*(sb5+s*(sb6+s*sb7))))));
 	    }
 	    z  = x;
-            SET_LOW_WORD(z, 0);
-	    r  =  __ieee754_exp(-z*z-0.5625)*
-			__ieee754_exp((z-x)*(z+x)+R/S);
+	    SET_LOW_WORD(z,0);
+	    r  =  exp(-z*z-0.5625)*exp((z-x)*(z+x)+R/S);
 	    if(hx>0) return r/x; else return two-r/x;
 	} else {
 	    if(hx>0) return tiny*tiny; else return two-tiny;

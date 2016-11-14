@@ -42,6 +42,7 @@
  * big endian.
  */
 
+typedef unsigned long long uint64_t;
 typedef unsigned int u_int32_t;
 typedef int int32_t;
 
@@ -200,7 +201,70 @@ do {								\
   (d) = sf_u.value;						\
 } while (0)
 
+#ifdef __COMPLEX_H__
+/*
+ * C99 specifies that complex numbers have the same representation as
+ * an array of two elements, where the first element is the real part
+ * and the second element is the imaginary part.
+ */
+typedef union {
+	float complex f;
+	float a[2];
+} float_complex;
+typedef union {
+	double complex f;
+	double a[2];
+} double_complex;
+typedef union {
+	long double complex f;
+	long double a[2];
+} long_double_complex;
+#define	REALPART(z)	((z).a[0])
+#define	IMAGPART(z)	((z).a[1])
+
+/*
+ * Inline functions that can be used to construct complex values.
+ *
+ * The C99 standard intends x+I*y to be used for this, but x+I*y is
+ * currently unusable in general since gcc introduces many overflow,
+ * underflow, sign and efficiency bugs by rewriting I*y as
+ * (0.0+I)*(y+0.0*I) and laboriously computing the full complex product.
+ * In particular, I*Inf is corrupted to NaN+I*Inf, and I*-0 is corrupted
+ * to -0.0+I*0.0.
+ *
+ * The C11 standard introduced the macros CMPLX(), CMPLXF() and CMPLXL()
+ * to construct complex values.  Compilers that conform to the C99
+ * standard require the following functions to avoid the above issues.
+ */
+
+#ifndef CMPLXF
+static inline float complex
+CMPLXF(float x, float y)
+{
+	float_complex z;
+	REALPART(z) = x;
+	IMAGPART(z) = y;
+	return (z.f);
+}
+#endif
+
+#ifndef CMPLX
+static inline double complex
+CMPLX(double x, double y)
+{
+	double_complex z;
+
+	REALPART(z) = x;
+	IMAGPART(z) = y;
+	return (z.f);
+}
+#endif
+
+#endif /*__COMPLEX_H__*/
+
+#ifndef FLT_EVAL_METHOD
 #define FLT_EVAL_METHOD 1
+#endif
 
 #ifdef FLT_EVAL_METHOD
 /*
@@ -223,18 +287,27 @@ do {								\
 #endif /* FLT_EVAL_METHOD */
 
 /* fdlibm kernel function */
-extern int    __ieee754_rem_pio2(double,double*);
-extern double __kernel_sin(double,double,int);
-extern double __kernel_cos(double,double);
-extern double __kernel_tan(double,double,int);
-extern int    __kernel_rem_pio2(double*,double*,int,int,int);
+#ifndef INLINE_REM_PIO2
+int    __rem_pio2(double,double*);
+#endif
+double __kernel_sin(double,double,int);
+double __kernel_cos(double,double);
+double __kernel_tan(double,double,int);
+int    __kernel_rem_pio2(double*,double*,int,int,int);
 
-/* float versions of fdlibm kernel functions */
-extern int   __ieee754_rem_pio2f(float,float*);
-extern float __kernel_sinf(float,float,int);
-extern float __kernel_cosf(float,float);
-extern float __kernel_tanf(float,float,int);
-extern int   __kernel_rem_pio2f(float*,float*,int,int,int,const int*);
+/* float precision kernel functions */
+#ifndef INLINE_REM_PIO2F
+int	__rem_pio2f(float,double*);
+#endif
+#ifndef INLINE_KERNEL_SINDF
+float	__kernel_sindf(double);
+#endif
+#ifndef INLINE_KERNEL_COSDF
+float	__kernel_cosdf(double);
+#endif
+#ifndef INLINE_KERNEL_TANDF
+float	__kernel_tandf(double,int);
+#endif
 
 /* long double precision kernel functions */
 long double __kernel_sinl(long double, long double, int);

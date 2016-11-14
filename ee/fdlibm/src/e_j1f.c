@@ -8,18 +8,25 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
+ */
+
+/*
+ * See e_j1.c for complete comments.
  */
 
 #include "math.h"
 #include "math_private.h"
 
-static float ponef(float), qonef(float);
+static inline float ponef(float), qonef(float);
+
+static const volatile float vone = 1, vzero = 0;
 
 static const float 
 huge    = 1e30,
+zero	= 0.0,
 one	= 1.0,
 invsqrtpi=  5.6418961287e-01, /* 0x3f106ebb */
 tpi      =  6.3661974669e-01, /* 0x3f22f983 */
@@ -33,8 +40,6 @@ s02  =  1.8594678841e-04, /* 0x3942fab6 */
 s03  =  1.1771846857e-06, /* 0x359dffc2 */
 s04  =  5.0463624390e-09, /* 0x31ad6446 */
 s05  =  1.2354227016e-11; /* 0x2d59567e */
-
-static const float zero    = 0.0;
 
 float
 j1f(float x) 
@@ -60,7 +65,7 @@ j1f(float x)
 	 * j1(x) = 1/sqrt(pi) * (P(1,x)*cc - Q(1,x)*ss) / sqrt(x)
 	 * y1(x) = 1/sqrt(pi) * (P(1,x)*ss + Q(1,x)*cc) / sqrt(x)
 	 */
-		if(ix>0x80000000U) z = (invsqrtpi*cc)/sqrtf(y);
+		if(ix>0x58000000) z = (invsqrtpi*cc)/sqrtf(y); /* |x|>2**49 */
 		else {
 		    u = ponef(y); v = qonef(y);
 		    z = invsqrtpi*(u*cc-v*ss)/sqrtf(y);
@@ -68,7 +73,7 @@ j1f(float x)
 		if(hx<0) return -z;
 		else  	 return  z;
 	}
-	if(ix<0x32000000) {	/* |x|<2**-27 */
+	if(ix<0x39000000) {	/* |x|<2**-13 */
 	    if(huge+x>one) return (float)0.5*x;/* inexact if x!=0 necessary */
 	}
 	z = x*x;
@@ -101,10 +106,9 @@ y1f(float x)
 
 	GET_FLOAT_WORD(hx,x);
         ix = 0x7fffffff&hx;
-    /* if Y1(NaN) is NaN, Y1(-inf) is NaN, Y1(inf) is 0 */
-	if(ix>=0x7f800000) return  one/(x+x*x); 
-        if(ix==0) return -one/zero;
-        if(hx<0) return zero/zero;
+	if(ix>=0x7f800000) return  vone/(x+x*x);
+	if(ix==0) return -one/vzero;
+	if(hx<0) return vzero/vzero;
         if(ix >= 0x40000000) {  /* |x| >= 2.0 */
                 s = sinf(x);
                 c = cosf(x);
@@ -126,16 +130,16 @@ y1f(float x)
          *              sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
          * to compute the worse one.
          */
-                if(ix>0x48000000) z = (invsqrtpi*ss)/sqrtf(x);
+                if(ix>0x58000000) z = (invsqrtpi*ss)/sqrtf(x); /* |x|>2**49 */
                 else {
                     u = ponef(x); v = qonef(x);
                     z = invsqrtpi*(u*ss+v*cc)/sqrtf(x);
                 }
                 return z;
-        } 
-        if(ix<=0x24800000) {    /* x < 2**-54 */
+        }
+        if(ix<=0x33000000) {    /* x < 2**-25 */
             return(-tpi/x);
-        } 
+        }
         z = x*x;
         u = U0[0]+z*(U0[1]+z*(U0[2]+z*(U0[3]+z*U0[4])));
         v = one+z*(V0[0]+z*(V0[1]+z*(V0[2]+z*(V0[3]+z*V0[4]))));
@@ -216,7 +220,7 @@ static const float ps2[5] = {
   8.3646392822e+00, /* 0x4105d590 */
 };
 
-static float
+static inline float
 ponef(float x)
 {
 	const float *p,*q;
@@ -225,8 +229,8 @@ ponef(float x)
 	GET_FLOAT_WORD(ix,x);
 	ix &= 0x7fffffff;
         if(ix>=0x41000000)     {p = pr8; q= ps8;}
-        else if(ix>=0x40f71c58){p = pr5; q= ps5;}
-        else if(ix>=0x4036db68){p = pr3; q= ps3;}
+        else if(ix>=0x409173eb){p = pr5; q= ps5;}
+        else if(ix>=0x4036d917){p = pr3; q= ps3;}
 	/* else ix >= 0x40000000 */
         else {p = pr2; q= ps2;}
         z = one/(x*x);
@@ -234,7 +238,7 @@ ponef(float x)
         s = one+z*(q[0]+z*(q[1]+z*(q[2]+z*(q[3]+z*q[4]))));
         return one+ r/s;
 }
-		
+
 
 /* For x >= 8, the asymptotic expansions of qone is
  *	3/8 s - 105/1024 s^3 - ..., where s = 1/x.
@@ -314,7 +318,7 @@ static const float qs2[6] = {
  -4.9594988823e+00, /* 0xc09eb437 */
 };
 
-static float
+static inline float
 qonef(float x)
 {
 	const float *p,*q;
@@ -322,9 +326,9 @@ qonef(float x)
 	int32_t ix;
 	GET_FLOAT_WORD(ix,x);
 	ix &= 0x7fffffff;
-	if(ix>=0x40200000)     {p = qr8; q= qs8;}
-	else if(ix>=0x40f71c58){p = qr5; q= qs5;}
-	else if(ix>=0x4036db68){p = qr3; q= qs3;}
+	if(ix>=0x41000000)     {p = qr8; q= qs8;}
+	else if(ix>=0x409173eb){p = qr5; q= qs5;}
+	else if(ix>=0x4036d917){p = qr3; q= qs3;}
 	/* else ix >= 0x40000000 */
 	else {p = qr2; q= qs2;}
 	z = one/(x*x);

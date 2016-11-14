@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -16,8 +16,7 @@
 #include "math.h"
 #include "math_private.h"
 
-static const float one = 1.0, huge = 1e30;
-static const float zero = 0.0;
+static const float zero = 0.0, one = 1.0, huge = 1e30;
 
 float
 atanhf(float x)
@@ -28,14 +27,14 @@ atanhf(float x)
 	ix = hx&0x7fffffff;
 	if (ix>0x3f800000) 		/* |x|>1 */
 	    return (x-x)/(x-x);
-	if(ix==0x3f800000) 
+	if(ix==0x3f800000)
 	    return x/zero;
 	if(ix<0x31800000&&(huge+x)>zero) return x;	/* x<2**-28 */
 	SET_FLOAT_WORD(x,ix);
 	if(ix<0x3f000000) {		/* x < 0.5 */
 	    t = x+x;
 	    t = (float)0.5*log1pf(t+t*x/(one-x));
-	} else 
+	} else
 	    t = (float)0.5*log1pf((x+x)/(one-x));
 	if(hx>=0) return t; else return -t;
 }

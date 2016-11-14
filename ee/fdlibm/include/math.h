@@ -1,197 +1,309 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
+/// TODO: C99 uses macros for type transparent calls
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//extern int isinf(double);
-extern int isinff(float);
-extern int isnan(double);
-extern int isnanf(float);
-extern int finite(double);
-extern int finitef(float);
-extern int signbit(double);
-extern int signbitf(float);
+/* ANSI */
+#define HUGE_VAL ((double)((long long)0x7ff0000000000000))
 
-/*
-long double acoshl(long double);
-long double acosl(long double);
-long double asinhl(long double);
-long double asinl(long double);
-long double atanl(long double);
-long double atan2l(long double, long double);
-long double atanhl(long double);
-long double cbrtl(long double);
-long double ceill(long double);
-long double copysignl(long double, long double);
-long double cosl(long double);
-long double coshl(long double);
-long double erfl(long double);
-long double erfcl(long double);
-long double expl(long double);
-long double exp2l(long double);
-long double expm1l(long double);
-long double fabsl(long double);
-long double fdiml(long double, long double);
-long double floorl(long double);
-long double fmal(long double, long double, long double);
-long double fmaxl(long double, long double);
-long double fminl(long double, long double);
-long double fmodl(long double, long double);
-long double frexpl(long double, int *);
-long double hypotl(long double, long double);
-int         ilogbl(long double);
-long double ldexpl(long double, int);
-long double lgammal(long double);
-long long   llrintl(long double);
-long long   llroundl(long double);
-long double logl(long double);
-long double log10l(long double);
-long double log1pl(long double);
-long double log2l(long double);
-long double logbl(long double);
-long double modfl(long double, long double*);
-long double nanl(const char *);
-long double nearbyintl(long double);
-long double nextafterl(long double, long double);
-long double nexttowardl(long double, long double);
-long double powl(long double, long double);
-long double remainderl(long double, long double);
-long double remquol(long double, long double, int *);
-long double rintl(long double);
-long double roundl(long double);
-long double scalblnl(long double, long);
-long double scalbnl(long double, int);
-long double sinl(long double);
-long double sinhl(long double);
-long double sqrtl(long double);
-long double tanl(long double);
-long double tanhl(long double);
-long double tgammal(long double);
-long double truncl(long double);
-*/
-
-extern double      acos(double);
-extern float       acosf(float);
-extern double      acosh(double);
-extern float       acoshf(float);
-extern double      asin(double);
-extern float       asinf(float);
-extern double      asinh(double);
-extern float       asinhf(float);
-extern double      atan(double);
-extern float       atanf(float);
-extern double      atan2(double, double);
-extern float       atan2f(float, float);
-extern double      atanh(double);
-extern float       atanhf(float);
-extern double      cbrt(double);
-extern float       cbrtf(float);
-extern double      ceil(double);
-extern float       ceilf(float);
-extern double      copysign(double, double);
-extern float       copysignf(float, float);
-extern double      cos(double);
-extern float       cosf(float);
-extern double      cosh(double);
-extern float       coshf(float);
-extern double      erf(double);
-extern float       erff(float);
-extern double      erfc(double);
-extern float       erfcf(float);
-extern double     exp(double);
-extern float       expf(float);
-//extern double      exp2(double); equivalent to pow(2.0,x);
-extern float       exp2f(float);
-extern double     expm1(double);
-extern float       expm1f(float);
-extern double     fabs(double);
-extern float       fabsf(float);
-//extern double      fdim(double, double);
-//extern float       fdimf(float, float);
-extern double     floor(double);
-extern float       floorf(float);
-//extern double      fma(double, double, double);
-//extern float       fmaf(float, float, float);
-//extern double      fmax(double, double);
-extern float       fmaxf(float, float);
-//extern double      fmin(double, double);
-extern float       fminf(float, float);
+extern double      fabs(double);
 extern double      fmod(double, double);
-extern float       fmodf(float, float);
-extern double      frexp(double, int *);
-extern float       frexpf(float, int *);
-extern double      hypot(double, double);
-extern float       hypotf(float, float);
-extern int         ilogb(double);
-extern int         ilogbf(float);
-extern double      ldexp(double, int);
-extern float       ldexpf(float, int);
-extern double      lgamma(double);
-extern float       lgammaf(float);
-//extern long long   llrint(double);
-//extern long long   llrintf(float);
-//extern long long   llround(double);
-//extern long long   llroundf(float);
+
+extern double      exp(double);
 extern double      log(double);
-extern float       logf(float);
 extern double      log10(double);
-extern float       log10f(float);
-extern double      log1p(double);
-extern float       log1pf(float);
-extern double      log2(double);
-extern float       log2f(float);
-extern double      logb(double);
-extern float       logbf(float);
-//extern long        lrint(double);
-//extern long        lrintf(float);
-//extern long        lrintl(long double);
-//extern long        lround(double);
-//extern long        lroundf(float);
-//extern long        lroundl(long double);
-extern double      modf(double, double*);
-extern float       modff(float, float *);
-//extern double      nan(const char *);
-//extern float       nanf(const char *);
-//extern double      nearbyint(double);
-//extern float       nearbyintf(float);
-extern double      nextafter(double, double);
-extern float       nextafterf(float, float);
-//extern double      nexttoward(double, long double);
-//extern float       nexttowardf(float, long double);
+
 extern double      pow(double, double);
-extern float       powf(float, float);
-extern double      remainder(double, double);
-extern float       remainderf(float, float);
-//extern double      remquo(double, double, int *);
-extern float       remquof(float, float, int *);
-extern double      rint(double);
-extern float       rintf(float);
-//extern double      round(double);
-extern float       roundf(float);
-extern double      scalb(double,double);
-extern float       scalbf(float,float);
-//extern double      scalbln(double, long);
-//extern float       scalblnf(float, long);
-extern double      scalbn(double, int);
-extern float       scalbnf(float, int);
-extern double      sin(double);
-extern float       sinf(float);
-extern double      sinh(double);
-extern float       sinhf(float);
 extern double      sqrt(double);
-extern float       sqrtf(float);
+
+extern double      sin(double);
+extern double      cos(double);
 extern double      tan(double);
-extern float       tanf(float);
+extern double      asin(double);
+extern double      acos(double);
+extern double      atan(double);
+extern double      atan2(double, double);
+
+extern double      sinh(double);
+extern double      cosh(double);
 extern double      tanh(double);
-extern float       tanhf(float);
+
+extern double      ceil(double);
+extern double      floor(double);
+
+extern double      frexp(double, int *);
+extern double      ldexp(double, int);
+extern double      modf(double, double*);
+
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if defined (FLT_EVAL_METHOD)
+  #if FLT_EVAL_METHOD == 0
+    typedef float float_t;
+    typedef double double_t;
+  #elif FLT_EVAL_METHOD == 1
+    typedef double float_t;
+    typedef double double_t;
+  #elif FLT_EVAL_METHOD == 2
+    typedef long double float_t;
+    typedef long double double_t;
+  #elif FLT_EVAL_METHOD == -1
+  #else
+    typedef float float_t;
+    typedef double double_t;
+  #endif
+#else
+  typedef float float_t;
+  typedef double double_t;
+#endif /* FLT_EVAL_METHOD */
+
+#define HUGE_VALF		((float)0x7f800000)
+//#define HUGE_VALL
+#define INFINITY		((float)0x7f800000)
+#define NAN			((float)0x7f800001)
+
+#define MATH_ERRNO		1
+#define MATH_ERREXCEPT		2
+#define math_errhandling	MATH_ERREXCEPT
+
+#define	FP_ILOGB0		(-2147483647)
+#define	FP_ILOGBNAN		2147483647
+#endif
+
+/* Long double precision */
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+/*
+extern long double fabsl(long double);
+extern long double fmodl(long double, long double);
+extern long double remainderl(long double, long double);
+extern long double remquol(long double, long double, int *);
+extern long double fmal(long double, long double, long double);
+extern long double fmaxl(long double, long double);
+extern long double fminl(long double, long double);
+extern long double fdiml(long double, long double);
+extern long double nanl(const char *);
+
+extern long double expl(long double);
+extern long double exp2l(long double);
+extern long double expm1l(long double);
+extern long double logl(long double);
+extern long double log10l(long double);
+extern long double log2l(long double);
+extern long double log1pl(long double);
+
+extern long double powl(long double, long double);
+extern long double sqrtl(long double);
+extern long double cbrtl(long double);
+extern long double hypotl(long double, long double);
+
+extern long double sinl(long double);
+extern long double cosl(long double);
+extern long double tanl(long double);
+extern long double asinl(long double);
+extern long double acosl(long double);
+extern long double atanl(long double);
+extern long double atan2l(long double, long double);
+
+extern long double sinhl(long double);
+extern long double coshl(long double);
+extern long double tanhl(long double);
+extern long double asinhl(long double);
+extern long double acoshl(long double);
+extern long double atanhl(long double);
+
+extern long double erfl(long double);
+extern long double erfcl(long double);
+extern long double tgammal(long double);
+extern long double lgammal(long double);
+
+extern long double ceill(long double);
+extern long double floorl(long double);
+extern long double truncl(long double);
+extern long double roundl(long double);
+extern long        lroundl(long double);
+extern long long   llroundl(long double);
+extern long double nearbyintl(long double);
+extern long double rintl(long double);
+extern long        lrintl(long double);
+extern long long   llrintl(long double);
+
+extern long double frexpl(long double, int *);
+extern long double ldexpl(long double, int);
+extern long double modfl(long double, long double*);
+extern long double scalbnl(long double, int);
+extern long double scalblnl(long double, long);
+extern int         ilogbl(long double);
+extern long double logbl(long double);
+extern long double nextafterl(long double, long double);
+extern long double nexttowardl(long double, long double);
+extern long double copysignl(long double, long double);
+*/
+#endif
+
+/* Double precision */
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+extern double      remainder(double, double);
+//extern double      remquo(double, double, int *);
+//extern double      fmin(double, double);
+//extern double      fmax(double, double);
+//extern double      fma(double, double, double);
+//extern double      fdim(double, double);
+//extern double      nan(const char *);
+
+extern double      exp2(double);
+extern double      expm1(double);
+extern double      log2(double);
+extern double      log1p(double);
+
+extern double      cbrt(double);
+extern double      hypot(double, double);
+
+extern double      asinh(double);
+extern double      acosh(double);
+extern double      atanh(double);
+
+extern double      erf(double);
+extern double      erfc(double);
 extern double      tgamma(double);
-//extern float       tgammaf(float);
+extern double      lgamma(double);
+
 extern double      trunc(double);
+//extern double      round(double);
+//extern long        lround(double);
+//extern long long   llround(double);
+//extern double      nearbyint(double);
+extern double      rint(double);
+//extern long        lrint(double);
+//extern long long   llrint(double);
+
+extern double      scalbn(double, int);
+//extern double      scalbln(double, long);
+extern int         ilogb(double);
+extern double      logb(double);
+extern double      nextafter(double, double);
+//extern double      nexttoward(double, long double);
+extern double      copysign(double, double);
+#endif
+
+/* Single precision */
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+extern float       fabsf(float);
+extern float       fmodf(float, float);
+extern float       remainderf(float, float);
+extern float       remquof(float, float, int *);
+//extern float       fmaf(float, float, float);
+extern float       fmaxf(float, float);
+extern float       fminf(float, float);
+//extern float       fdimf(float, float);
+//extern float       nanf(const char *);
+
+extern float       expf(float);
+extern float       exp2f(float);
+extern float       expm1f(float);
+extern float       logf(float);
+extern float       log10f(float);
+extern float       log2f(float);
+extern float       log1pf(float);
+
+extern float       powf(float, float);
+extern float       sqrtf(float);
+extern float       cbrtf(float);
+extern float       hypotf(float, float);
+
+extern float       sinf(float);
+extern float       cosf(float);
+extern float       tanf(float);
+extern float       asinf(float);
+extern float       acosf(float);
+extern float       atanf(float);
+extern float       atan2f(float, float);
+
+extern float       sinhf(float);
+extern float       coshf(float);
+extern float       tanhf(float);
+extern float       asinhf(float);
+extern float       acoshf(float);
+extern float       atanhf(float);
+
+extern float       erff(float);
+extern float       erfcf(float);
+//extern float       tgammaf(float);
+extern float       lgammaf(float);
+
+extern float       ceilf(float);
+extern float       floorf(float);
 extern float       truncf(float);
+extern float       roundf(float);
+//extern long        lroundf(float);
+//extern long long   llroundf(float);
+//extern float       nearbyintf(float);
+extern float       rintf(float);
+//extern long        lrintf(float);
+//extern long long   llrintf(float);
+
+extern float       frexpf(float, int *);
+extern float       ldexpf(float, int);
+extern float       modff(float, float *);
+extern float       scalbnf(float, int);
+//extern float       scalblnf(float, long);
+extern int         ilogbf(float);
+extern float       logbf(float);
+extern float       nextafterf(float, float);
+//extern float       nexttowardf(float, long double);
+extern float       copysignf(float, float);
+#endif
+
+/* Comparison */
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+
+#define FP_NORMAL		0
+#define FP_SUBNORMAL		1
+#define FP_ZERO			2
+#define FP_INFINITE		3
+#define FP_NAN			4
+
+//#define            fpclassify(x)
+//#define            isfinite(x)
+extern int         isinf(double);
+extern int         isinff(float);
+extern int         isnan(double);
+extern int         isnanf(float);
+//#define            isnormal(x)
+extern int         signbit(double);
+extern int         signbitf(float);
+//#define            isgreater(x,y)
+//#define            isgreaterequal(x,y)
+//#define            isless(x,y)
+//#define            islessequal(x,y)
+//#define            islessgreater(x,y)
+//#define            isunordered(x,y)
+#endif
 
 /* Nonstandard */
+extern int         finite(double);
+extern int         finitef(float);
+
+/* POSIX */
+#define	MAXFLOAT	((float)3.40282346638528860e+38)
+
+#define M_E		2.7182818284590452354
+#define M_LOG2E		1.4426950408889634074
+#define M_LOG10E	0.43429448190325182765
+#define M_LN2		0.69314718055994530942
+#define M_LN10		2.30258509299404568402
+#define M_PI		3.14159265358979323846
+#define M_PI_2		1.57079632679489661923
+#define M_PI_4		0.78539816339744830962
+#define M_1_PI		0.31830988618379067154
+#define M_2_PI		0.63661977236758134308
+#define M_2_SQRTPI	1.12837916709551257390
+#define M_SQRT2		1.41421356237309504880
+#define M_SQRT1_2	0.70710678118654752440
+
+extern int signgam;
+
 extern double      j0(double);
 extern float       j0f(float);
 
@@ -211,6 +323,9 @@ extern double      yn(int, double);
 extern float       ynf(int, float);
 
 extern double      lgamma_r(double,int*);
+
+extern double      scalb(double,double);
+extern float       scalbf(float,float);
 
 #ifdef __cplusplus
 }

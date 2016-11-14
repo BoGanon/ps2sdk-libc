@@ -8,18 +8,25 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
+ */
+
+/*
+ * See e_j0.c for complete comments.
  */
 
 #include "math.h"
 #include "math_private.h"
 
-static float pzerof(float), qzerof(float);
+static inline float pzerof(float), qzerof(float);
 
-static const float 
+static const volatile float vone = 1,  vzero = 0;
+
+static const float
 huge 	= 1e30,
+zero	= 0.0,
 one	= 1.0,
 invsqrtpi=  5.6418961287e-01, /* 0x3f106ebb */
 tpi      =  6.3661974669e-01, /* 0x3f22f983 */
@@ -32,8 +39,6 @@ S01  =  1.5619102865e-02, /* 0x3c7fe744 */
 S02  =  1.1692678527e-04, /* 0x38f53697 */
 S03  =  5.1354652442e-07, /* 0x3509daa6 */
 S04  =  1.1661400734e-09; /* 0x30a045e8 */
-
-static const float zero = 0.0;
 
 float
 j0f(float x) 
@@ -59,17 +64,17 @@ j0f(float x)
 	 * j0(x) = 1/sqrt(pi) * (P(0,x)*cc - Q(0,x)*ss) / sqrt(x)
 	 * y0(x) = 1/sqrt(pi) * (P(0,x)*ss + Q(0,x)*cc) / sqrt(x)
 	 */
-		if(ix>0x80000000U) z = (invsqrtpi*cc)/sqrtf(x);
+		if(ix>0x58000000) z = (invsqrtpi*cc)/sqrtf(x); /* |x|>2**49 */
 		else {
 		    u = pzerof(x); v = qzerof(x);
 		    z = invsqrtpi*(u*cc-v*ss)/sqrtf(x);
 		}
 		return z;
 	}
-	if(ix<0x39000000) {	/* |x| < 2**-13 */
+	if(ix<0x3b000000) {	/* |x| < 2**-9 */
 	    if(huge+x>one) {	/* raise inexact if x != 0 */
-	        if(ix<0x32000000) return one;	/* |x|<2**-27 */
-	        else 	      return one - (float)0.25*x*x;
+	        if(ix<0x39800000) return one;	/* |x|<2**-12 */
+	        else 	      return one - x*x/4;
 	    }
 	}
 	z = x*x;
@@ -104,10 +109,9 @@ y0f(float x)
 
 	GET_FLOAT_WORD(hx,x);
         ix = 0x7fffffff&hx;
-    /* Y0(NaN) is NaN, y0(-inf) is Nan, y0(inf) is 0  */
-	if(ix>=0x7f800000) return  one/(x+x*x); 
-        if(ix==0) return -one/zero;
-        if(hx<0) return zero/zero;
+	if(ix>=0x7f800000) return  vone/(x+x*x);
+	if(ix==0) return -one/vzero;
+	if(hx<0) return vzero/vzero;
         if(ix >= 0x40000000) {  /* |x| >= 2.0 */
         /* y0(x) = sqrt(2/(pi*x))*(p0(x)*sin(x0)+q0(x)*cos(x0))
          * where x0 = x-pi/4
@@ -133,14 +137,14 @@ y0f(float x)
                     if ((s*c)<zero) cc = z/ss;
                     else            ss = z/cc;
                 }
-                if(ix>0x80000000U) z = (invsqrtpi*ss)/sqrtf(x);
+                if(ix>0x58000000) z = (invsqrtpi*ss)/sqrtf(x); /* |x|>2**49 */
                 else {
                     u = pzerof(x); v = qzerof(x);
                     z = invsqrtpi*(u*ss+v*cc)/sqrtf(x);
                 }
                 return z;
 	}
-	if(ix<=0x32000000) {	/* x < 2**-27 */
+	if(ix<=0x39000000) {	/* x < 2**-13 */
 	    return(u00 + tpi*logf(x));
 	}
 	z = x*x;
@@ -173,6 +177,7 @@ static const float pS8[5] = {
   1.1675296875e+05, /* 0x47e4087c */
   4.7627726562e+04, /* 0x473a0bba */
 };
+
 static const float pR5[6] = { /* for x in [8,4.5454]=1/[0.125,0.22001] */
  -1.1412546255e-11, /* 0xad48c58a */
  -7.0312492549e-02, /* 0xbd8fffff */
@@ -221,7 +226,7 @@ static const float pS2[5] = {
   1.4657617569e+01, /* 0x416a859a */
 };
 
-static float
+static inline float
 pzerof(float x)
 {
 	const float *p,*q;
@@ -230,8 +235,8 @@ pzerof(float x)
 	GET_FLOAT_WORD(ix,x);
 	ix &= 0x7fffffff;
 	if(ix>=0x41000000)     {p = pR8; q= pS8;}
-	else if(ix>=0x40f71c58){p = pR5; q= pS5;}
-	else if(ix>=0x4036db68){p = pR3; q= pS3;}
+	else if(ix>=0x409173eb){p = pR5; q= pS5;}
+	else if(ix>=0x4036d917){p = pR3; q= pS3;}
 	/* else ix >= 0x40000000 */
 	else {p = pR2; q= pS2;}
 	z = one/(x*x);
@@ -239,7 +244,7 @@ pzerof(float x)
 	s = one+z*(q[0]+z*(q[1]+z*(q[2]+z*(q[3]+z*q[4]))));
 	return one+ r/s;
 }
-		
+
 
 /* For x >= 8, the asymptotic expansions of qzero is
  *	-1/8 s + 75/1024 s^3 - ..., where s = 1/x.
@@ -318,7 +323,7 @@ static const float qS2[6] = {
  -5.3109550476e+00, /* 0xc0a9f358 */
 };
 
-static float
+static inline float
 qzerof(float x)
 {
 	const float *p,*q;
@@ -327,8 +332,8 @@ qzerof(float x)
 	GET_FLOAT_WORD(ix,x);
 	ix &= 0x7fffffff;
 	if(ix>=0x41000000)     {p = qR8; q= qS8;}
-	else if(ix>=0x40f71c58){p = qR5; q= qS5;}
-	else if(ix>=0x4036db68){p = qR3; q= qS3;}
+	else if(ix>=0x409173eb){p = qR5; q= qS5;}
+	else if(ix>=0x4036d917){p = qR3; q= qS3;}
 	/* else ix >= 0x40000000 */
 	else {p = qR2; q= qS2;}
 	z = one/(x*x);

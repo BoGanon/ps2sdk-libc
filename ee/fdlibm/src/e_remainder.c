@@ -20,28 +20,19 @@
  *	Based on fmod() return x-[x/p]chopped*p exactlp.
  */
 
-#include "fdlibm.h"
+#include "math.h"
+#include "math_private.h"
 
-#ifdef __STDC__
 static const double zero = 0.0;
-#else
-static double zero = 0.0;
-#endif
 
-
-#ifdef __STDC__
-	double __ieee754_remainder(double x, double p)
-#else
-	double __ieee754_remainder(x,p)
-	double x,p;
-#endif
+double remainder(double x, double p)
 {
-	int hx,hp;
-	unsigned sx,lx,lp;
+	int32_t hx,hp;
+	u_int32_t sx,lx,lp;
 	double p_half;
 
-        EXTRACT_WORDS(hx, lx, x);
-        EXTRACT_WORDS(hp, lp, p);
+	EXTRACT_WORDS(hx,lx,x);
+	EXTRACT_WORDS(hp,lp,p);
 	sx = hx&0x80000000;
 	hp &= 0x7fffffff;
 	hx &= 0x7fffffff;
@@ -54,7 +45,7 @@ static double zero = 0.0;
 	    return (x*p)/(x*p);
 
 
-	if (hp<=0x7fdfffff) x = __ieee754_fmod(x,p+p);	/* now x < 2p */
+	if (hp<=0x7fdfffff) x = fmod(x,p+p);	/* now x < 2p */
 	if (((hx-hp)|(lx-lp))==0) return zero*x;
 	x  = fabs(x);
 	p  = fabs(p);
@@ -70,8 +61,8 @@ static double zero = 0.0;
 		if(x>=p_half) x -= p;
 	    }
 	}
-        int _hx;
-        GET_HIGH_WORD(_hx, x);
-        SET_HIGH_WORD(x, _hx ^ sx);
+	GET_HIGH_WORD(hx,x);
+	if ((hx&0x7fffffff)==0) hx = 0;
+	SET_HIGH_WORD(x,hx^sx);
 	return x;
 }

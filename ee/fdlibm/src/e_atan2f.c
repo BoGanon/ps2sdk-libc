@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -16,17 +16,21 @@
 #include "math.h"
 #include "math_private.h"
 
-static const float 
-tiny  = 1.0e-30,
+static volatile float
+tiny  = 1.0e-30;
+static const float
 zero  = 0.0,
-pi_o_4  = 7.8539818525e-01, /* 0x3f490fdb */
-pi_o_2  = 1.5707963705e+00, /* 0x3fc90fdb */
-pi      = 3.1415925026e+00, /* 0x40490fda */
-pi_lo   = 1.5099578832e-07; /* 0x34222168 */
+pi_o_4  =  7.8539818525e-01, /* 0x3f490fdb */
+pi_o_2  =  1.5707963705e+00, /* 0x3fc90fdb */
+//pi      =  3.1415925026e+00; /* 0x40490fda */
+pi      =  3.14159274101+00;
+
+static volatile float
+pi_lo   = -8.7422776573e-08; /* 0xb3bbbd2e */
 
 float
 atan2f(float y, float x)
-{  
+{
 	float z;
 	int32_t k,m,hx,hy,ix,iy;
 
@@ -43,7 +47,7 @@ atan2f(float y, float x)
     /* when y = 0 */
 	if(iy==0) {
 	    switch(m) {
-		case 0: 
+		case 0:
 		case 1: return y; 	/* atan(+-0,+anything)=+-0 */
 		case 2: return  pi+tiny;/* atan(+0,-anything) = pi */
 		case 3: return -pi-tiny;/* atan(-0,-anything) =-pi */
@@ -51,7 +55,7 @@ atan2f(float y, float x)
 	}
     /* when x = 0 */
 	if(ix==0) return (hy<0)?  -pi_o_2-tiny: pi_o_2+tiny;
-	    
+
     /* when x is INF */
 	if(ix==0x7f800000) {
 	    if(iy==0x7f800000) {
@@ -75,17 +79,15 @@ atan2f(float y, float x)
 
     /* compute y/x */
 	k = (iy-ix)>>23;
-	if(k > 60) z=pi_o_2+(float)0.5*pi_lo; 	/* |y/x| >  2**60 */
-	else if(hx<0&&k<-60) z=0.0; 	/* |y|/x < -2**60 */
+	if(k > 26) {			/* |y/x| >  2**26 */
+	    z=pi_o_2+(float)0.5*pi_lo;
+	    m&=1;
+	}
+	else if(k<-26&&hx<0) z=0.0; 	/* 0 > |y|/x > -2**-26 */
 	else z=atanf(fabsf(y/x));	/* safe to do y/x */
 	switch (m) {
 	    case 0: return       z  ;	/* atan(+,+) */
-	    case 1: {
-	    	      u_int32_t zh;
-		      GET_FLOAT_WORD(zh,z);
-		      SET_FLOAT_WORD(z,zh ^ 0x80000000);
-		    }
-		    return       z  ;	/* atan(-,+) */
+	    case 1: return      -z  ;	/* atan(-,+) */
 	    case 2: return  pi-(z-pi_lo);/* atan(+,-) */
 	    default: /* case 3 */
 	    	    return  (z-pi_lo)-pi;/* atan(-,-) */

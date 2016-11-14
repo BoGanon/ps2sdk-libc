@@ -17,26 +17,17 @@
  * Method: shift and subtract
  */
 
-#include "fdlibm.h"
+#include "math_private.h"
 
-#ifdef __STDC__
 static const double one = 1.0, Zero[] = {0.0, -0.0,};
-#else
-static double one = 1.0, Zero[] = {0.0, -0.0,};
-#endif
 
-#ifdef __STDC__
-	double __ieee754_fmod(double x, double y)
-#else
-	double __ieee754_fmod(x,y)
-	double x,y ;
-#endif
+double fmod(double x, double y)
 {
-	int n,hx,hy,hz,ix,iy,sx,i;
-	unsigned lx,ly,lz;
+	int32_t n,hx,hy,hz,ix,iy,sx,i;
+	u_int32_t lx,ly,lz;
 
-        EXTRACT_WORDS(hx, lx, x);
-        EXTRACT_WORDS(hy, ly, y);
+	EXTRACT_WORDS(hx,lx,x);
+	EXTRACT_WORDS(hy,ly,y);
 	sx = hx&0x80000000;		/* sign of x */
 	hx ^=sx;		/* |x| */
 	hy &= 0x7fffffff;	/* |y| */
@@ -48,7 +39,7 @@ static double one = 1.0, Zero[] = {0.0, -0.0,};
 	if(hx<=hy) {
 	    if((hx<hy)||(lx<ly)) return x;	/* |x|<|y| return x */
 	    if(lx==ly) 
-		return Zero[(unsigned)sx>>31];	/* |x|=|y| return x*0*/
+		return Zero[(u_int32_t)sx>>31];	/* |x|=|y| return x*0*/
 	}
 
     /* determine ix = ilogb(x) */
@@ -102,7 +93,7 @@ static double one = 1.0, Zero[] = {0.0, -0.0,};
 	    if(hz<0){hx = hx+hx+(lx>>31); lx = lx+lx;}
 	    else {
 	    	if((hz|lz)==0) 		/* return sign(x)*0 */
-		    return Zero[(unsigned)sx>>31];
+		    return Zero[(u_int32_t)sx>>31];
 	    	hx = hz+hz+(lz>>31); lx = lz+lz;
 	    }
 	}
@@ -111,25 +102,25 @@ static double one = 1.0, Zero[] = {0.0, -0.0,};
 
     /* convert back to floating value and restore the sign */
 	if((hx|lx)==0) 			/* return sign(x)*0 */
-	    return Zero[(unsigned)sx>>31];	
+	    return Zero[(u_int32_t)sx>>31];	
 	while(hx<0x00100000) {		/* normalize x */
 	    hx = hx+hx+(lx>>31); lx = lx+lx;
 	    iy -= 1;
 	}
 	if(iy>= -1022) {	/* normalize output */
 	    hx = ((hx-0x00100000)|((iy+1023)<<20));
-            INSERT_WORDS(x, hx|sx, lx);
+            INSERT_WORDS(x,hx|sx,lx);
 	} else {		/* subnormal output */
 	    n = -1022 - iy;
 	    if(n<=20) {
-		lx = (lx>>n)|((unsigned)hx<<(32-n));
+		lx = (lx>>n)|((u_int32_t)hx<<(32-n));
 		hx >>= n;
 	    } else if (n<=31) {
 		lx = (hx<<(32-n))|(lx>>n); hx = sx;
 	    } else {
 		lx = hx>>(n-32); hx = sx;
 	    }
-            INSERT_WORDS(x, hx|sx, lx);
+            INSERT_WORDS(x,hx|sx,lx);
 	    x *= one;		/* create necessary signal */
 	}
 	return x;		/* exact output */

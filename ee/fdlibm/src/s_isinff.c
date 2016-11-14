@@ -1,24 +1,22 @@
 #include "math_private.h"
 
-#ifdef __STDC__
-	int isinff(float x)
-#else
-	int isinff(x)
-	float x;
-#endif
+int isinf(double x)
 {
-	return ( ((((unsigned)x) & 0x7F800000) == 0x7F800000)
-		&& ((((unsigned)x) & 0x007FFFFF) == 0) );
+	int hx,lx;
+	EXTRACT_WORDS(hx, lx, x);
+	return (((hx & 0x7FFFFFFF) == 0x7FF00000) && !(lx));
 }
 
-#ifdef __STDC__
-	int isnanf(float x)
-#else
-	int isnanf(x)
-	float x;
-#endif
+int isinff(float x)
 {
-	return ( ((((unsigned)x) & 0x7F800000) == 0x7F800000)
-		&& ((((unsigned)x) & 0x007FFFFF) != 0) );
+	int ix;
+	GET_FLOAT_WORD(ix,x);
+	return ((ix & 0x7FFFFFFF) == 0x7F800000);
 }
 
+int isnanf(float x)
+{
+	int ix;
+	GET_FLOAT_WORD(ix,x);
+	return ((ix & 0x7FFFFFFF) > 0x7F800000);
+}

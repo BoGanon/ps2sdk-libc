@@ -6,7 +6,7 @@
  *
  * Developed at SunSoft, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -32,27 +32,20 @@
  *	only cosh(0)=1 is exact for finite x.
  */
 
-#include "fdlibm.h"
+#include "math.h"
+#include "math_private.h"
 
-#ifdef __STDC__
-static const double one = 1.0, half=0.5, huge = 1.0e300;
-#else
-static double one = 1.0, half=0.5, huge = 1.0e300;
-#endif
+static const double one = 1.0, half=0.5;
+static const volatile double huge = 1.0e300;
 
-#ifdef __STDC__
-	double __ieee754_cosh(double x)
-#else
-	double __ieee754_cosh(x)
-	double x;
-#endif
+double cosh(double x)
 {	
 	double t,w;
-	int ix;
-	unsigned lx;
+	int32_t ix;
+	u_int32_t lx;
 
     /* High word of |x|. */
-        GET_HIGH_WORD(ix, x);
+	GET_HIGH_WORD(ix, x);
 	ix &= 0x7fffffff;
 
     /* x is INF or NaN */
@@ -68,18 +61,18 @@ static double one = 1.0, half=0.5, huge = 1.0e300;
 
     /* |x| in [0.5*ln2,22], return (exp(|x|)+1/exp(|x|)/2; */
 	if (ix < 0x40360000) {
-		t = __ieee754_exp(fabs(x));
+		t = exp(fabs(x));
 		return half*t+half/t;
 	}
 
     /* |x| in [22, log(maxdouble)] return half*exp(|x|) */
-	if (ix < 0x40862E42)  return half*__ieee754_exp(fabs(x));
+	if (ix < 0x40862E42)  return half*exp(fabs(x));
 
     /* |x| in [log(maxdouble), overflowthresold] */
-	lx = *( (((*(unsigned*)&one)>>29)) + (unsigned*)&x);
+	lx = *( (((*(u_int32_t*)&one)>>29)) + (u_int32_t*)&x);
 	if (ix<0x408633CE || 
-	      ((ix==0x408633ce)&&(lx<=(unsigned)0x8fb9f87d))) {
-	    w = __ieee754_exp(half*fabs(x));
+	      ((ix==0x408633ce)&&(lx<=(u_int32_t)0x8fb9f87d))) {
+	    w = exp(half*fabs(x));
 	    t = half*w;
 	    return t*w;
 	}
