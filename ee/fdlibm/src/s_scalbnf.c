@@ -13,6 +13,7 @@
  * ====================================================
  */
 
+#include <limits.h>
 #include "math.h"
 #include "math_private.h"
 
@@ -49,6 +50,15 @@ scalbnf (float x, int n)
         k += 25;				/* subnormal result */
 	SET_FLOAT_WORD(x,(ix&0x807fffff)|(k<<23));
         return x*twom25;
+}
+
+float
+scalblnf(float x, long n)
+{
+	if (n < 0)
+	    return (n >= INT_MIN ? scalbnf(x,(int)n) : -HUGE_VALF);
+
+	return (n <= INT_MAX ? scalbnf(x,(int)n) : HUGE_VALF);
 }
 
 float

@@ -17,6 +17,7 @@
  * exponentiation or a multiplication.
  */
 
+#include <limits.h>
 #include "math.h"
 #include "math_private.h"
 
@@ -52,6 +53,15 @@ double scalbn (double x, int n)
         k += 54;				/* subnormal result */
 	SET_HIGH_WORD(x, (hx&0x800fffff)|(k<<20));
         return x*twom54;
+}
+
+double
+scalbln(double x, long n)
+{
+	if (n < 0)
+	    return (n >= INT_MIN ? scalbn(x,(int)n) : -HUGE_VAL);
+
+	return (n <= INT_MAX ? scalbn(x,(int)n) : HUGE_VAL);
 }
 
 double ldexp(double x, int n)
