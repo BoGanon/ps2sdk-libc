@@ -25,8 +25,8 @@ pS1 = -4.2743422091e-02,
 pS2 = -8.6563630030e-03,
 qS1 = -7.0662963390e-01;
 
-static const float
-pio2 =  1.570796327e+00;
+static const double
+pio2 =  1.570796326794896558e+00;
 
 float
 asinf(float x)
