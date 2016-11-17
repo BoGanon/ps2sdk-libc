@@ -17,6 +17,9 @@
 # is double scalb(double, double)
 #
 
+# NOTE: Define FENV_SOFTFLOAT in CFLAGS to use an emulated
+#       floating point environment.
+
 EE_OBJS_DIR = obj/
 EE_LIB_DIR = lib/
 EE_SRC_DIR = src/
@@ -26,18 +29,7 @@ EE_LIB = $(EE_LIB_DIR)libm.a
 
 EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
 
-EE_CFLAGS = -std=c99 -D__LITTLE_ENDIAN
-
-# k_standard.o k_rem_pio2f.o s_lib_version.o s_matherr.o \
-# 	w_acos.o w_acosh.o w_asin.o w_atan2.o \
-#	w_atanh.o w_cosh.o w_exp.o w_fmod.o \
-#	w_gamma.o w_gamma_r.o w_hypot.o w_j0.o \
-#	w_j1.o w_jn.o w_lgamma.o w_lgamma_r.o \
-#	w_log.o  w_log10.o w_pow.o w_remainder.o \
-#	w_scalb.o w_sinh.o w_sqrt.o w_gammaf.o w_lgammaf.o
-
-# Redundant functions
-# e_gamma.o e_gamma_r.o
+EE_CFLAGS = -std=c99 -fno-builtin -D__LITTLE_ENDIAN -O3
 
 EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
 	k_cosf.o         k_sinf.o         k_tanf.o         b_exp.o        \
@@ -52,9 +44,13 @@ EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
 	e_j0.o           e_j1.o           e_jn.o           e_lgamma.o     \
 	e_lgamma_r.o     e_log2.o         e_rem_pio2.o     e_remainder.o  \
 	e_scalb.o        s_cbrt.o         s_copysign.o     s_erf.o        \
-	s_exp2.o         s_expm1.o        s_finite.o       s_ilogb.o      \
+	s_exp2.o         s_expm1.o        s_isfinite.o     s_ilogb.o      \
 	s_isnan.o        s_log1p.o        s_logb.o         s_nextafter.o  \
-	s_rint.o         s_signgam.o      s_significand.o  s_trunc.o \
+	s_rint.o         s_signgam.o      s_significand.o  s_trunc.o      \
+	s_remquo.o       s_fdim.o         s_fma.o          s_fmax.o       \
+	s_fmin.o         s_round.o        s_lround.o       s_llround.o    \
+	s_nearbyint.o    s_lrint.o        s_llrint.o       s_isnormal.o   \
+	s_isinf.o \
 	e_acosf.o        e_powf.o         s_cosf.o         e_acoshf.o     \
 	e_remainderf.o   s_erff.o         s_modff.o        e_asinf.o      \
 	e_rem_pio2f.o    s_exp2f.o        s_nextafterf.o   e_atan2f.o     \
@@ -65,10 +61,12 @@ EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
 	s_frexpf.o       s_sinf.o         e_j0f.o          s_ilogbf.o     \
 	s_tanf.o         e_j1f.o          s_asinhf.o       s_tanhf.o      \
 	e_jnf.o          s_atanf.o        s_truncf.o       e_log10f.o     \
-	s_cbrtf.o        s_log1pf.o       w_dremf.o        e_log2f.o      \
-	s_ceilf.o        s_logbf.o        e_logf.o         s_copysignf.o  \
-	s_finitef.o      e_lgammaf.o      e_lgammaf_r.o    s_roundf.o \
-	s_signbit.o      s_significandf.o  s_isinff.o
+	s_cbrtf.o        e_logf.o         s_log1pf.o       e_log2f.o      \
+	s_logbf.o        s_ceilf.o        s_fmaf.o         s_copysignf.o  \
+	e_lgammaf.o      e_lgammaf_r.o    s_roundf.o       s_signbit.o    \
+	s_significandf.o s_lrintf.o       s_lroundf.o      s_llrintf.o    \
+	s_llroundf.o     s_fpclassify.o \
+	fenv.o
 
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)
 
