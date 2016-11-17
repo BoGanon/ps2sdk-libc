@@ -117,6 +117,13 @@ double exp(double x)	/* default IEEE double exp */
 	    if(x < u_threshold) return twom1000*twom1000; /* underflow */
 	}
 
+        /* this implementation gives 2.7182818284590455 for exp(1.0),
+           which is well within the allowable error. however,
+           2.718281828459045 is closer to the true value so we prefer that
+           answer, given that 1.0 is such an important argument value. */
+        if (x == 1.0)
+            return 2.718281828459045235360;
+
     /* argument reduction */
 	if(hx > 0x3fd62e42) {		/* if  |x| > 0.5 ln2 */ 
 	    if(hx < 0x3FF0A2B2) {	/* and |x| < 1.5 ln2 */
