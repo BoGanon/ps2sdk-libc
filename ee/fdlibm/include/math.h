@@ -1,13 +1,12 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
-/// TODO: C99 uses macros for type transparent calls
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* ANSI */
-#define HUGE_VAL ((double)((long long)0x7ff0000000000000))
+#define HUGE_VAL ((double)0x7ff0000000000000LL)
 
 extern double      fabs(double);
 extern double      fmod(double, double);
@@ -61,8 +60,10 @@ extern double      modf(double, double*);
 
 #define HUGE_VALF		((float)0x7f800000)
 //#define HUGE_VALL
+#ifdef FENV_SOFTFLOAT
 #define INFINITY		((float)0x7f800000)
-#define NAN			((float)0x7f800001)
+#define NAN			((float)0x7fC00000)
+#endif
 
 #define MATH_ERRNO		1
 #define MATH_ERREXCEPT		2
@@ -145,11 +146,11 @@ extern long double copysignl(long double, long double);
 /* Double precision */
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 extern double      remainder(double, double);
-//extern double      remquo(double, double, int *);
-//extern double      fmin(double, double);
-//extern double      fmax(double, double);
-//extern double      fma(double, double, double);
-//extern double      fdim(double, double);
+extern double      remquo(double, double, int *);
+extern double      fmin(double, double);
+extern double      fmax(double, double);
+extern double      fma(double, double, double);
+extern double      fdim(double, double);
 //extern double      nan(const char *);
 
 extern double      exp2(double);
@@ -170,20 +171,20 @@ extern double      tgamma(double);
 extern double      lgamma(double);
 
 extern double      trunc(double);
-//extern double      round(double);
-//extern long        lround(double);
-//extern long long   llround(double);
-//extern double      nearbyint(double);
+extern double      round(double);
+extern long        lround(double);
+extern long long   llround(double);
+extern double      nearbyint(double);
 extern double      rint(double);
-//extern long        lrint(double);
-//extern long long   llrint(double);
+extern long        lrint(double);
+extern long long   llrint(double);
 
 extern double      scalbn(double, int);
-//extern double      scalbln(double, long);
+extern double      scalbln(double, long);
 extern int         ilogb(double);
 extern double      logb(double);
 extern double      nextafter(double, double);
-//extern double      nexttoward(double, long double);
+extern double      nexttoward(double, long double);
 extern double      copysign(double, double);
 #endif
 
@@ -193,10 +194,10 @@ extern float       fabsf(float);
 extern float       fmodf(float, float);
 extern float       remainderf(float, float);
 extern float       remquof(float, float, int *);
-//extern float       fmaf(float, float, float);
+extern float       fmaf(float, float, float);
 extern float       fmaxf(float, float);
 extern float       fminf(float, float);
-//extern float       fdimf(float, float);
+extern float       fdimf(float, float);
 //extern float       nanf(const char *);
 
 extern float       expf(float);
@@ -229,29 +230,30 @@ extern float       atanhf(float);
 
 extern float       erff(float);
 extern float       erfcf(float);
-//extern float       tgammaf(float);
+/* Uses double precision call. */
+extern float       tgammaf(float);
 extern float       lgammaf(float);
 
 extern float       ceilf(float);
 extern float       floorf(float);
 extern float       truncf(float);
 extern float       roundf(float);
-//extern long        lroundf(float);
-//extern long long   llroundf(float);
-//extern float       nearbyintf(float);
+extern long        lroundf(float);
+extern long long   llroundf(float);
+extern float       nearbyintf(float);
 extern float       rintf(float);
-//extern long        lrintf(float);
-//extern long long   llrintf(float);
+extern long        lrintf(float);
+extern long long   llrintf(float);
 
 extern float       frexpf(float, int *);
 extern float       ldexpf(float, int);
 extern float       modff(float, float *);
 extern float       scalbnf(float, int);
-//extern float       scalblnf(float, long);
+extern float       scalblnf(float, long);
 extern int         ilogbf(float);
 extern float       logbf(float);
 extern float       nextafterf(float, float);
-//extern float       nexttowardf(float, long double);
+extern float       nexttowardf(float, long double);
 extern float       copysignf(float, float);
 #endif
 
@@ -264,26 +266,49 @@ extern float       copysignf(float, float);
 #define FP_INFINITE		3
 #define FP_NAN			4
 
-//#define            fpclassify(x)
-//#define            isfinite(x)
-extern int         isinf(double);
-extern int         isinff(float);
-extern int         isnan(double);
-extern int         isnanf(float);
-//#define            isnormal(x)
-extern int         signbit(double);
-extern int         signbitf(float);
-//#define            isgreater(x,y)
-//#define            isgreaterequal(x,y)
-//#define            isless(x,y)
-//#define            islessequal(x,y)
-//#define            islessgreater(x,y)
-//#define            isunordered(x,y)
-#endif
-
-/* Nonstandard */
-extern int         finite(double);
-extern int         finitef(float);
+extern int         __fpclassify(double);
+extern int         __fpclassifyf(float);
+extern int         __finite(double);
+extern int         __finitef(float);
+extern int         __isinf(double);
+extern int         __isinff(float);
+extern int         __isnan(double);
+extern int         __isnanf(float);
+extern int         __isnormal(double);
+extern int         __isnormalf(float);
+extern int         __signbit(double);
+extern int         __signbitf(float);
+#define            fpclassify(x) \
+  ((sizeof(x) == sizeof(float)) ? __fpclassifyf(x) : \
+   (sizeof(x) == sizeof(double)) ? __fpclassify(x) : 0)
+#define            isfinite(x) \
+  ((sizeof(x) == sizeof(float)) ? __finitef(x) : \
+   (sizeof(x) == sizeof(double)) ? __finite(x) : 0)
+#define            isinf(x) \
+  ((sizeof(x) == sizeof(float)) ? __isinff(x) : \
+   (sizeof(x) == sizeof(double)) ? __isinf(x) : 0)
+#define            isnan(x) \
+  ((sizeof(x) == sizeof(float)) ? __isnanf(x) : \
+   (sizeof(x) == sizeof(double)) ? __isnan(x) : 0)
+#define            isnormal(x) \
+  ((sizeof(x) == sizeof(float)) ? __isnormalf(x) : \
+   (sizeof(x) == sizeof(double)) ? __isnormal(x) : 0)
+#define            signbit(x) \
+  ((sizeof(x) == sizeof(float)) ? __signbitf(x) : \
+   (sizeof(x) == sizeof(double)) ? __signbit(x) : 0)
+#define            isunordered(x,y) \
+  (isnan(x) || isnan(y))
+#define            isgreater(x,y) \
+  (!isunordered(x,y) && (x > y))
+#define            isgreaterequal(x,y) \
+  (!isunordered(x,y) && (x >= y))
+#define            isless(x,y) \
+  (!isunordered(x,y) && (x < y))
+#define            islessequal(x,y) \
+  (!isunordered(x,y) && (x <= y))
+#define            islessgreater(x,y) \
+  (!isunordered(x,y) && ((x < y) || (x > y)))
+#endif /* STDC_VERSION >= 19901L */
 
 /* POSIX */
 #define	MAXFLOAT	((float)3.40282346638528860e+38)
