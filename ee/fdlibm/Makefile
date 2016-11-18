@@ -27,8 +27,6 @@ EE_INC_DIR = include/
 
 EE_LIB = $(EE_LIB_DIR)libm.a
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
-
 EE_CFLAGS = -std=c99 -fno-builtin -D__LITTLE_ENDIAN -O3
 
 EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
@@ -50,7 +48,7 @@ EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
 	s_remquo.o       s_fdim.o         s_fma.o          s_fmax.o       \
 	s_fmin.o         s_round.o        s_lround.o       s_llround.o    \
 	s_nearbyint.o    s_lrint.o        s_llrint.o       s_isnormal.o   \
-	s_isinf.o \
+	s_isinf.o        s_nan.o \
 	e_acosf.o        e_powf.o         s_cosf.o         e_acoshf.o     \
 	e_remainderf.o   s_erff.o         s_modff.o        e_asinf.o      \
 	e_rem_pio2f.o    s_exp2f.o        s_nextafterf.o   e_atan2f.o     \
