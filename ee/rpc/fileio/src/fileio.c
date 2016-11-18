@@ -272,7 +272,7 @@ struct _fio_read_arg {
 	int	size;
 	struct _fio_read_data *read_data;
 } ALIGNED(16);
-#include <stdio.h>
+
 int fioRead(int fd, void *ptr, int size)
 {
 	struct _fio_read_arg arg;
