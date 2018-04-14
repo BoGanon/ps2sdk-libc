@@ -17,10 +17,17 @@
 #include "math_private.h"
 
 static const float atanhi[] = {
+#if defined(__TOWARDZERO)
+  4.6364763379e-01,
+  7.8539818525e-01,
+  9.8279374837e-01,
+  1.5707963705e+00
+#else
   4.6364760399e-01, /* atan(0.5)hi 0x3eed6338 */
   7.8539812565e-01, /* atan(1.0)hi 0x3f490fda */
   9.8279368877e-01, /* atan(1.5)hi 0x3f7b985e */
   1.5707962513e+00, /* atan(inf)hi 0x3fc90fda */
+#endif
 };
 
 static const float atanlo[] = {
@@ -53,8 +60,13 @@ atanf(float x)
 	if(ix>=0x4c800000) {	/* if |x| >= 2**26 */
 	    if(ix>0x7f800000)
 		return x+x;		/* NaN */
-	    if(hx>0) return  atanhi[3]+*(volatile float *)&atanlo[3];
-	    else     return -atanhi[3]-*(volatile float *)&atanlo[3];
+#if defined(__TOWARDZERO) 
+	    if(hx>0) return  atanhi[3];
+	    else     return -atanhi[3];
+#else
+	    if(hx>0) return  atanhi[3] + *(volatile float*)&atanlo[3];
+	    else     return -atanhi[3] - *(volatile float*)&atanlo[3];
+#endif
 	} if (ix < 0x3ee00000) {	/* |x| < 0.4375 */
 	    if (ix < 0x39800000) {	/* |x| < 2**-12 */
 		if(huge+x>one) return x;	/* raise inexact */
@@ -64,15 +76,15 @@ atanf(float x)
 	x = fabsf(x);
 	if (ix < 0x3f980000) {		/* |x| < 1.1875 */
 	    if (ix < 0x3f300000) {	/* 7/16 <=|x|<11/16 */
-		id = 0; x = ((float)2.0*x-one)/((float)2.0+x);
+		id = 0; x = (2.0f*x-one)/(2.0f+x);
 	    } else {			/* 11/16<=|x|< 19/16 */
 		id = 1; x  = (x-one)/(x+one);
 	    }
 	} else {
 	    if (ix < 0x401c0000) {	/* |x| < 2.4375 */
-		id = 2; x  = (x-(float)1.5)/(one+(float)1.5*x);
+		id = 2; x  = (x-1.5f)/(one+1.5f*x);
 	    } else {			/* 2.4375 <= |x| < 2**26 */
-		id = 3; x  = -(float)1.0/x;
+		id = 3; x  = -1.0f/x;
 	    }
 	}}
     /* end of argument reduction */
@@ -83,7 +95,11 @@ atanf(float x)
 	s2 = w*(aT[1]+w*aT[3]);
 	if (id<0) return x - x*(s1+s2);
 	else {
+#if defined(__TOWARDZERO)
+	    z = atanhi[id] - ((x*(s1+s2)) - x);
+#else
 	    z = atanhi[id] - ((x*(s1+s2) - atanlo[id]) - x);
+#endif
 	    return (hx<0)? -z:z;
 	}
 }

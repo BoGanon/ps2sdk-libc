@@ -17,46 +17,57 @@
 #include "math_private.h"
 
 static const float
-one =  1.0000000000e+00, /* 0x3F800000 */
-huge =  1.000e+30,
-	/* coefficient for R(x^2) */
-pS0 =  1.6666586697e-01,
-pS1 = -4.2743422091e-02,
-pS2 = -8.6563630030e-03,
-qS1 = -7.0662963390e-01;
-
-static const double
-pio2 =  1.570796326794896558e+00;
+one  =  1.0f,			/* 0x3F800000 */
+huge =  1.000e+30f,
+pio2acc = 1.5707964e+00f,	/* 0x3fc90fdb */
+#if defined(__DOWNWARD) || defined(__TOWARDZERO)
+pio2dwn = 1.5707963e+00f,	/* 0x3fc90fda */
+#endif
+/* coefficient for R(x^2) */
+pS0 =  1.6666587e-01f,
+pS1 = -4.2743422e-02f,
+pS2 = -8.656363e-03f,
+qS1 = -7.0662963e-01f;
 
 float
 asinf(float x)
 {
-	double s;
-	float t,w,p,q;
+	float s,t,w,p,q;
 	int32_t hx,ix;
+
 	GET_FLOAT_WORD(hx,x);
 	ix = hx&0x7fffffff;
-	if(ix>=0x3f800000) {		/* |x| >= 1 */
-	    if(ix==0x3f800000)		/* |x| == 1 */
-		return x*pio2;		/* asin(+-1) = +-pi/2 with inexact */
-	    return (x-x)/(x-x);		/* asin(|x|>1) is NaN */
-	} else if (ix<0x3f000000) {	/* |x|<0.5 */
-	    if(ix<0x39800000) {		/* |x| < 2**-12 */
-		if(huge+x>one) return x;/* return x with inexact if x!=0*/
+
+	if(ix<0x3f000000) {	/* |x| < |0.5| */
+	    if(ix<0x39800000) {	/* |x| < 2**-12 */
+		if(huge+x>one)
+		    return x;	/* return x with inexact if x!=0*/
 	    }
 	    t = x*x;
-	    p = t*(pS0+t*(pS1+t*pS2));
+	    p = (pS0+t*(pS1+t*pS2));
 	    q = one+t*qS1;
-	    w = p/q;
-	    return x+x*w;
+	    w = (t*x*p)/q;
+	    return x+w;
 	}
-	/* 1> |x|>= 0.5 */
-	w = one-fabsf(x);
-	t = w*(float)0.5;
-	p = t*(pS0+t*(pS1+t*pS2));
-	q = one+t*qS1;
-	s = sqrt(t);
-	w = p/q;
-	t = pio2-2.0*(s+s*w);
-	if(hx>0) return t; else return -t;
+
+	if (ix<0x3f800000) {	/* |1|>|x|>=|0.5| */
+	    w = one-fabsf(x);
+	    t = w*0.5f;
+	    p = (pS0+t*(pS1+t*pS2));
+	    q = one+t*qS1;
+	    s = sqrtf(t);
+	    w = s+((s*t*p)/q);
+#if defined(DOWNWARD) || defined(TOWARDZERO)
+	    t = -2.0f*w+pio2dwn;
+#else
+	    t = -2.0f*w+pio2acc;
+#endif
+	    return (hx > 0 ? t : -t);
+	}
+
+	if(ix==0x3f800000)	/* |x| == 1 */
+	    /* asin(+-1) = +-pi/2 with inexact */
+	    return (hx > 0 ? pio2acc : -pio2acc);
+
+	return (x-x)/0.0f;	/* asin(|x|>1) is NaN */
 }
