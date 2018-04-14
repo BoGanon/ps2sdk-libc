@@ -28,6 +28,10 @@ pS1 = -4.2743422091e-02,
 pS2 = -8.6563630030e-03,
 qS1 = -7.0662963390e-01;
 
+static const float
+pio2acc = 1.5707964e+00, /* 0x3fc90fdb */
+piacc   = 3.1415927e+00; /* 0x40490fdb */
+
 float
 acosf(float x)
 {
@@ -35,40 +39,48 @@ acosf(float x)
 	int32_t hx,ix;
 	GET_FLOAT_WORD(hx,x);
 	ix = hx&0x7fffffff;
-	if(ix>=0x3f800000) {		/* |x| >= 1 */
-	    if(ix==0x3f800000) {	/* |x| == 1 */
-		if(hx>0) return 0.0;	/* acos(1) = 0 */
-		else return pi+(float)2.0*pio2_lo;	/* acos(-1)= pi */
-	    }
-	    return (x-x)/(x-x);		/* acos(|x|>1) is NaN */
-	}
-	if(ix<0x3f000000) {	/* |x| < 0.5 */
-	    if(ix<=0x32800000) return pio2_hi+pio2_lo;/*if|x|<2**-26*/
+
+	if(ix<0x3f000000) {	/* |1| > |x| < |0.5| */
+	    if(ix<=0x32800000)
+		return pio2acc;	/*if|x|<2**-26*/
 	    z = x*x;
 	    p = z*(pS0+z*(pS1+z*pS2));
 	    q = one+z*qS1;
 	    r = p/q;
 	    return pio2_hi - (x - (pio2_lo-x*r));
-	} else  if (hx<0) {		/* x < -0.5 */
-	    z = (one+x)*(float)0.5;
+	}
+
+	if (ix < 0x3f800000) {
+	    if (hx > 0) {	/* x >= 0.5 */
+		int32_t idf;
+		z = (one-x)*0.5f;
+		s = sqrtf(z);
+		df = s;
+		GET_FLOAT_WORD(idf,df);
+		SET_FLOAT_WORD(df,idf&0xfffff000);
+		c  = (z-df*df)/(s+df);
+		p = z*(pS0+z*(pS1+z*pS2));
+		q = one+z*qS1;
+		r = p/q;
+		w = r*s+c;
+		return 2.0f*(df+w);
+	    }
+	    /* x <= -0.5 */
+	    z = (one+x)*0.5f;
 	    p = z*(pS0+z*(pS1+z*pS2));
 	    q = one+z*qS1;
 	    s = sqrtf(z);
 	    r = p/q;
 	    w = r*s-pio2_lo;
-	    return pi - (float)2.0*(s+w);
-	} else {			/* x > 0.5 */
-	    int32_t idf;
-	    z = (one-x)*(float)0.5;
-	    s = sqrtf(z);
-	    df = s;
-	    GET_FLOAT_WORD(idf,df);
-	    SET_FLOAT_WORD(df,idf&0xfffff000);
-	    c  = (z-df*df)/(s+df);
-	    p = z*(pS0+z*(pS1+z*pS2));
-	    q = one+z*qS1;
-	    r = p/q;
-	    w = r*s+c;
-	    return (float)2.0*(df+w);
+	    return pi - 2.0f*(s+w);
 	}
+
+	if(ix==0x3f800000) {	/* |x| == |1| */
+	    if (hx < 0)
+		return piacc;	/* acos(-1)= pi */
+	    return 0.0;		/* acos(1) = 0 */
+	}
+	    
+	/* x > 1 */
+	return (x-x)/(x-x);	/* acos(x>1) is NaN */
 }

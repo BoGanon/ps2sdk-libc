@@ -41,6 +41,8 @@
  *	TRIG(x) returns trig(x) nearly rounded
  */
 
+#include <float.h>
+
 #define INLINE_REM_PIO2
 #include "math_private.h"
 #include "e_rem_pio2.c"

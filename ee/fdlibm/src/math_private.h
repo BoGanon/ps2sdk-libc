@@ -43,6 +43,7 @@
  */
 
 typedef unsigned long long u_int64_t;
+typedef long long int64_t;
 typedef unsigned int u_int32_t;
 typedef int int32_t;
 
@@ -285,10 +286,6 @@ CMPLX(double x, double y)
 #endif
 
 #endif /*__COMPLEX_H__*/
-
-#ifndef FLT_EVAL_METHOD
-#define FLT_EVAL_METHOD 1
-#endif
 
 #ifdef FLT_EVAL_METHOD
 /*

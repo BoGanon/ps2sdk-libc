@@ -13,6 +13,8 @@
  * ====================================================
  */
 
+#include <float.h>
+
 #include "math.h"
 #include "math_private.h"
 
@@ -53,7 +55,7 @@ expf(float x)	/* default IEEE double exp */
 	    if(hx>0x7f800000)
 		 return x+x;	 		/* NaN */
             if(hx==0x7f800000)
-		return (xsb==0)? x:0.0;		/* exp(+-inf)={inf,0} */
+		return (xsb==0)? x:0.0f;	/* exp(+-inf)={inf,0} */
 	    if(x > o_threshold) return huge*huge; /* overflow */
 	    if(x < u_threshold) return twom100*twom100; /* underflow */
 	}
@@ -72,7 +74,7 @@ expf(float x)	/* default IEEE double exp */
 	/* x is now in primary range */
 	    t  = x*x;
 	    c  = x - t*(P1+t*P2);
-	    y = one-((lo-(x*c)/((float)2.0-c))-hi);
+	    y = one-((lo-(x*c)/(2.0f-c))-hi);
 	    if(k >= -125) {
 		if(k==128) return y*2.0F*0x1p127F;
 		SET_FLOAT_WORD(twopk,0x3f800000+(k<<23));
@@ -90,6 +92,6 @@ expf(float x)	/* default IEEE double exp */
       /* x is now in primary range */
 	t  = x*x;
 	c  = x - t*(P1+t*P2);
-	return one-((x*c)/(c-(float)2.0)-x);
+	return one-((x*c)/(c-2.0f)-x);
 
 }

@@ -27,7 +27,7 @@ static const unsigned
 float
 cbrtf(float x)
 {
-	double r,T;
+	double dx,r,T;
 	float t;
 	int32_t hx;
 	u_int32_t sign;
@@ -56,14 +56,15 @@ cbrtf(float x)
      */
 	T=t;
 	r=T*T*T;
-	T=T*((double)x+x+r)/(x+r+r);
+	dx = x;
+	T=T*(dx+dx+r)/(dx+r+r);
 
     /*
      * Second step Newton iteration to 47 bits.  In double precision for
      * efficiency and accuracy.
      */
 	r=T*T*T;
-	T=T*((double)x+x+r)/(x+r+r);
+	T=T*(dx+dx+r)/(dx+r+r);
 
     /* rounding to 24 bits is perfect in round-to-nearest mode */
 	return(T);

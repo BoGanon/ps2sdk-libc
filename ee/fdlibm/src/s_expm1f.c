@@ -13,6 +13,8 @@
  * ====================================================
  */
 
+#include <float.h>
+
 #include "math.h"
 #include "math_private.h"
 
@@ -49,11 +51,11 @@ expm1f(float x)
                 if(hx>0x7f800000)
 		    return x+x; 	 /* NaN */
 		if(hx==0x7f800000)
-		    return (xsb==0)? x:-1.0;/* exp(+-inf)={inf,-1} */
+		    return (xsb==0)? x:-1.0f;/* exp(+-inf)={inf,-1} */
 	        if(x > o_threshold) return huge*huge; /* overflow */
 	    }
 	    if(xsb!=0) { /* x < -27*ln2, return -1.0 with inexact */
-		if(x+tiny<(float)0.0)	/* raise inexact */
+		if(x+tiny<0.0f)	/* raise inexact */
 		return tiny-one;	/* return -1 */
 	    }
 	}
@@ -66,7 +68,7 @@ expm1f(float x)
 		else
 		    {hi = x + ln2_hi; lo = -ln2_lo;  k = -1;}
 	    } else {
-		k  = invln2*x+((xsb==0)?(float)0.5:(float)-0.5);
+		k  = invln2*x+((xsb==0)?0.5f:-0.5f);
 		t  = k;
 		hi = x - t*ln2_hi;	/* t*ln2_hi is exact here */
 		lo = t*ln2_lo;
@@ -75,19 +77,19 @@ expm1f(float x)
 	    c  = (hi-x)-lo;
 
 	/* x is now in primary range */
-	    hfx = (float)0.5*x;
+	    hfx = 0.5f*x;
 	    hxs = x*hfx;
 	    r1 = one+hxs*(Q1+hxs*Q2);
-	    t  = (float)3.0-r1*hfx;
-	    e  = hxs*((r1-t)/((float)6.0 - x*t));
+	    t  = 3.0f-r1*hfx;
+	    e  = hxs*((r1-t)/(6.0f - x*t));
 	    if(k==0) return x - (x*e-hxs);		/* c is 0 */
 	    SET_FLOAT_WORD(twopk,0x3f800000+(k<<23));	/* 2^k */
 	    e  = (x*(e-c)-c);
 	    e -= hxs;
-	    if(k== -1) return (float)0.5*(x-e)-(float)0.5;
+	    if(k== -1) return 0.5f*(x-e)-0.5f;
 	    if(k==1) {
-	       	if(x < (float)-0.25) return -(float)2.0*(e-(x+(float)0.5));
-	       	else 	      return  one+(float)2.0*(x-e);
+	       	if(x < -0.25f) return -2.0f*(e-(x+0.5f));
+	       	else 	      return  one+2.0f*(x-e);
 	    }
 	    if (k <= -2 || k>56) {   /* suffice to return exp(x)-1 */
 	        y = one-(e-x);
@@ -106,18 +108,18 @@ expm1f(float x)
 	       	y += one;
 		y = y*twopk;
 	    }
-	} 
+	}
 	else if(hx < 0x33000000) {  	/* when |x|<2**-25, return x */
 	    t = huge+x;	/* return x with inexact flags when x!=0 */
-	    return x - (t-(huge+x));	
+	    return x - (t-(huge+x));
 	}
 	else {	/* k == 0 */
 	/* x is now in primary range */
-	    hfx = (float)0.5*x;
+	    hfx = 0.5f*x;
 	    hxs = x*hfx;
 	    r1 = one+hxs*(Q1+hxs*Q2);
-	    t  = (float)3.0-r1*hfx;
-	    e  = hxs*((r1-t)/((float)6.0 - x*t));
+	    t  = 3.0f-r1*hfx;
+	    e  = hxs*((r1-t)/(6.0f - x*t));
 	    return x - (x*e-hxs);		/* c is 0 */
 	}
 

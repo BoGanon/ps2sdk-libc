@@ -24,6 +24,8 @@
  * SUCH DAMAGE.
  */
 
+#include <float.h>
+
 #include "math.h"
 #include "math_private.h"
 
@@ -31,7 +33,9 @@
 #define	TBLSIZE	(1 << TBLBITS)
 
 static const float
-    redux   = 0x1.8p23f / TBLSIZE,
+    redux   = 0x1.8p23f / TBLSIZE;
+
+static const double
     P1	    = 0x1.62e430p-1f,
     P2	    = 0x1.ebfbe0p-3f,
     P3	    = 0x1.c6b348p-5f,
@@ -59,7 +63,7 @@ static const double exp2ft[TBLSIZE] = {
 	0x1.4bfdad5362a27p+0,
 	0x1.5ab07dd485429p+0,
 };
-	
+
 /*
  * exp2f(x): compute the base 2 exponential of x
  *
@@ -101,7 +105,7 @@ exp2f(float x)
 		if(ix >= 0x7f800000) {
 			if ((ix & 0x7fffff) != 0 || (hx & 0x80000000) == 0)
 				return (x + x);	/* x is NaN or +Inf */
-			else 
+			else
 				return (0.0);	/* x is -Inf */
 		}
 		if(x >= 0x1.0p7f)

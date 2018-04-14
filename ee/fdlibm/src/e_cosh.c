@@ -41,12 +41,12 @@ static const volatile double huge = 1.0e300;
 double cosh(double x)
 {	
 	double t,w;
-	int32_t ix;
+	int32_t ix,jx;
 	u_int32_t lx;
 
     /* High word of |x|. */
-	GET_HIGH_WORD(ix, x);
-	ix &= 0x7fffffff;
+	GET_HIGH_WORD(jx, x);
+	ix = jx & 0x7fffffff;
 
     /* x is INF or NaN */
 	if(ix>=0x7ff00000) return x*x;	
@@ -69,7 +69,7 @@ double cosh(double x)
 	if (ix < 0x40862E42)  return half*exp(fabs(x));
 
     /* |x| in [log(maxdouble), overflowthresold] */
-	lx = *( (((*(u_int32_t*)&one)>>29)) + (u_int32_t*)&x);
+	lx = 0x1ff80000 + jx;
 	if (ix<0x408633CE || 
 	      ((ix==0x408633ce)&&(lx<=(u_int32_t)0x8fb9f87d))) {
 	    w = exp(half*fabs(x));

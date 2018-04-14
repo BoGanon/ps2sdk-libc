@@ -14,6 +14,8 @@
  * ====================================================
  */
 
+#include <float.h>
+
 #include "math.h"
 #define	INLINE_KERNEL_COSDF
 #define	INLINE_KERNEL_SINDF
@@ -35,6 +37,7 @@ cosf(float x)
 {
 	double y;
 	int32_t n, hx, ix;
+	double dx = x;
 
 	GET_FLOAT_WORD(hx,x);
 	ix = hx & 0x7fffffff;
@@ -42,26 +45,26 @@ cosf(float x)
 	if(ix <= 0x3f490fda) {		/* |x| ~<= pi/4 */
 	    if(ix<0x39800000)		/* |x| < 2**-12 */
 		if(((int)x)==0) return 1.0;	/* 1 with inexact if x != 0 */
-	    return __kernel_cosdf(x);
+	    return __kernel_cosdf(dx);
 	}
 	if(ix<=0x407b53d1) {		/* |x| ~<= 5*pi/4 */
 	    if(ix>0x4016cbe3)		/* |x|  ~> 3*pi/4 */
-		return -__kernel_cosdf(x + (hx > 0 ? -c2pio2 : c2pio2));
+		return -__kernel_cosdf(dx + (hx > 0 ? -c2pio2 : c2pio2));
 	    else {
 		if(hx>0)
-		    return __kernel_sindf(c1pio2 - x);
+		    return __kernel_sindf(c1pio2 - dx);
 		else
-		    return __kernel_sindf(x + c1pio2);
+		    return __kernel_sindf(dx + c1pio2);
 	    }
 	}
 	if(ix<=0x40e231d5) {		/* |x| ~<= 9*pi/4 */
 	    if(ix>0x40afeddf)		/* |x|  ~> 7*pi/4 */
-		return __kernel_cosdf(x + (hx > 0 ? -c4pio2 : c4pio2));
+		return __kernel_cosdf(dx + (hx > 0 ? -c4pio2 : c4pio2));
 	    else {
 		if(hx>0)
-		    return __kernel_sindf(x - c3pio2);
+		    return __kernel_sindf(dx - c3pio2);
 		else
-		    return __kernel_sindf(-c3pio2 - x);
+		    return __kernel_sindf(-c3pio2 - dx);
 	    }
 	}
 

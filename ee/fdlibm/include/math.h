@@ -258,18 +258,10 @@ extern float       copysignf(float, float);
 #endif
 
 /* Comparison */
-#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-
-#define FP_NORMAL		0
-#define FP_SUBNORMAL		1
-#define FP_ZERO			2
-#define FP_INFINITE		3
-#define FP_NAN			4
-
 extern int         __fpclassify(double);
 extern int         __fpclassifyf(float);
-extern int         __finite(double);
-extern int         __finitef(float);
+extern int         __isfinite(double);
+extern int         __isfinitef(float);
 extern int         __isinf(double);
 extern int         __isinff(float);
 extern int         __isnan(double);
@@ -278,12 +270,21 @@ extern int         __isnormal(double);
 extern int         __isnormalf(float);
 extern int         __signbit(double);
 extern int         __signbitf(float);
+
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+
+#define FP_NORMAL		0
+#define FP_SUBNORMAL		1
+#define FP_ZERO			2
+#define FP_INFINITE		3
+#define FP_NAN			4
+
 #define            fpclassify(x) \
   ((sizeof(x) == sizeof(float)) ? __fpclassifyf(x) : \
    (sizeof(x) == sizeof(double)) ? __fpclassify(x) : 0)
 #define            isfinite(x) \
-  ((sizeof(x) == sizeof(float)) ? __finitef(x) : \
-   (sizeof(x) == sizeof(double)) ? __finite(x) : 0)
+  ((sizeof(x) == sizeof(float)) ? __isfinitef(x) : \
+   (sizeof(x) == sizeof(double)) ? __isfinite(x) : 0)
 #define            isinf(x) \
   ((sizeof(x) == sizeof(float)) ? __isinff(x) : \
    (sizeof(x) == sizeof(double)) ? __isinf(x) : 0)
@@ -348,9 +349,6 @@ extern double      yn(int, double);
 extern float       ynf(int, float);
 
 extern double      lgamma_r(double,int*);
-
-extern double      scalb(double,double);
-extern float       scalbf(float,float);
 
 #ifdef __cplusplus
 }

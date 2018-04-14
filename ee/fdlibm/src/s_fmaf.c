@@ -39,20 +39,21 @@
 float
 fmaf(float x, float y, float z)
 {
-	double xy, result;
+	double xy, dz, result;
 	uint32_t hr, lr;
 
-	xy = (double)x * y;
-	result = xy + z;
+	xy = (double)x * (double)y;
+	dz = z;
+	result = xy + dz;
 	EXTRACT_WORDS(hr, lr, result);
 	/* Common case: The double precision result is fine. */
 	if ((lr & 0x1fffffff) != 0x10000000 ||	/* not a halfway case */
 	    (hr & 0x7ff00000) == 0x7ff00000 ||	/* NaN */
 #ifdef FE_TONEAREST
-	    result - xy == z ||			/* exact */
+	    result - xy == dz ||			/* exact */
 	    fegetround() != FE_TONEAREST)	/* not round-to-nearest */
 #else
-	    result - xy == z)
+	    result - xy == dz)
 #endif
 		return (result);
 
@@ -64,7 +65,7 @@ fmaf(float x, float y, float z)
 	fesetround(FE_TOWARDZERO);
 #endif
 	volatile double vxy = xy;  /* XXX work around gcc CSE bug */
-	double adjusted_result = vxy + z;
+	double adjusted_result = vxy + dz;
 #ifdef FE_TONEAREST
 	fesetround(FE_TONEAREST);
 #endif

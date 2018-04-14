@@ -74,6 +74,7 @@
  *	Maximum observed error < 4ulp in 1,000,000 trials.
  */
 
+#include "math.h"
 #include "math_private.h"
 
 static double neg_gam(double);
@@ -86,7 +87,6 @@ static struct Double ratfun_gam(double, double);
 #define	M_PI		3.1415926535897932384626433832795029	/* pi */
 #endif
 
-int finite(double x);
 double ceil(double x);
 double sin(double x);
 double cos(double x);
@@ -148,7 +148,7 @@ double tgamma(double x)
 		if (x != 0.0)
 			u.a = one - tiny;	/* raise inexact */
 		return (one/x);
-	} else if (!finite(x))
+	} else if (!isfinite(x))
 		return (x - x);		/* x is NaN or -Inf */
 	else
 		return (neg_gam(x));

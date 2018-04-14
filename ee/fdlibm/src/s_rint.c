@@ -20,6 +20,8 @@
  *	Inexact flag raised if x not equal to rint(x).
  */
 
+#include <float.h>
+
 #include "math_private.h"
 
 static const double

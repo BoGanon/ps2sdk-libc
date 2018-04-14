@@ -75,6 +75,8 @@
  *	 See HP-15C Advanced Functions Handbook, p.193.
  */
 
+#include <float.h>
+
 #include "math_private.h"
 
 static const double

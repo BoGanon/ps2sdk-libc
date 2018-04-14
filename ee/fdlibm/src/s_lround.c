@@ -33,6 +33,7 @@
 #define dtype		long
 #define	DTYPE_MIN	LONG_MIN
 #define	DTYPE_MAX	LONG_MAX
+#define half		0.5
 #define	fn		lround
 #endif
 
@@ -49,9 +50,9 @@ type roundit(type);
  * that everything is in range.  At compile time, INRANGE(x) should reduce to
  * two floating-point comparisons in the former case, or TRUE otherwise.
  */
-static const type dtype_min = DTYPE_MIN - 0.5;
-static const type dtype_max = DTYPE_MAX + 0.5;
-#define	INRANGE(x)	(dtype_max - DTYPE_MAX != 0.5 || \
+static const type dtype_min = DTYPE_MIN - half;
+static const type dtype_max = DTYPE_MAX + half;
+#define	INRANGE(x)	(dtype_max - DTYPE_MAX != half || \
 			 ((x) > dtype_min && (x) < dtype_max))
 
 dtype

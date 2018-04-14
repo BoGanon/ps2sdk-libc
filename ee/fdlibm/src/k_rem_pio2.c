@@ -291,6 +291,7 @@ int
 __kernel_rem_pio2(double *x, double *y, int e0, int nx, int prec)
 {
 	int32_t jz,jx,jv,jp,jk,carry,n,iq[20],i,j,k,m,q0,ih;
+	float *fpio2 = (float*)ipio2;
 	double z,fw,f[20],fq[20],q[20];
 
     /* initialize jk*/
@@ -304,7 +305,7 @@ __kernel_rem_pio2(double *x, double *y, int e0, int nx, int prec)
 
     /* set up f[0] to f[jx+jk] where f[jx+jk] = ipio2[jv+jk] */
 	j = jv-jx; m = jx+jk;
-	for(i=0;i<=m;i++,j++) f[i] = (j<0)? zero : (double) ipio2[j];
+	for(i=0;i<=m;i++,j++) f[i] = (j<0)? zero : (double) fpio2[j];
 
     /* compute q[0],q[1],...q[jk] */
 	for (i=0;i<=jk;i++) {
@@ -366,7 +367,7 @@ recompute:
 		for(k=1;iq[jk-k]==0;k++);   /* k = no. of terms needed */
 
 		for(i=jz+1;i<=jz+k;i++) {   /* add q[jz+1] to q[jz+k] */
-		    f[jx+i] = (double) ipio2[jv+i];
+		    f[jx+i] = fpio2[jv+i];
 		    for(j=0,fw=0.0;j<=jx;j++) fw += x[j]*f[jx+i-j];
 		    q[i] = fw;
 		}

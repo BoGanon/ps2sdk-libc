@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-#define	DECL(type, fn)			\
+#define	DECL(type, fn, zero)		\
 type					\
 fn(type x, type y)			\
 {					\
@@ -35,8 +35,8 @@ fn(type x, type y)			\
 		return (x);		\
 	if (isnan(y))			\
 		return (y);		\
-	return (x > y ? x - y : 0.0);	\
+	return (x > y ? x - y : zero);	\
 }
 
-DECL(double, fdim)
-DECL(float, fdimf)
+DECL(double, fdim, 0.0)
+DECL(float, fdimf, 0.0f)

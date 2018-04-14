@@ -105,6 +105,8 @@
  * to produce the hexadecimal values shown.
  */
 
+#include <float.h>
+
 #include "math_private.h"
 
 static const double
