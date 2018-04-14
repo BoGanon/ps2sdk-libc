@@ -7,10 +7,29 @@
 # Review ps2sdk README & LICENSE files for further details.
 #
 
-SUBDIRS = kernel libc fdlibm rpc startup debug \
-	  eedebug sbv dma graph math3d math \
-	  packet draw erl erl-loader mpeg libgs \
-	  libvux font input inputx network
+SUBDIRS = kernel
+SUBDIRS += libc
+SUBDIRS += fdlibm
+SUBDIRS += rpc
+SUBDIRS += startup
+SUBDIRS += debug
+SUBDIRS += eedebug
+SUBDIRS += sbv
+SUBDIRS += dma
+SUBDIRS += graph
+SUBDIRS += math3d
+SUBDIRS += math
+SUBDIRS += packet
+SUBDIRS += draw
+SUBDIRS += erl
+SUBDIRS += erl-loader
+SUBDIRS += mpeg
+SUBDIRS += libgs
+SUBDIRS += libvux
+SUBDIRS += font
+SUBDIRS += input
+SUBDIRS += inputx
+SUBDIRS += network
 
 include $(PS2SDKSRC)/Defs.make
 include $(PS2SDKSRC)/Rules.make

@@ -7,7 +7,18 @@
 # Review ps2sdk README & LICENSE files for further details.
 #
 
-SUBDIRS = kernel dev9 fs hdd sound tcpip usb system debug memorycard network iLink
+SUBDIRS = kernel
+SUBDIRS += dev9
+SUBDIRS += fs
+SUBDIRS += hdd
+SUBDIRS += sound
+SUBDIRS += tcpip
+SUBDIRS += usb
+SUBDIRS += system
+SUBDIRS += debug
+SUBDIRS += memorycard
+SUBDIRS += network
+SUBDIRS += iLink
 
 include $(PS2SDKSRC)/Defs.make
 include $(PS2SDKSRC)/Rules.make

@@ -12,7 +12,11 @@ ifeq (x$(PS2SDKSRC), x)
   export PS2SDKSRC=$(shell pwd)
 endif
 
-SUBDIRS = tools iop ee common samples
+SUBDIRS = tools
+SUBDIRS += iop
+SUBDIRS += ee
+SUBDIRS += common
+SUBDIRS += samples
 
 all: build
 	@$(ECHO) .;
@@ -43,7 +47,7 @@ clean: env_build_check $(subdir_clean)
 
 clean_base: env_release_check
 	  rm -f $(PS2SDK)/README.md
-	  rm -f $(PS2SDK)/CHANGELOG 
+	  rm -f $(PS2SDK)/CHANGELOG
 	  rm -f $(PS2SDK)/AUTHORS
 	  rm -f $(PS2SDK)/LICENSE
 	  rm -f $(PS2SDK)/ID
