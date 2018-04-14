@@ -2,8 +2,7 @@
 
 /* The r5900 doesn't support infinities or nan and instead uses 0x7FFFFFFF and
    0xFFFFFFFF and sets the FE_INVALID flag when NAN exceptions occur. The only
-   case that doesn't apply is when "sqrt.s" is used on a negative number.
-   Fortunately, for most cases, the values coincide with NAN. */
+   case that doesn't apply is when "sqrt.s" is used on a negative number. */
 
 int __isnan(double x)
 {
