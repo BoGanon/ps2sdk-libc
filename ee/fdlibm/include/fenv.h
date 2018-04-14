@@ -37,12 +37,14 @@ typedef unsigned int fexcept_t;
 #define FE_OVERFLOW	0x0010
 #define FE_DIVBYZERO	0x0020
 #define FE_INVALID	0x0040
+
 #ifdef FENV_SOFTFLOAT
  #define FE_INEXACT	0x0080
 #endif
 
 /* Rounding mode */
 #define FE_TOWARDZERO	1
+
 #ifdef FENV_SOFTFLOAT
  #define FE_TONEAREST	0
  #define FE_UPWARD	2
@@ -167,7 +169,8 @@ static inline int fesetenv(const fenv_t *envp)
 /* The r5900's FPU does not trap. */
 static inline int feholdexcept(fenv_t *envp)
 {
-  return 1;
+  __get_fenv(*envp);
+  return 0;
 }
 
 static inline int feupdateenv(const fenv_t *envp)
@@ -181,6 +184,7 @@ static inline int feupdateenv(const fenv_t *envp)
   return 0;
 }
 #else /* !FENV_SOFTFLOAT */
+
 #define __set_env(env, flags, mask, rnd) (env = (flags | \
 						 (mask << FE_CAUSE_SHIFT) | \
 						 (rnd)))
