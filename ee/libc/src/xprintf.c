@@ -288,6 +288,9 @@ int vxprintf(func,arg,format,ap)
     if( c=='l' ){
       flag_long = 1;
       c = *++fmt;
+      if (c=='l' ){
+        c = *++fmt;
+      }
     }else{
       flag_long = 0;
     }
