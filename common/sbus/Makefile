@@ -8,7 +8,7 @@
 
 EE_OBJS_DIR = ee_obj/
 
-EE_INCS += -I$(PS2SDKSRC)/ee/rpc/sior/include/
+EE_INCS += -I$(PS2SDKSRC)/ee/rpc/sior/include/ -I$(PS2SDKSRC)/ee/libc/include
 EE_CFLAGS += -fno-builtin-printf
 
 EE_OBJS = ps2_sbus.o ee_sbus.o ps2_sif.o ee_sif2.o sif2cmd.o ee_low.o

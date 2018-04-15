@@ -13,7 +13,7 @@
  */
 
 #include "kernel.h"
-#include "string.h"
+#include "kernel/string.h"
 
 extern char **_kExecArg;
 const char *SetArg(const char *filename, int argc, char *argv[]);

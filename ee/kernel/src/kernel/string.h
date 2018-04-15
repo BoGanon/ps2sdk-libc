@@ -7,11 +7,11 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # Internal kernel string functions
 */
-#ifndef KERNEL_STRING_H
-#define KERNEL_STRING_H
+
+#ifndef __KERNEL_STRING_H__
+#define __KERNEL_STRING_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,5 +26,5 @@ unsigned int strlen(const char *);
 }
 #endif
 
-#endif /* KERNEL_STRING_H */
+#endif /* __KERNEL_STRING_H__ */
 

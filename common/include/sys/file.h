@@ -7,12 +7,11 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # Miscellaneous data types
 */
-#ifndef SYS_FILE_H
-#define SYS_FILE_H
+#ifndef __SYS_FILE_H__
+#define __SYS_FILE_H__
 
 #include <sys/fcntl.h>
 
-#endif /* SYS_FILE_H */
+#endif /* __SYS_FILE_H__ */

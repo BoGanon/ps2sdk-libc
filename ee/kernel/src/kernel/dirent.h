@@ -7,11 +7,11 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # Declarations for externally defined directory I/O.
 */
-#ifndef KERNEL_DIRENT_H
-#define KERNEL_DIRENT_H
+
+#ifndef __KERNEL_DIRENT_H__
+#define __KERNEL_DIRENT_H__
 
 #include <sys/types.h>
 
@@ -75,4 +75,4 @@ int closedir (DIR *d);
     @}
 */
 
-#endif /* KERNEL_DIRENT_H */
+#endif /* __KERNEL_DIRENT_H__ */

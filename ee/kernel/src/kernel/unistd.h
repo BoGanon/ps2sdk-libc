@@ -7,11 +7,11 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # Declarations for externally defined I/O.
 */
-#ifndef KERNEL_UNISTD_H
-#define KERNEL_UNISTD_H
+
+#ifndef __KERNEL_UNISTD_H__
+#define __KERNEL_UNISTD_H__
 
 /** @defgroup unistd POSIX I/O functions.
 
@@ -182,4 +182,4 @@ int write(int fd, const void *buf, size_t count);
     @}
 */
 
-#endif /* KERNEL_UNISTD_H */
+#endif /* __KERNEL_UNISTD_H__ */

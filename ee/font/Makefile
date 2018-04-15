@@ -7,7 +7,7 @@
 # Review ps2sdk README & LICENSE files for further details.
 
 EE_INCS += -I$(PS2SDKSRC)/ee/draw/include -I$(PS2SDKSRC)/ee/math3d/include \
-	   -I$(PS2SDKSRC)/ee/rpc/fileio/include
+	   -I$(PS2SDKSRC)/ee/rpc/fileio/include -I$(PS2SDKSRC)/ee/libc/include
 
 EE_OBJS = fontx.o fsfont.o erl-support.o
 

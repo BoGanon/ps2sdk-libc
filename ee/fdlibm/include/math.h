@@ -7,8 +7,8 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 */
+
 #ifndef __MATH_H__
 #define __MATH_H__
 

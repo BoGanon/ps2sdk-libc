@@ -13,7 +13,7 @@
  */
 
 #include "kernel.h"
-#include "string.h"
+#include "kernel/string.h"
 
 #ifdef F__InitSys
 void _InitSys(void)

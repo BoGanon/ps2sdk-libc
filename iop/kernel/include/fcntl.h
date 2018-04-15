@@ -7,11 +7,11 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # IOP file control definitions.
 */
-#ifndef IOP_FCNTL_H
-#define IOP_FCNTL_H
+
+#ifndef __IOP_FCNTL_H__
+#define __IOP_FCNTL_H__
 
 /** @file fcnt.h */
 /** @warning This file should not be included in external IOP projects.
@@ -23,4 +23,4 @@
 #include <sys/fcntl.h>
 #include <sys/stat.h>
 
-#endif /*IOP_FCNTL_H*/
+#endif /* __IOP_FCNTL_H__ */

@@ -16,7 +16,6 @@
  */
 
 #include <kernel.h>
-#include <stdio.h>
 
 struct SyscallData{
 	int syscall;

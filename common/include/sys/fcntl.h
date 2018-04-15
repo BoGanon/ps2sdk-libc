@@ -7,12 +7,11 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # File control definitions.
 */
 
-#ifndef SYS_FCNTL_H
-#define SYS_FCNTL_H
+#ifndef __SYS_FCNTL_H__
+#define __SYS_FCNTL_H__
 
 #define O_RDONLY	0x0001
 #define O_WRONLY	0x0002
@@ -28,4 +27,4 @@
 #define SEEK_CUR	1
 #define SEEK_END	2
 
-#endif /* SYS_FCNTL_H */
+#endif /* __SYS_FCNTL_H__ */

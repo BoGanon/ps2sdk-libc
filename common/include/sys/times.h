@@ -7,11 +7,10 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # POSIX declarations for times
 */
-#ifndef SYS_TIMES_H
-#define SYS_TIMES_H
+#ifndef __SYS_TIMES_H__
+#define __SYS_TIMES_H__
 
 #include <sys/time.h>
 
@@ -24,5 +23,5 @@ struct tms {
 
 clock_t times(struct tms *buf);
 
-#endif /* SYS_TIMES_H */
+#endif /* __SYS_TIMES_H__ */
 
