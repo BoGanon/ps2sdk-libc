@@ -97,8 +97,8 @@ env_release_check:
 install-libc: env_release_check
 	$(MAKEREC) common release-dirs
 	$(MAKEREC) common release-include
-	$(MAKEREC) ee/libc release-dirs
-	$(MAKEREC) ee/libc release-include
+	$(MAKEREC) ee/libc release-ee-dirs
+	$(MAKEREC) ee/libc release-ee-include
 
 install-headers: env_release_check release_base release-clean install-libc
 	@$(ECHO) .;
