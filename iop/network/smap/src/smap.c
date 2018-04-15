@@ -461,25 +461,16 @@ static void IntrHandlerThread(struct SmapDriverData *SmapDrivPrivData){
 						HandleTxIntr(SmapDrivPrivData);
 					}
 				}
-
-				/*	In the SONY original, this was outside of the interrupt event check.
-					Don't waste time re-enabling interrupts, if they were never disabled.
-
-					TXDNV is not enabled here, but only when frames are transmitted. */
-				dev9IntrEnable(DEV9_SMAP_INTR_MASK2);
 			}
 
-			/*	In the SONY original, the XMIT event handler was here.
-				But for performance, it is moved into SMAPSendPacket() instead.
-				It used to copy the frames into the Tx buffer and set up the BDs.
-				Immediately after that, there was also a call to the TXDNV handler function too.
-
-				After which, the interrupts were re-enabled (see above). */
-			/* if(EFBits&NETDEV_EVENT_XMIT)
-				HandleTxReqs(SmapDrivPrivData);  */
+			/*	Non-Sony: process transmission if the last packet was not sent. Not sure how the Sony system managed to work,
+				but the system does lock up when the queue is filled up and if there is no way to retry transmissions.	*/
+			if((EFBits&SMAP_EVENT_XMIT) || (SmapDrivPrivData->packetToSend != NULL))
+				HandleTxReqs(SmapDrivPrivData);
 			HandleTxIntr(SmapDrivPrivData);
 
-			//dev9IntrEnable(DEV9_SMAP_INTR_MASK2);
+			//TXDNV is not enabled here, but only when frames are transmitted.
+			dev9IntrEnable(DEV9_SMAP_INTR_MASK2);
 
 			//If there are frames to send out, let Tx channel 0 know and enable TXDNV.
 			if(SmapDrivPrivData->NumPacketsInTx>0){
@@ -551,6 +542,15 @@ void SMAPStop(void){
 	SaveGP();
 	SetEventFlag(SmapDriverData.Dev9IntrEventFlag, SMAP_EVENT_STOP);
 	SmapDriverData.NetDevStopFlag=1;
+	RestoreGP();
+}
+
+void SMAPXmit(void){
+	SaveGP();
+	if(QueryIntrContext())
+		iSetEventFlag(SmapDriverData.Dev9IntrEventFlag, SMAP_EVENT_XMIT);
+	else
+		SetEventFlag(SmapDriverData.Dev9IntrEventFlag, SMAP_EVENT_XMIT);
 	RestoreGP();
 }
 
@@ -693,8 +693,8 @@ static inline int SetupNetDev(void){
 		0,
 		&SMAPStart,
 		&SMAPStop,
-		&SMAPSendPacket,
-		&SMAPIoctl
+		&SMAPXmit,
+		&SMAPIoctl,
 	};
 
 	EventFlagData.attr=0;
@@ -923,7 +923,8 @@ int smap_init(int argc, char *argv[]){
 	if(checksum16!=eeprom_data[3]) return -5;
 
 	SMAP_EMAC3_SET32(SMAP_R_EMAC3_MODE1, SMAP_E3_FDX_ENABLE|SMAP_E3_IGNORE_SQE|SMAP_E3_MEDIA_100M|SMAP_E3_RXFIFO_2K|SMAP_E3_TXFIFO_1K|SMAP_E3_TXREQ0_MULTI|SMAP_E3_TXREQ1_SINGLE);
-	SMAP_EMAC3_SET32(SMAP_R_EMAC3_TxMODE1, 7<<SMAP_E3_TX_LOW_REQ_BITSFT | 15<<SMAP_E3_TX_URG_REQ_BITSFT);
+	//Tx FIFO request priority. Low: 7*8=56, urgent: 15*8=120.
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_TxMODE1, (7&SMAP_E3_TX_LOW_REQ_MSK) << SMAP_E3_TX_LOW_REQ_BITSFT | (15&SMAP_E3_TX_URG_REQ_MSK) << SMAP_E3_TX_URG_REQ_BITSFT);
 	SMAP_EMAC3_SET32(SMAP_R_EMAC3_RxMODE, SMAP_E3_RX_STRIP_PAD|SMAP_E3_RX_STRIP_FCS|SMAP_E3_RX_INDIVID_ADDR|SMAP_E3_RX_BCAST|SMAP_E3_RX_MCAST);
 	SMAP_EMAC3_SET32(SMAP_R_EMAC3_INTR_STAT, SMAP_E3_INTR_TX_ERR_0|SMAP_E3_INTR_SQE_ERR_0|SMAP_E3_INTR_DEAD_0);
 	SMAP_EMAC3_SET32(SMAP_R_EMAC3_INTR_ENABLE, SMAP_E3_INTR_TX_ERR_0|SMAP_E3_INTR_SQE_ERR_0|SMAP_E3_INTR_DEAD_0);
@@ -941,8 +942,10 @@ int smap_init(int argc, char *argv[]){
 	SMAP_EMAC3_SET32(SMAP_R_EMAC3_GROUP_HASH4, 0);
 
 	SMAP_EMAC3_SET32(SMAP_R_EMAC3_INTER_FRAME_GAP, 4);
-	SMAP_EMAC3_SET32(SMAP_R_EMAC3_TX_THRESHOLD, 12<<SMAP_E3_TX_THRESHLD_BITSFT);
-	SMAP_EMAC3_SET32(SMAP_R_EMAC3_RX_WATERMARK, 16<<SMAP_E3_RX_LO_WATER_BITSFT|128<<SMAP_E3_RX_HI_WATER_BITSFT);
+	//Tx threshold, (12+1)*64=832.
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_TX_THRESHOLD, (12&SMAP_E3_TX_THRESHLD_MSK) << SMAP_E3_TX_THRESHLD_BITSFT);
+	//Rx watermark, low: 16*8=128, high: 128*8=1024.
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_RX_WATERMARK, (16&SMAP_E3_RX_LO_WATER_MSK) << SMAP_E3_RX_LO_WATER_BITSFT | (128&SMAP_E3_RX_HI_WATER_MSK) << SMAP_E3_RX_HI_WATER_BITSFT);
 
 	//Register the interrupt handlers for all SMAP events.
 	for(i=2; i<7; i++) dev9RegisterIntrCb(i, &Dev9IntrCb);
