@@ -6,8 +6,6 @@
 # Copyright 2005, James Lee (jbit<at>jbit<dot>net)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
 */
 
 #include <types.h>
@@ -104,7 +102,7 @@ int fillbuf(int id, int chan)
 
 	setloopflags(id, buf, size);
 
-	sceSdVoiceTrans(0, SD_TRANS_WRITE | SD_TRANS_MODE_DMA, buf, (u8*)(stream_bufspu[chan]+(id*stream_buflen)), size);
+	sceSdVoiceTrans(0, SD_TRANS_WRITE | SD_TRANS_MODE_DMA, buf, (u32*)(stream_bufspu[chan]+(id*stream_buflen)), size);
 	sceSdVoiceTransStatus(0, 1);
 
 	return(size);

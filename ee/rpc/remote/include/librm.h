@@ -6,27 +6,32 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# RPC Interface for PS2 Remote Control Driver (RMMAN)
 */
+
+/**
+ * @file
+ * RPC Interface for PS2 Remote Control Driver (RMMAN)
+ */
 
 #ifndef __LIBRM_H__
 #define __LIBRM_H__
 
-struct remote_data
+#include <librm-common.h>
 
+struct remote_data
 {
    u32 status;
    u32 button;
 };
 
 /* Status values (guess) */
+#define RM_INIT     	0x000012FF
 #define RM_READY      	0x005A12FF
 #define RM_KEYPRESSED 	0x145A12FF
 #define RM_NOREMOTE   	0xFFFFFFFF
 
 /* Button Values */
+#define RM_NONE		0x00000000
 #define RM_AUDIO 	0x0040D649
 #define RM_SHUFFLE	0x0050D349
 #define RM_ANGLE	0x0050D649
@@ -94,4 +99,4 @@ u32 RMMan_GetModuleVersion(void);
 }
 #endif
 
-#endif
+#endif /* __LIBRM_H__ */

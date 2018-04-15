@@ -6,12 +6,13 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
 */
 
-#ifndef _LIBAPA_H
-#define _LIBAPA_H
+#ifndef __LIBAPA_H__
+#define __LIBAPA_H__
+
+#include <types.h>
+#include <hdd-ioctl.h>
 
 // Sectors for this and that ;)
 #define APA_SECTOR_MBR			0
@@ -24,8 +25,6 @@
 #define APA_MAGIC		0x00415041	// 'APA\0'
 #define APA_MBR_VERSION		2
 
-#define APA_MODVER_MAJOR	2
-#define APA_MODVER_MINOR	1
 #define APA_MODVER		((APA_MODVER_MAJOR << 8) | APA_MODVER_MINOR)
 
 typedef struct {
@@ -177,4 +176,4 @@ typedef struct
 
 int apaGetFreeSectors(s32 device, u32 *free, apa_device_t *deviceinfo);
 
-#endif /* _LIBAPA_H */
+#endif /* __LIBAPA_H__ */

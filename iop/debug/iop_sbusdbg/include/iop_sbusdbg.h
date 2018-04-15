@@ -1,12 +1,13 @@
-#ifndef _IOP_DEBUG_H
-#define _IOP_DEBUG_H
+/**
+ * @file
+ * IOP SBUS debug library.
+ */
 
-#include <tamtypes.h>
+#ifndef __IOP_SBUSDBG_H__
+#define __IOP_SBUSDBG_H__
+
+#include <types.h>
 #include <ps2_debug.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 int iop_dbg_install(void);
 int iop_dbg_remove(void);
@@ -34,8 +35,4 @@ void iop_dbg_clr_bpx(void);
 void tty_puts(const char *str);
 void signal_iop_exception(IOP_RegFrame *frame);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#endif /* __IOP_SBUSDBG_H__ */

@@ -7,12 +7,14 @@
 # (c) 2003 Marcus R. Brown (mrbrown@0xd6.org)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# EE SIF RPC commands
-# MRB: This file now contains the SIF routines included
-# with libpsware.  Bug reports welcome.
 */
+
+/**
+ * @file
+ * EE SIF RPC commands
+ * MRB: This file now contains the SIF routines included
+ * with libpsware.  Bug reports welcome.
+ */
 
 #include <tamtypes.h>
 #include <ps2lib_err.h>
@@ -22,7 +24,7 @@
 
 #define RPC_PACKET_SIZE	64
 
-/* Set if the packet has been allocated */
+/** Set if the packet has been allocated */
 #define PACKET_F_ALLOC	0x01
 
 struct rpc_data {
@@ -364,7 +366,7 @@ static void _request_call(SifRpcCallPkt_t *request, void *data)
 	server->rmode      = request->rmode;
 	server->rid        = request->rec_id;
 
-	if (base->thread_id < 0 || base->active == 0)
+	if (base->thread_id < 0 || base->active != 0)
 		return;
 
 	iWakeupThread(base->thread_id);
@@ -564,11 +566,11 @@ SifGetNextRequest(SifRpcDataQueue_t *qd)
 	DI();
 
 	server = qd->start;
-	qd->active = 1;
-
-	if (server) {
-		qd->active = 0;
+	if (server != NULL) {	
+		qd->active = 1;
 		qd->start  = server->next;
+	} else {
+		qd->active = 0;
 	}
 
 	EI();
@@ -613,7 +615,6 @@ void SifExecRequest(SifRpcServerData_t *sd)
 
 	rend->client = sd->client;
 	rend->cid    = SIF_CMD_RPC_CALL;
-	rend->rpc_id = 0;  /* XXX: is this correct? */
 
 	if (sd->rmode) {
 		if (!SifSendCmd(SIF_CMD_RPC_END, rend, RPC_PACKET_SIZE, rec, sd->receive,
@@ -621,6 +622,7 @@ void SifExecRequest(SifRpcServerData_t *sd)
 			return;
 	}
 
+	rend->rpc_id = 0;
 	rend->rec_id = 0;
 
 	if (sd->rsize) {

@@ -6,10 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Some routines to do some timer work
 */
+
+/**
+ * @file
+ * Some routines to do some timer work
+ */
 
 #include <tamtypes.h>
 

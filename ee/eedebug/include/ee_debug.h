@@ -6,17 +6,16 @@
 # Copyright 2001-2009, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-#
-# EEDEBUG - EE debugging library.
-#
-# ee_debug.h - Definitions for the EEDEBUG library.
-#
 */
 
-#ifndef _EE_DEBUG_H
-#define _EE_DEBUG_H
+/**
+ * @file
+ * EEDEBUG - EE debugging library.
+ * Definitions for the EEDEBUG library.
+ */
+
+#ifndef __EE_DEBUG_H__
+#define __EE_DEBUG_H__
 
 #include <tamtypes.h>
 #include <ee_cop0_defs.h>
@@ -72,5 +71,4 @@ void ee_dbg_clr_bpx(void);
 }
 #endif
 
-#endif // #ifndef _EE_DEBUG_H
-
+#endif /* __EE_DEBUG_H__ */

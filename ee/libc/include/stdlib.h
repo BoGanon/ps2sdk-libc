@@ -6,10 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Definition file for our stdlib.
 */
+
+/**
+ * @file
+ * Definition file for our stdlib.
+ */
 
 #ifndef __STDLIB_H__
 #define __STDLIB_H__
@@ -27,29 +29,24 @@ extern "C" {
 #define EXIT_SUCCESS                   0
 #define EXIT_FAILURE                   1
 
-
 /* multibyte maximum character constant. */
 #define MB_CUR_MAX                     4
 
-/* ensure div_t is defined. */
 #ifndef __DIV_T_DEFINED
 #define __DIV_T_DEFINED
 typedef struct {
   int quot;
   int rem;
 } div_t;
-#endif // __DIV_T_DEFINED
+#endif
 
-
-/* ensure ldiv_t is defined. */
 #ifndef __LDIV_T_DEFINED
 #define __LDIV_T_DEFINED
 typedef struct {
   long quot;
   long rem;
 } ldiv_t;
-#endif // __LDIV_T_DEFINED
-
+#endif
 
 #ifndef __STRICT_ANSI__
 #ifndef __LLDIV_T_DEFINED
@@ -58,8 +55,8 @@ typedef struct {
   long long quot;
   long long rem;
 } lldiv_t;
-#endif // __LLDIV_T_DEFINED
-#endif // __STRICT_ANSI__
+#endif
+#endif
 
 /* we don't check for any previously defined value. This HAS to be that. */
 #define        RAND_MAX        2147483647
@@ -110,7 +107,6 @@ INLINE long atol(const char * x) { return strtol(x, NULL, 10); }
 
 void          qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 
-
 /* UTF-8 multi-byte string functions */
 int           mblen(const char *, size_t);
 int           mbslen(const char *s);
@@ -137,5 +133,4 @@ int system (const char * string);
 
 #endif
 
-
-#endif // __STDLIB_H__
+#endif /* __STDLIB_H__ */

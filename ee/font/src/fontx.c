@@ -15,16 +15,24 @@
 
 // Single byte fonts have only a single table whose offset starts after type.
 typedef struct {
-	char id[7];						// "FONTX2" id Identifier
-	char name[9];					// Name of the font
-	unsigned char width;			// Font Width XSize
-	unsigned char height;			// Font Height YSize
-	unsigned char type;				// Type of Font
-									// Single-byte font headers end here
-	unsigned char table_num;		// Number of tables
+	/** "FONTX2" id Identifier */
+	char id[7];
+	/** Name of the font */
+	char name[9];
+	/** Font Width XSize */
+	unsigned char width;
+	/** Font Height YSize */
+	unsigned char height;
+	/** Type of Font */
+	unsigned char type;
+	// Single-byte font headers end here
+	/** Number of tables */
+	unsigned char table_num;
 	struct {
-			unsigned short start;	// Table[n] starting position
-			unsigned short end;		// Table[n] ending position
+		/** Table[n] starting position */
+		unsigned short start;
+		/** Table[n] ending position */
+		unsigned short end;
 	} block[];
 } fontx_hdr;
 
@@ -383,7 +391,7 @@ void fontx_unload(fontx_t *fontx)
 
 }
 
-unsigned char *fontx_get_char(fontx_t* fontx, unsigned short c)
+char *fontx_get_char(fontx_t* fontx, unsigned short c)
 {
 
 	unsigned int i;
@@ -556,7 +564,7 @@ qword_t *fontx_print_ascii(qword_t *q, int context, const unsigned char *str, in
 
 	vertex_t v_pos = *v0;
 
-	int length = strlen(str);
+	int length = strlen((const char *)str);
 	short line_num[100];
 	int line = 0;
 
@@ -732,7 +740,7 @@ qword_t *fontx_print_sjis(qword_t *q, int context, const unsigned char *str, int
 
 	vertex_t v_pos = *v0;
 
-	int length = strlen(str);
+	int length = strlen((const char *)str);
 
 	int line = 0;
 	short halfwidth[100];

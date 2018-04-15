@@ -7,7 +7,6 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # USB Driver Import functions.
 */
 
@@ -38,14 +37,14 @@ UsbInit:
 	 */
 
 	 # register a USB device driver
-	.globl	UsbRegisterDriver
-UsbRegisterDriver:
+	.globl	sceUsbdRegisterLdd
+sceUsbdRegisterLdd:
 	j	$31
 	li	$0, 0x04
 
 	# unregister a USB device driver
-	.globl	UsbUnregisterDriver
-UsbUnregisterDriver:
+	.globl	sceUsbdUnregisterLdd
+sceUsbdUnregisterLdd:
 	j	$31
 	li	$0, 0x05
 
@@ -55,8 +54,8 @@ UsbUnregisterDriver:
 	 * what type of device we are dealing with, and what its capabilities and
 	 * features are.
 	 */
-	.globl	UsbGetDeviceStaticDescriptor
-UsbGetDeviceStaticDescriptor:
+	.globl	sceUsbdScanStaticDescriptor
+sceUsbdScanStaticDescriptor:
 	j	$31
 	li	$0, 0x06
 
@@ -68,14 +67,14 @@ UsbGetDeviceStaticDescriptor:
 	 */
 
 	# set the private data pointer for a device
-	.globl	UsbSetDevicePrivateData
-UsbSetDevicePrivateData:
+	.globl	sceUsbdSetPrivateData
+sceUsbdSetPrivateData:
 	j	$31
 	li	$0, 0x07
 
 	# get the private data pointer for a device
-	.globl	UsbGetDevicePrivateData
-UsbGetDevicePrivateData:
+	.globl	sceUsbdGetPrivateData
+sceUsbdGetPrivateData:
 	j	$31
 	li	$0, 0x08
 
@@ -84,14 +83,14 @@ UsbGetDevicePrivateData:
 	 * passed in.  This endpoint ID is then used when transfering data to the device,
 	 * and to close the endpoint.
 	 */
-	.globl	UsbOpenEndpoint
-UsbOpenEndpoint:
+	.globl	sceUsbdOpenPipe
+sceUsbdOpenPipe:
 	j	$31
 	li	$0, 0x09
 
 	# close an endpoint
-	.globl	UsbCloseEndpoint
-UsbCloseEndpoint:
+	.globl	sceUsbdClosePipe
+sceUsbdClosePipe:
 	j	$31
 	li	$0, 0x0A
 
@@ -101,8 +100,8 @@ UsbCloseEndpoint:
 	 * control, isochronous, interrupt, and bulk transfers.  More details can be
 	 * found in usbd.h.
 	 */
-	.globl	UsbTransfer
-UsbTransfer:
+	.globl	sceUsbdTransferPipe
+sceUsbdTransferPipe:
 	j	$31
 	li	$0, 0x0B
 

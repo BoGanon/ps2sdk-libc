@@ -6,27 +6,28 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# fileXio RPC client header file
 */
 
-#ifndef _FILEXIO_RPC_H
-#define _FILEXIO_RPC_H
+/**
+ * @file
+ * fileXio RPC client header file
+ */
 
-// include the common definitions
+#ifndef __FILEXIO_RPC_H__
+#define __FILEXIO_RPC_H__
+
 #include <fileXio.h>
 #include <sys/stat.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define FXIO_WAIT		0
 #define FXIO_NOWAIT		1
 
 #define FXIO_COMPLETE	1
 #define FXIO_INCOMPLETE	0
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int fileXioInit(void);
 void fileXioExit(void);
@@ -46,12 +47,12 @@ int fileXioRename(const char* source, const char* dest);
 int fileXioSymlink(const char* source, const char* dest);
 int fileXioReadlink(const char* source, char* buf, int buflen);
 int fileXioChdir(const char* pathname);
-int fileXioOpen(const char* source, int flags, int modes);
+int fileXioOpen(const char* source, int flags, ...);
 int fileXioClose(int fd);
 int fileXioRead(int fd, void *buf, int size);
 int fileXioWrite(int fd, const void *buf, int size);
-int fileXioLseek(int fd, long offset, int whence);
-long long fileXioLseek64(int fd, long long offset, int whence);
+int fileXioLseek(int fd, int offset, int whence);
+s64 fileXioLseek64(int fd, s64 offset, int whence);
 int fileXioChStat(const char *name, iox_stat_t *stat, int mask);
 int fileXioGetStat(const char *name, iox_stat_t *stat);
 int fileXioFormat(const char *dev, const char *blockdev, const void *args, int arglen);
@@ -68,5 +69,4 @@ int fileXioSetRWBufferSize(int size);
 }
 #endif
 
-
-#endif // _FILEXIO_H
+#endif /* __FILEXIO_RPC_H__ */

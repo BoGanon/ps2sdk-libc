@@ -5,31 +5,20 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
 
 EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
 
-EE_OBJS_DIR = obj/
-EE_LIB_DIR = lib/
-EE_SRC_DIR = src/
-EE_INC_DIR = include/
+PS2IP_DNS = 1
 
-PS2IP_DNS=1
-
-EE_OBJS = ps2ipc.o erl-support.o
-EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)
-
-EE_LIB = $(EE_LIB_DIR)libps2ips.a
+EE_LIB = libps2ips.a
 
 ifeq ($(PS2IP_DNS),1)
 EE_CFLAGS += -DPS2IP_DNS
 endif
 
-all: $(EE_OBJS_DIR) $(EE_LIB_DIR) $(EE_LIB)
-
-clean:
-	rm -f -r $(EE_OBJS_DIR) $(EE_LIB_DIR)
+EE_OBJS = ps2ipc.o erl-support.o
 
 include $(PS2SDKSRC)/Defs.make
+include $(PS2SDKSRC)/ee/Rules.lib.make
 include $(PS2SDKSRC)/ee/Rules.make
 include $(PS2SDKSRC)/ee/Rules.release

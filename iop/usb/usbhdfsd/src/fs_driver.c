@@ -578,7 +578,7 @@ static int fs_dopen(iop_file_t *fd, const char *name)
 	memset(fd->privdata, 0, sizeof(fs_dir)); //NB: also implies "file_flag = FS_FILE_FLAG_FOLDER;"
 	rec = (fs_dir *) fd->privdata;
 
-	rec->status = fat_getFirstDirentry(fatd, (char*)name, &rec->fatdlist, &rec->dirent.fatdir, &rec->current_fatdir);
+	rec->status = fat_getFirstDirentry(fatd, name, &rec->fatdlist, &rec->dirent.fatdir, &rec->current_fatdir);
 
 	// root directory may have no entries, nothing else may.
 	if(rec->status == 0 && !is_root)
@@ -644,7 +644,7 @@ static int fs_dread(iop_file_t *fd, io_dirent_t *buffer)
 	{
 		memset(buffer, 0, sizeof(io_dirent_t));
 		fillStat(&buffer->stat, &rec->current_fatdir);
-		strcpy(buffer->name, rec->current_fatdir.name);
+		strcpy(buffer->name, (const char*)rec->current_fatdir.name);
 	}
 
 	if (rec->status > 0)
@@ -684,7 +684,7 @@ static int fs_getstat(iop_file_t *fd, const char *name, io_stat_t *stat)
 }
 
 //---------------------------------------------------------------------------
-int fs_ioctl(iop_file_t *fd, u32 request, void *data)
+int fs_ioctl(iop_file_t *fd, int cmd, void *data)
 {
 	fat_driver* fatd;
 	struct fs_dirent* dirent = (struct fs_dirent *) fd->privdata;	//Remember to re-cast this to the right structure (either fs_rec or fs_dir)!
@@ -698,10 +698,16 @@ int fs_ioctl(iop_file_t *fd, u32 request, void *data)
 	fatd = fat_getData(fd->unit);
 	if (fatd == NULL) { _fs_unlock(); return -ENODEV; }
 
-	switch (request) {
+	switch (cmd) {
 		case USBMASS_IOCTL_RENAME:
 			ret = fat_renameFile(fatd, &dirent->fatdir, data);	//No need to re-cast since this inner structure is a common one.
 			FLUSH_SECTORS(fatd);
+			break;
+		case USBMASS_IOCTL_GET_CLUSTER:
+			ret = ((fs_rec *)fd->privdata)->dirent.fatdir.startCluster;
+			break;
+		case USBMASS_IOCTL_GET_LBA:
+			ret = fat_cluster2sector(&fatd->partBpb, ((fs_rec *)fd->privdata)->dirent.fatdir.startCluster);
 			break;
 		default:
 			ret = fs_dummy();

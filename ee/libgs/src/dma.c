@@ -6,7 +6,6 @@
 # (c) 2009 Lion
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
 */
 
 #include <errno.h>
@@ -16,15 +15,15 @@
 
 #include "internal.h"
 
-/******************************************************************
-* Miscellaneous
-*
-*
-******************************************************************/
-#define gif_chcr	0x1000a000	// GIF Channel Control Register
-#define gif_madr	0x1000a010	// Transfer Address Register
-#define gif_qwc		0x1000a020	// Transfer Size Register (in qwords)
-#define gif_tadr	0x1000a030	// ...
+// Miscellaneous
+
+/** GIF Channel Control Register */
+#define gif_chcr	0x1000a000
+/** Transfer Address Register */
+#define gif_madr	0x1000a010
+/** Transfer Size Register (in qwords) */
+#define gif_qwc		0x1000a020
+#define gif_tadr	0x1000a030
 
  #define DMA_TAG_REFE	0x00
  #define DMA_TAG_CNT	0x01
@@ -36,15 +35,24 @@
  #define DMA_TAG_END	0x07
 
 typedef struct {
-	unsigned direction	:1;	// Direction
-	unsigned pad1		:1; // Pad with zeros
-	unsigned mode		:2;	// Mode
-	unsigned asp		:2;	// Address stack pointer
-	unsigned tte		:1;	// Tag trasfer enable
-	unsigned tie		:1;	// Tag interrupt enable
-	unsigned start_flag	:1;	// start
-	unsigned pad2		:7; // Pad with more zeros
-	unsigned tag		:16;// DMAtag
+	/** Direction */
+	unsigned direction	:1;
+	/** Pad with zeros */
+	unsigned pad1		:1; 
+	/** Mode */
+	unsigned mode		:2;
+	/** Address stack pointer */
+	unsigned asp		:2;
+	/** Tag trasfer enable */
+	unsigned tte		:1;
+	/** Tag interrupt enable */
+	unsigned tie		:1;
+	/** start */
+	unsigned start_flag	:1;
+	/** Pad with more zeros */
+	unsigned pad2		:7; 
+	/** DMAtag */
+	unsigned tag		:16;
 }DMA_CHCR;
 
 void GsDmaInit(void)
@@ -80,12 +88,12 @@ void GsDmaInit(void)
 	);
 }
 
-void GsDmaSend(const void *addr, unsigned int qwords)
+void GsDmaSend(const void *addr, u32 qwords)
 {
 	DMA_CHCR		chcr;
 	static char		spr;
 
-	if((unsigned int)addr >= 0x70000000 && (unsigned int)addr <= 0x70003fff)
+	if((u32)addr >= 0x70000000 && (u32)addr <= 0x70003fff)
 	{
 		spr = 1;
 	}
@@ -94,9 +102,9 @@ void GsDmaSend(const void *addr, unsigned int qwords)
 		spr = 0;
 	}
 
-	*((volatile unsigned int *)(gif_madr)) = ( unsigned int )((( unsigned int )addr) & 0x7FFFFFFF) << 0 | (unsigned int)((spr) & 0x00000001) << 31;;
+	*((vu32 *)(gif_madr)) = ( u32 )((( u32 )addr) & 0x7FFFFFFF) << 0 | (u32)((spr) & 0x00000001) << 31;;
 
-	*((volatile unsigned int *)(gif_qwc)) = qwords;
+	*((vu32 *)(gif_qwc)) = qwords;
 
 	chcr.direction	=1;
 	chcr.mode		=0;
@@ -107,15 +115,15 @@ void GsDmaSend(const void *addr, unsigned int qwords)
 	chcr.tag		=0;
 	chcr.pad1		=0;
 	chcr.pad2		=0;
-	*((volatile unsigned int *)(gif_chcr)) = *(unsigned int *)&chcr;
+	*((volatile DMA_CHCR *)(gif_chcr)) = chcr;
 }
 
-void GsDmaSend_tag(const void *addr, unsigned int qwords, const GS_GIF_DMACHAIN_TAG *tag)
+void GsDmaSend_tag(const void *addr, u32 qwords, const GS_GIF_DMACHAIN_TAG *tag)
 {
 	DMA_CHCR		chcr;
 	static char		spr;
 
-	if((unsigned int)addr >= 0x70000000 && (unsigned int)addr <= 0x70003fff)
+	if((u32)addr >= 0x70000000 && (u32)addr <= 0x70003fff)
 	{
 		spr = 1;
 	}
@@ -124,9 +132,9 @@ void GsDmaSend_tag(const void *addr, unsigned int qwords, const GS_GIF_DMACHAIN_
 		spr = 0;
 	}
 
-	*((volatile unsigned int *)(gif_madr)) = ( unsigned int )((( unsigned int )addr) & 0x7FFFFFFF) << 0 | (unsigned int)((spr) & 0x00000001) << 31;
-	*((volatile unsigned int *)(gif_qwc)) = qwords;
-	*((volatile unsigned int *)(gif_tadr)) = ( unsigned int )((( unsigned int )tag) & 0x7FFFFFFF) << 0 | (unsigned int)((0) & 0x00000001) << 31;
+	*((vu32 *)(gif_madr)) = ( u32 )((( u32 )addr) & 0x7FFFFFFF) << 0 | (u32)((spr) & 0x00000001) << 31;
+	*((vu32 *)(gif_qwc)) = qwords;
+	*((vu32 *)(gif_tadr)) = ( u32 )((( u32 )tag) & 0x7FFFFFFF) << 0 | (u32)((0) & 0x00000001) << 31;
 
 	chcr.direction	=1;
 	chcr.mode		=1; //chain
@@ -137,10 +145,10 @@ void GsDmaSend_tag(const void *addr, unsigned int qwords, const GS_GIF_DMACHAIN_
 	chcr.tag		=0;
 	chcr.pad1		=0;
 	chcr.pad2		=0;
-	*((volatile unsigned int *)(gif_chcr)) = *(unsigned int *)&chcr;
+	*((volatile DMA_CHCR *)(gif_chcr)) = chcr;
 }
 
 void GsDmaWait(void)
 {
-	while(*((volatile unsigned int *)(0x1000a000)) & ((unsigned int)1<<8));
+	while(*((vu32 *)(0x1000a000)) & ((u32)1<<8));
 }

@@ -6,124 +6,131 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# USB Driver function prototypes and constants.
 */
+
+/**
+ * @file
+ * USB Driver function prototypes and constants.
+ */
+
 #ifndef __USBD_H__
 #define __USBD_H__
 
-#include "irx.h"
-
-#define usbd_IMPORTS_start DECLARE_IMPORT_TABLE(usbd,1,1)
-#define usbd_IMPORTS_end END_IMPORT_TABLE
-
-typedef unsigned int uint32;
-typedef unsigned short uint16;
-typedef unsigned char uint8;
-typedef signed int int32;
-typedef signed short int16;
-typedef signed char int8;
+#include <types.h>
+#include <irx.h>
 
 typedef struct {
-	uint8  requesttype;
-	uint8  request;
-	uint16 value;
-	uint16 index;
-	uint16 length;
-} UsbDeviceRequest __attribute__ ((packed));
+	u8  requesttype;
+	u8  request;
+	u16 value;
+	u16 index;
+	u16 length;
+} UsbDeviceRequest;
 
-typedef void (*UsbCallbackProc)(int result, int count, void *arg);
+typedef void (*sceUsbdDoneCallback)(int result, int count, void *arg);
 
 typedef struct {
-	uint8 bLength;
-	uint8 bDescriptorType;
-	uint8 bNbrPorts;
-	uint8 wHubCharacteristicsLb;
-	uint8 wHubCharacteristicsHb;
-	uint8 bPwrOn2PwrGood;
-	uint8 bHubContrCurrent;
-	uint8 deviceRemovable[8]; // arbitrary number, depends on number of ports
-} UsbHubDescriptor __attribute__ ((packed));
+	u8 bLength;
+	u8 bDescriptorType;
+	u8 bNbrPorts;
+	u8 wHubCharacteristicsLb;
+	u8 wHubCharacteristicsHb;
+	u8 bPwrOn2PwrGood;
+	u8 bHubContrCurrent;
+	u8 deviceRemovable[8]; // arbitrary number, depends on number of ports
+} UsbHubDescriptor;
 
 
-/* USB driver bus event listener structure */
+/** USB driver bus event listener structure */
 typedef struct _UsbDriver {
 	struct _UsbDriver *next, *prev;
-
-	/* short sweet name for your driver, like "usbmouse" or "pl2301" */
+	/** short sweet name for your driver, like "usbmouse" or "pl2301" */
 	char *name;
-
 	int (*probe)(int devID);
-
 	int (*connect)(int devID);
-
 	int (*disconnect)(int devID);
-	uint32 reserved1;
-	uint32 reserved2;
-	uint32 reserved3;
-	uint32 reserved4;
-	uint32 reserved5;
+	u32 reserved1;
+	u32 reserved2;
+	u32 reserved3;
+	u32 reserved4;
+	u32 reserved5;
 	void *gp;
-} UsbDriver __attribute__ ((packed));
+} sceUsbdLddOps;
 
 typedef struct {
-	uint8 bLength;
-	uint8 bDescriptorType;
-	uint16 bcdUSB;
-	uint8 bDeviceClass;
-	uint8 bDeviceSubClass;
-	uint8 bDeviceProtocol;
-	uint8 bMaxPacketSize0;
-	uint16 idVendor;
-	uint16 idProduct;
-	uint16 bcdDevice;
-	uint8 iManufacturer;
-	uint8 iProduct;
-	uint8 iSerialNumber;
-	uint8 bNumConfigurations;
-} UsbDeviceDescriptor __attribute__ ((packed));
+	u8 bLength;
+	u8 bDescriptorType;
+	u16 bcdUSB;
+	u8 bDeviceClass;
+	u8 bDeviceSubClass;
+	u8 bDeviceProtocol;
+	u8 bMaxPacketSize0;
+	u16 idVendor;
+	u16 idProduct;
+	u16 bcdDevice;
+	u8 iManufacturer;
+	u8 iProduct;
+	u8 iSerialNumber;
+	u8 bNumConfigurations;
+} UsbDeviceDescriptor;
 
 typedef struct {
-	uint8 bLength;
-	uint8 bDescriptorType;
-	//uint8 wTotalLengthLb;
-	//uint8 wTotalLengthHb;
-	uint16 wTotalLength; // apparently we can expect this to be aligned, for some reason
-	uint8 bNumInterfaces;
-	uint8 bConfigurationValue;
-	uint8 iConfiguration;
-	uint8 bmAttributes;
-	uint8 maxPower;
-} UsbConfigDescriptor __attribute__ ((packed));
+	u8 bLength;
+	u8 bDescriptorType;
+	//u8 wTotalLengthLb;
+	//u8 wTotalLengthHb;
+	u16 wTotalLength; // apparently we can expect this to be aligned, for some reason
+	u8 bNumInterfaces;
+	u8 bConfigurationValue;
+	u8 iConfiguration;
+	u8 bmAttributes;
+	u8 maxPower;
+} UsbConfigDescriptor;
 
 typedef struct {
-	uint8 bLength;
-	uint8 bDescriptorType;
-	uint8 bInterfaceNumber;
-	uint8 bAlternateSetting;
-	uint8 bNumEndpoints;
-	uint8 bInterfaceClass;
-	uint8 bInterfaceSubClass;
-	uint8 bInterfaceProtocol;
-	uint8 iInterface;
-} UsbInterfaceDescriptor __attribute__ ((packed));
+	u8 bLength;
+	u8 bDescriptorType;
+	u8 bInterfaceNumber;
+	u8 bAlternateSetting;
+	u8 bNumEndpoints;
+	u8 bInterfaceClass;
+	u8 bInterfaceSubClass;
+	u8 bInterfaceProtocol;
+	u8 iInterface;
+} UsbInterfaceDescriptor;
 
 typedef struct {
-	uint8 bLength;
-	uint8 bDescritorLength;
-	uint8 bEndpointAddress;
-	uint8 bmAttributes;
-	uint8 wMaxPacketSizeLB;
-	uint8 wMaxPacketSizeHB;
-	uint8 bInterval;
-} UsbEndpointDescriptor __attribute__ ((packed));
+	u8 bLength;
+	u8 bDescritorLength;
+	u8 bEndpointAddress;
+	u8 bmAttributes;
+	u8 wMaxPacketSizeLB;
+	u8 wMaxPacketSizeHB;
+	u8 bInterval;
+} UsbEndpointDescriptor;
 
 typedef struct {
-	uint8  bLength;
-	uint8  bDescriptorType;
-	uint16 wData[1];
-} UsbStringDescriptor __attribute__ ((packed));
+	u8  bLength;
+	u8  bDescriptorType;
+	u16 wData[1];
+} UsbStringDescriptor;
+
+typedef struct {
+	u16 bLength:11;
+	u16 reserved:1;
+	u16 PSW:4;
+} sceUsbdIsochronousPswLen;
+
+#define USB_MAX_ISOCH_PACKETS 8
+
+typedef struct {
+	void *bBufStart;
+	u32 bRelStartFrame;
+	u32 bNumPackets;
+	sceUsbdIsochronousPswLen Packets[USB_MAX_ISOCH_PACKETS];
+} sceUsbdMultiIsochronousRequest;
+
+typedef	void (*sceUsbdMultiIsochronousDoneCallback)(int result, sceUsbdMultiIsochronousRequest *req, void *arg);
 
 /*
  * Device and/or Interface Class codes
@@ -200,66 +207,120 @@ typedef struct {
 #define USB_REQ_SET_INTERFACE		0x0B
 #define USB_REQ_SYNCH_FRAME			0x0C
 
-#define USB_RC_OK			0x000	// No Error
-#define USB_RC_CRC			0x001	// Bad CRC
-#define USB_RC_BITSTUFF		0x002	// Bit Stuffing
-#define USB_RC_TOGGLE		0x003	// Bad Direction Toggle
-#define USB_RC_STALL		0x004	// Endpoint Stalled
-#define USB_RC_NORESPONSE	0x005	// Device Is Not Responding
-#define USB_RC_BADPID		0x006	// PID Check Failed
-#define USB_RC_WRONGPID		0x007	// Unexpected PID
-#define USB_RC_DATAOVER		0x008	// Data Overrun
-#define USB_RC_DATAUNDER	0x009	// Data Underrun
-#define USB_RC_BUFFOVER		0x00C	// Buffer Overrun
-#define USB_RC_BUFFUNDER	0x00D	// Buffer Underrun
-#define USB_RC_NOTACCESSED	0x00E	// Not Accessed
-#define USB_RC_NOTACCESSED2	0x00F	// Not Accessed
+/** No Error */
+#define USB_RC_OK			0x000
+/** Bad CRC */
+#define USB_RC_CRC			0x001
+/** Bit Stuffing */
+#define USB_RC_BITSTUFF		0x002
+/** Bad Direction Toggle */
+#define USB_RC_TOGGLE		0x003
+/** Endpoint Stalled */
+#define USB_RC_STALL		0x004
+/** Device Is Not Responding */
+#define USB_RC_NORESPONSE	0x005
+/** PID Check Failed */
+#define USB_RC_BADPID		0x006
+/** Unexpected PID */
+#define USB_RC_WRONGPID		0x007
+/** Data Overrun */
+#define USB_RC_DATAOVER		0x008
+/** Data Underrun */
+#define USB_RC_DATAUNDER	0x009
+/** Buffer Overrun */
+#define USB_RC_BUFFOVER		0x00C
+/** Buffer Underrun */
+#define USB_RC_BUFFUNDER	0x00D
+/** Not Accessed */
+#define USB_RC_NOTACCESSED	0x00E
+/** Not Accessed */
+#define USB_RC_NOTACCESSED2	0x00F
 
-#define USB_RC_BADDEV		0x101	// Invalid device ID
-#define USB_RC_BADPIPE		0x102	// Invalid pipe ID
-#define USB_RC_BADLENGTH	0x103	// Invalid length
-#define USB_RC_BADDRIVER	0x104	// Invalid driver
-#define USB_RC_BADCONTEXT	0x105	// Invalid context
+/** Invalid device ID */
+#define USB_RC_BADDEV		0x101
+/** Invalid pipe ID */
+#define USB_RC_BADPIPE		0x102
+/** Invalid length */
+#define USB_RC_BADLENGTH	0x103
+/** Invalid driver */
+#define USB_RC_BADDRIVER	0x104
+/** Invalid context */
+#define USB_RC_BADCONTEXT	0x105
 #define USB_RC_BADALIGN		0x106
 #define USB_RC_BADHUBDEPTH	0x107
 
-//#define USB_RC_ED			0x111	// No space for Endpoint Descriptor
-#define USB_RC_IOREQ		0x112	// No space for Input/Output Request
-#define USB_RC_BADOPTION	0x113	// Bad Option
+/** No space for Endpoint Descriptor */
+#define USB_RC_ED			0x111
+/** No space for Input/Output Request */
+#define USB_RC_IOREQ		0x112
+/** Bad Option */
+#define USB_RC_BADOPTION	0x113
 
-#define USB_RC_BUSY			0x121	// Device or Bus Busy
-#define USB_RC_ABORTED		0x122	// Operation Aborted
+/** Device or Bus Busy */
+#define USB_RC_BUSY			0x121
+/** Operation Aborted */
+#define USB_RC_ABORTED		0x122
 
-//#define USB_RC_NOSUPPORT	0x131	// Unsupported Operation (not implemented)
-//#define USB_RC_UNKNOWN		0x132	// Unknown Error (USBD.IRX doesn't know what went wrong)
+/** Unsupported Operation (not implemented) */
+#define USB_RC_NOSUPPORT	0x131
+/** Unknown Error (USBD.IRX doesn't know what went wrong) */
+#define USB_RC_UNKNOWN		0x132
 
-int UsbRegisterDriver(UsbDriver *driver);
-int UsbUnregisterDriver(UsbDriver *driver);
-void *UsbGetDeviceStaticDescriptor(int devId, void *data, uint8 type);
-int UsbGetDeviceLocation(int devId, uint8 *path);
-int UsbSetDevicePrivateData(int devId, void *data);
-void *UsbGetDevicePrivateData(int devId);
-int UsbOpenEndpoint(int devId, UsbEndpointDescriptor *desc);
-int UsbCloseEndpoint(int id);
-int UsbTransfer(int id, void *data, uint32 len, void *option, UsbCallbackProc callback, void *cbArg);
-int UsbOpenEndpointAligned(int devId, UsbEndpointDescriptor *desc);
+int sceUsbdRegisterLdd(sceUsbdLddOps *driver);
+int sceUsbdUnregisterLdd(sceUsbdLddOps *driver);
+void *sceUsbdScanStaticDescriptor(int devId, void *data, u8 type);
+int sceUsbdGetDeviceLocation(int devId, u8 *path);
+int sceUsbdSetPrivateData(int devId, void *data);
+void *sceUsbdGetPrivateData(int devId);
+int sceUsbdOpenPipe(int devId, UsbEndpointDescriptor *desc);
+int sceUsbdOpenPipeAligned(int devId, UsbEndpointDescriptor *desc);
+int sceUsbdClosePipe(int id);
+int sceUsbdTransferPipe(int id, void *data, u32 len, void *option, sceUsbdDoneCallback callback, void *cbArg);
 
 // these aren't implemented:
-int UsbRegisterAutoloader(UsbDriver *drv);
-int UsbUnregisterAutoloader(UsbDriver *drv);
-int UsbChangeThreadPriority(void);
+int UsbRegisterAutoloader(sceUsbdLddOps *drv);
+int UsbUnregisterAutoloader(sceUsbdLddOps *drv);
+int sceUsbdChangeThreadPriority(int prio1, int prio2);
+int sceUsbdGetReportDescriptor(int devId, int cfgNum, int ifNum, void **desc, u32 *len);
+int sceUsbdMultiIsochronousTransfer(int pipeId, sceUsbdMultiIsochronousRequest *request, sceUsbdMultiIsochronousDoneCallback callback, void *cbArg);
 
+// For backwards compatibility:
+#define UsbCallbackProc sceUsbdDoneCallback
+#define UsbDriver sceUsbdLddOps
+#define UsbIsochronousPswLen sceUsbdIsochronousPswLen
+#define UsbMultiIsochronousRequest sceUsbdMultiIsochronousRequest
+#define UsbMultiIsochronousDoneCallback sceUsbdMultiIsochronousDoneCallback
+#define UsbRegisterDriver sceUsbdRegisterLdd
+#define UsbUnregisterDriver sceUsbdUnregisterLdd
+#define UsbGetDeviceStaticDescriptor sceUsbdScanStaticDescriptor
+#define UsbGetDeviceLocation sceUsbdGetDeviceLocation
+#define UsbSetDevicePrivateData sceUsbdSetPrivateData
+#define UsbGetDevicePrivateData sceUsbdGetPrivateData
+#define UsbOpenEndpoint sceUsbdOpenPipe
+#define UsbOpenEndpointAligned sceUsbdOpenPipeAligned
+#define UsbCloseEndpoint sceUsbdClosePipe
+#define UsbTransfer sceUsbdTransferPipe
+#define UsbChangeThreadPriority sceUsbdChangeThreadPriority
+#define UsbGetReportDescriptor sceUsbdGetReportDescriptor
+#define UsbMultiIsochronousTransfer sceUsbdMultiIsochronousTransfer
 
-#define I_UsbRegisterDriver DECLARE_IMPORT(4,UsbRegisterDriver)
-#define I_UsbUnregisterDriver DECLARE_IMPORT(5,UsbUnregisterDriver)
-#define I_UsbGetDeviceStaticDescriptor DECLARE_IMPORT(6,UsbGetDeviceStaticDescriptor)
-#define I_UsbSetDevicePrivateData DECLARE_IMPORT(7,UsbSetDevicePrivateData)
-#define I_UsbGetDevicePrivateData DECLARE_IMPORT(8,UsbGetDevicePrivateData)
-#define I_UsbOpenEndpoint DECLARE_IMPORT(9, UsbOpenEndpoint)
-#define I_UsbCloseEndpoint DECLARE_IMPORT(10, UsbCloseEndpoint)
-#define I_UsbTransfer DECLARE_IMPORT(11,UsbTransfer)
-#define I_UsbOpenEndpointAligned DECLARE_IMPORT(12,UsbOpenEndpointAligned)
+#define usbd_IMPORTS_start DECLARE_IMPORT_TABLE(usbd,1,1)
+#define usbd_IMPORTS_end END_IMPORT_TABLE
 
-#endif // __USBD_H__
+#define I_sceUsbdRegisterLdd DECLARE_IMPORT(4, sceUsbdRegisterLdd)
+#define I_sceUsbdUnregisterLdd DECLARE_IMPORT(5, sceUsbdUnregisterLdd)
+#define I_sceUsbdScanStaticDescriptor DECLARE_IMPORT(6, sceUsbdScanStaticDescriptor)
+#define I_sceUsbdSetPrivateData DECLARE_IMPORT(7, sceUsbdSetPrivateData)
+#define I_sceUsbdGetPrivateData DECLARE_IMPORT(8, sceUsbdGetPrivateData)
+#define I_sceUsbdOpenPipe DECLARE_IMPORT(9, sceUsbdOpenPipe)
+#define I_sceUsbdClosePipe DECLARE_IMPORT(10, sceUsbdClosePipe)
+#define I_sceUsbdTransferPipe DECLARE_IMPORT(11, sceUsbdTransferPipe)
+#define I_sceUsbdOpenPipeAligned DECLARE_IMPORT(12, sceUsbdOpenPipeAligned)
+#define I_sceUsbdGetDeviceLocation DECLARE_IMPORT(13, sceUsbdGetDeviceLocation)
+#define I_UsbRegisterAutoloader DECLARE_IMPORT(14, UsbRegisterAutoloader)
+#define I_UsbUnregisterAutoloader DECLARE_IMPORT(15, UsbUnregisterAutoloader)
+#define I_sceUsbdChangeThreadPriority DECLARE_IMPORT(16, sceUsbdChangeThreadPriority)
+#define I_sceUsbdGetReportDescriptor DECLARE_IMPORT(17, sceUsbdGetReportDescriptor)
+#define I_sceUsbdMultiIsochronousTransfer DECLARE_IMPORT(18, sceUsbdMultiIsochronousTransfer)
 
-
+#endif /* __USBD_H__ */

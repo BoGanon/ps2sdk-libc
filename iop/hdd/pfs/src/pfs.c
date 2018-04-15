@@ -7,18 +7,21 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # PFS startup and misc code
 */
 
 #include <stdio.h>
+#ifdef _IOP
 #include <sysclib.h>
-#include <errno.h>
-#include <iomanX.h>
-#include <thsemap.h>
-#include <poweroff.h>
-#include <irx.h>
 #include <loadcore.h>
+#else
+#include <string.h>
+#include <stdlib.h>
+#endif
+#include <irx.h>
+#include <iomanX.h>
+#include <errno.h>
+#include <thsemap.h>
 
 #include "pfs-opt.h"
 #include "libpfs.h"
@@ -26,7 +29,9 @@
 #include "pfs_fio.h"
 #include "pfs_fioctl.h"
 
+#ifdef _IOP
 IRX_ID("pfs_driver", PFS_MAJOR, PFS_MINOR);
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //	Globals
@@ -54,10 +59,10 @@ iop_device_ops_t pfsOps = {
 	pfsFioSync,
 	pfsFioMount,
 	pfsFioUmount,
-	(void*)pfsFioUnsupported /*pfsFioLseek64*/,
+	pfsFioLseek64,
 	pfsFioDevctl,
-	(void*)pfsFioUnsupported /*pfsFioSymlink*/,
-	(void*)pfsFioUnsupported /*pfsFioReadlink*/,
+	pfsFioSymlink,
+	pfsFioReadlink,
 	pfsFioIoctl2
 };
 
@@ -128,7 +133,7 @@ int _start(int argc, char *argv[])
 	int number;
 	int numBuf = 8;
 	int reqBuf;
-	int size;
+	int size, ret;
 
 	PFS_PRINTF(PFS_DRV_NAME" Playstation Filesystem Driver v%d.%d\nps2fs: (c) 2003 Sjeep, Vector and Florin Sasu\n", PFS_MAJOR, PFS_MINOR);
 
@@ -207,8 +212,10 @@ int _start(int argc, char *argv[])
 	// Allocate and zero memory for file slots
 	size = pfsConfig.maxOpen * sizeof(pfs_file_slot_t);
 	pfsFileSlots = pfsAllocMem(size);
-	if(!pfsFileSlots) {
-		PFS_PRINTF(PFS_DRV_NAME" Error: Failed to allocate memory!\n");
+	ret = (pfsFileSlots == NULL) ? -ENOMEM : 0;
+	if(ret != 0)
+	{	//Official PFS module does not print an error message here.
+		PFS_PRINTF(PFS_DRV_NAME" Error: Failed to allocate memory for file descriptors!\n");
 		return MODULE_NO_RESIDENT_END;
 	}
 
@@ -218,9 +225,14 @@ int _start(int argc, char *argv[])
 		return MODULE_NO_RESIDENT_END;
 
 	DelDrv("pfs");
-	AddDrv(&pfsFioDev);
+	if(AddDrv(&pfsFioDev) == 0) {
+#ifdef PFS_OSD_VER
+		PFS_PRINTF(PFS_DRV_NAME" version %04x driver start. This is OSD version!\n", IRX_VER(PFS_MAJOR, PFS_MINOR));
+#else
+		PFS_PRINTF(PFS_DRV_NAME" version %04x driver start.\n", IRX_VER(PFS_MAJOR, PFS_MINOR));
+#endif
+		return MODULE_RESIDENT_END;
+	}
 
-	PFS_PRINTF(PFS_DRV_NAME" Driver start.\n");
-
-	return MODULE_RESIDENT_END;
+	return MODULE_NO_RESIDENT_END;
 }

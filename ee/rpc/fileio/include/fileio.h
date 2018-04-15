@@ -7,13 +7,15 @@
 # (c) 2003 Marcus R. Brown (mrbrown@0xd6.org)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# EE FILE IO handling
 */
 
-#ifndef _FILEIO_H
-#define _FILEIO_H
+/**
+ * @file
+ * EE FILE IO handling
+ */
+
+#ifndef __FILEIO_H__
+#define __FILEIO_H__
 
 #define FIO_PATH_MAX	256
 
@@ -75,4 +77,4 @@ int fioRmdir(const char* dirname);
 }
 #endif
 
-#endif // _FILEIO_H
+#endif /* __FILEIO_H__ */

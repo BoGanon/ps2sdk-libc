@@ -38,9 +38,12 @@ sysclib_IMPORTS_end
 
 sysmem_IMPORTS_start
 I_AllocSysMemory
-//I_QueryBlockSize
 I_FreeSysMemory
 sysmem_IMPORTS_end
+
+thbase_IMPORTS_start
+I_DelayThread
+thbase_IMPORTS_end
 
 thsemap_IMPORTS_start
 I_CreateSema

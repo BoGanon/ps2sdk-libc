@@ -5,25 +5,34 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
 
-IOP_OBJS_DIR = obj/
-IOP_BIN_DIR = irx/
-IOP_SRC_DIR = src/
-IOP_INC_DIR = include/
+#Enable to disable initialization of SMAP within DEV9 (i.e. clone adaptor compatibility).
+DEV9_SKIP_SMAP_INIT ?= 0
 
-IOP_BIN  = $(IOP_BIN_DIR)ps2dev9.irx
+#Enable to enable support for the PSX's devices
+DEV9_PSX_SUPPORT ?= 1
+
+#Disable to disable the workaround (skip SMAP initialization) for bad GameStar compatible adaptors.
+DEV9_GAMESTAR_WORKAROUND ?= 1
+
+IOP_BIN ?= ps2dev9.irx
+
+IOP_INCS += -I$(PS2SDKSRC)/iop/dev9/poweroff/include
 IOP_OBJS = ps2dev9.o exports.o imports.o
-IOP_OBJS := $(IOP_OBJS:%=$(IOP_OBJS_DIR)%)
 
-IOP_INCS += -I$(PS2SDKSRC)/iop/dev9/poweroff/include/
-IOP_CFLAGS  += -Os
+ifeq ($(DEV9_SKIP_SMAP_INIT),1)
+IOP_CFLAGS += -DDEV9_SKIP_SMAP_INIT=1
+endif
 
-all: $(IOP_OBJS_DIR) $(IOP_BIN_DIR) $(IOP_BIN)
+ifeq ($(DEV9_PSX_SUPPORT),1)
+IOP_CFLAGS += -DDEV9_PSX_SUPPORT=1
+endif
 
-clean:
-	rm -f -r $(IOP_OBJS_DIR) $(IOP_BIN_DIR)
+ifeq ($(DEV9_GAMESTAR_WORKAROUND),1)
+IOP_CFLAGS += -DDEV9_GAMESTAR_WORKAROUND=1
+endif
 
 include $(PS2SDKSRC)/Defs.make
+include $(PS2SDKSRC)/iop/Rules.bin.make
 include $(PS2SDKSRC)/iop/Rules.make
 include $(PS2SDKSRC)/iop/Rules.release

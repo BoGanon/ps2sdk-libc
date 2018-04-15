@@ -29,7 +29,7 @@
 #include <sysmem.h>
 #endif
 
-#include <usbhdfsd.h>
+#include <usbhdfsd-common.h>
 #include "usbhd_common.h"
 #include "fat_driver.h"
 #include "fat_write.h"
@@ -411,7 +411,7 @@ static int fs_write(iop_file_t* fd, void * buffer, int size )
 
 	if (size <= 0) { _fs_unlock(); return 0; }
 
-	result = fat_writeFile(fatd, &rec->dirent.fatdir, &updateClusterIndices, rec->filePos, (unsigned char*) buffer, size);
+	result = fat_writeFile(fatd, &rec->dirent.fatdir, &updateClusterIndices, rec->filePos, buffer, size);
 	if (result > 0) { //write succesful
 		rec->filePos += result;
 		if (rec->filePos > rec->dirent.fatdir.size) {
@@ -461,7 +461,7 @@ static int fs_read(iop_file_t* fd, void * buffer, int size ) {
 		size = rec->dirent.fatdir.size - rec->filePos;
 	}
 
-	result = fat_readFile(fatd, &rec->dirent.fatdir, rec->filePos, (unsigned char*) buffer, size);
+	result = fat_readFile(fatd, &rec->dirent.fatdir, rec->filePos, buffer, size);
 	if (result > 0) { //read succesful
 		rec->filePos += result;
 	}
@@ -579,7 +579,7 @@ static int fs_dopen(iop_file_t *fd, const char *name)
 	memset(fd->privdata, 0, sizeof(fs_dir)); //NB: also implies "file_flag = FS_FILE_FLAG_FOLDER;"
 	rec = (fs_dir *) fd->privdata;
 
-	rec->status = fat_getFirstDirentry(fatd, (char*)name, &rec->fatdlist, &rec->dirent.fatdir, &rec->current_fatdir);
+	rec->status = fat_getFirstDirentry(fatd, name, &rec->fatdlist, &rec->dirent.fatdir, &rec->current_fatdir);
 
 	// root directory may have no entries, nothing else may.
 	if(rec->status == 0 && !is_root)
@@ -645,7 +645,7 @@ static int fs_dread(iop_file_t *fd, io_dirent_t *buffer)
 	{
 		memset(buffer, 0, sizeof(io_dirent_t));
 		fillStat(&buffer->stat, &rec->current_fatdir);
-		strcpy(buffer->name, rec->current_fatdir.name);
+		strcpy(buffer->name, (const char*)rec->current_fatdir.name);
 	}
 
 	if (rec->status > 0)
@@ -685,7 +685,7 @@ static int fs_getstat(iop_file_t *fd, const char *name, io_stat_t *stat)
 }
 
 //---------------------------------------------------------------------------
-int fs_ioctl(iop_file_t *fd, u32 request, void *data)
+int fs_ioctl(iop_file_t *fd, int cmd, void *data)
 {
 	fat_driver* fatd;
 	struct fs_dirent* dirent = (struct fs_dirent *) fd->privdata;	//Remember to re-cast this to the right structure (either fs_rec or fs_dir)!
@@ -699,7 +699,7 @@ int fs_ioctl(iop_file_t *fd, u32 request, void *data)
 	fatd = fat_getData(fd->unit);
 	if (fatd == NULL) { _fs_unlock(); return -ENODEV; }
 
-	switch (request) {
+	switch (cmd) {
 		case USBMASS_IOCTL_RENAME:
 			ret = fat_renameFile(fatd, &dirent->fatdir, data);	//No need to re-cast since this inner structure is a common one.
 			FLUSH_SECTORS(fatd);

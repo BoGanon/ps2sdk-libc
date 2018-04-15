@@ -6,13 +6,15 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# String function prototypes
 */
 
-#ifndef _STRING_H
-#define _STRING_H
+/**
+ * @file
+ * String function prototypes
+ */
+
+#ifndef __STRING_H__
+#define __STRING_H__
 
 #define __need_size_t
 #define __need_NULL
@@ -57,10 +59,9 @@ size_t  strcspn(const char *s, const char *reject);
 # endif
 #endif
 INLINE int strcoll(const char *s1, const char *s2) { return strcmp(s1, s2); }
+INLINE size_t strxfrm(char *dest, const char *src, size_t n) { strncpy(dest, src, n); return n; }
 
 char *  strerror(int);
-
-INLINE size_t strxfrm(char *dest, const char *src, size_t n) { strncpy(dest, src, n); return n; }
 #undef INLINE
 
 char *	strtok(char *, const char *);
@@ -78,4 +79,4 @@ char * strlwr(char *);
 }
 #endif
 
-#endif	// _STRING_H
+#endif /* __STRING_H__ */

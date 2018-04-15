@@ -6,12 +6,12 @@
 # Copyright (c) 2003 Marcus R. Brown <mrbrown@0xd6.org>
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# SIFToo low-level driver.
 */
 
 /*
+ * @file
+ * SIFToo low-level driver.
+ *
  * The SBUS Interface (SIF) has 3 DMA channels, with the first 2 reserved
  * for SCEI's SIF RPC interface.  As far as I know, the last channel is
  * only used for debugging within the EE's kernel (I haven't seen it in use
@@ -40,7 +40,7 @@ IRX_ID("SIFToo_driver", 1, 1);
 
 int sif2_control(u32 intr, void *unused);
 
-struct irx_export_table _exp_siftoo;
+extern struct irx_export_table _exp_siftoo;
 
 int _start(int argc, char **argv)
 {

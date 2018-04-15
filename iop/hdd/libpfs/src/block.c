@@ -7,13 +7,16 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # PFS block/zone related routines
 */
 
 #include <errno.h>
 #include <stdio.h>
+#ifdef _IOP
 #include <sysclib.h>
+#else
+#include <string.h>
+#endif
 
 #include "pfs-opt.h"
 #include "libpfs.h"

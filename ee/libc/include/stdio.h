@@ -6,14 +6,18 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# LIBC (stdio) type, constant and function declarations.
 */
+
+/**
+ * @file
+ * LIBC (stdio) type, constant and function declarations.
+ */
+
 #ifndef __STDIO_H__
 #define __STDIO_H__
 
 #define __need__va_list
+
 #include <stdarg.h>
 
 #define __need_size_t
@@ -37,19 +41,15 @@ extern "C" {
 #define EOF                            (-1)
 #endif
 
-
 #define FOPEN_MAX                      _NFILE
 #define FILENAME_MAX                   1024
-
 
 /* ensure fpos_t is defined. */
 #ifndef __FPOS_T_DEFINED
 #define __FPOS_T_DEFINED
 typedef long fpos_t;
-#endif // __FPOS_T_DEFINED
+#endif
 
-
-/* ensure FILE is defined. */
 #ifndef __FILE_DEFINED
 #define __FILE_DEFINED
 typedef struct {
@@ -60,8 +60,7 @@ typedef struct {
   int  has_putback;
   int  putback;
 } FILE;
-#endif // __FILE_DEFINED
-
+#endif
 
 extern FILE __iob[_NFILE];
 
@@ -73,7 +72,6 @@ extern FILE __iob[_NFILE];
 #define	SEEK_CUR	1
 #define	SEEK_END	2
 
-/* function declarations. */
 void   clearerr(FILE *);
 int    feof(FILE *);
 int    ferror(FILE *);
@@ -117,6 +115,10 @@ int    xscanf(int (*xgetc)(void **), void (*xungetc)(int, void **), void *stream
 int    ungetc(int, FILE *);
 
 int    _fcloseall(void);
+/** all open non-system files with write-access are flushed.
+ * attempts to flush all the open files with write-access.
+ * @return int; the number of files flushed if successful. else -1.
+ */
 int    _fflushall(void);
 
 int    chdir(const char *path);
@@ -153,5 +155,4 @@ int sio_printf(const char *format, ...);
 }
 #endif
 
-
-#endif // __STDIO_H__
+#endif /* __STDIO_H__ */

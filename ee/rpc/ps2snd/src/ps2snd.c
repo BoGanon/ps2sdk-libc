@@ -6,8 +6,6 @@
 # Copyright 2005, James Lee (jbit<at>jbit<dot>net)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
 */
 
 #include <string.h>
@@ -20,7 +18,7 @@
 static SifRpcClientData_t sd_client ALIGNED(64);
 static int sd_started = 0;
 
-int SdInit(int flag)
+int sceSdInit(int flag)
 {
 	s32 buf[1] ALIGNED(64);
 
@@ -49,7 +47,7 @@ int SdInit(int flag)
 	return(buf[0]);
 }
 
-void SdSetParam(u16 entry, u16 value)
+void sceSdSetParam(u16 entry, u16 value)
 {
 	u32 buf[2] ALIGNED(64);
 	buf[0] = entry;
@@ -57,7 +55,7 @@ void SdSetParam(u16 entry, u16 value)
 	SifCallRpc(&sd_client, PS2SND_SetParam, 0, buf, 8, NULL, 0, NULL, NULL);
 }
 
-u16 SdGetParam(u16 entry)
+u16 sceSdGetParam(u16 entry)
 {
 	u32 buf[1] ALIGNED(64);
 	buf[0] = entry;
@@ -65,7 +63,7 @@ u16 SdGetParam(u16 entry)
 	return(buf[0]);
 }
 
-void SdSetSwitch(u16 entry, u32 value)
+void sceSdSetSwitch(u16 entry, u32 value)
 {
 	u32 buf[2] ALIGNED(64);
 	buf[0] = entry;
@@ -73,7 +71,7 @@ void SdSetSwitch(u16 entry, u32 value)
 	SifCallRpc(&sd_client, PS2SND_SetSwitch, 0, buf, 8, NULL, 0, NULL, NULL);
 }
 
-u32 SdGetSwitch(u16 entry)
+u32 sceSdGetSwitch(u16 entry)
 {
 	u32 buf[1] ALIGNED(64);
 	buf[0] = entry;
@@ -81,7 +79,7 @@ u32 SdGetSwitch(u16 entry)
 	return(buf[0]);
 }
 
-void SdSetAddr(u16 entry, u32 value)
+void sceSdSetAddr(u16 entry, u32 value)
 {
 	u32 buf[2] ALIGNED(64);
 	buf[0] = entry;
@@ -89,7 +87,7 @@ void SdSetAddr(u16 entry, u32 value)
 	SifCallRpc(&sd_client, PS2SND_SetAddr, 0, buf, 8, NULL, 0, NULL, NULL);
 }
 
-u32 SdGetAddr(u16 entry)
+u32 sceSdGetAddr(u16 entry)
 {
 	u32 buf[1] ALIGNED(64);
 	buf[0] = entry;
@@ -97,7 +95,7 @@ u32 SdGetAddr(u16 entry)
 	return(buf[0]);
 }
 
-void SdSetCoreAttr(u16 entry, u16 value)
+void sceSdSetCoreAttr(u16 entry, u16 value)
 {
 	u32 buf[2] ALIGNED(64);
 	buf[0] = entry;
@@ -105,7 +103,7 @@ void SdSetCoreAttr(u16 entry, u16 value)
 	SifCallRpc(&sd_client, PS2SND_SetCoreAttr, 0, buf, 8, NULL, 0, NULL, NULL);
 }
 
-u16 SdGetCoreAttr(u16 entry)
+u16 sceSdGetCoreAttr(u16 entry)
 {
 	u32 buf[1] ALIGNED(64);
 	buf[0] = entry;
@@ -113,32 +111,32 @@ u16 SdGetCoreAttr(u16 entry)
 	return(buf[0]);
 }
 
-u16 SdNote2Pitch(u16 center_note, u16 center_fine, u16 note, s16 fine)
+u16 sceSdNote2Pitch(u16 center_note, u16 center_fine, u16 note, s16 fine)
 {
 	/* TODO: These functions were documented for the ps1 once... */
 	return(0);
 }
 
-u16 SdPitch2Note(u16 center_note, u16 center_fine, u16 pitch)
+u16 sceSdPitch2Note(u16 center_note, u16 center_fine, u16 pitch)
 {
 	/* TODO: These functions were documented for the ps1 once... */
 	return(0);
 }
 
-int SdProcBatch(SdBatch* batch, u32 returns[], u32 num)
+int sceSdProcBatch(sceSdBatch* batch, u32 returns[], u32 num)
 {
 	/* TODO */
 	return(-1);
 }
 
-int SdProcBatchEx(SdBatch* batch, u32 returns[], u32 num, u32 voice)
+int sceSdProcBatchEx(sceSdBatch* batch, u32 returns[], u32 num, u32 voice)
 {
 	/* TODO */
 	return(-1);
 }
 
 
-int SdVoiceTrans(s16 channel, u16 mode, u8 *m_addr, u8 *s_addr, u32 size)
+int sceSdVoiceTrans(s16 channel, u16 mode, u8 *m_addr, u32 *s_addr, u32 size)
 {
 	u32 buf[5] ALIGNED(64);
 	((s32 *)buf)[0] = channel;
@@ -151,12 +149,12 @@ int SdVoiceTrans(s16 channel, u16 mode, u8 *m_addr, u8 *s_addr, u32 size)
 	return(((s32 *)buf)[0]);
 }
 
-int SdBlockTrans(s16 channel, u16 mode, u8 *m_addr, u32 size, ...)
+int sceSdBlockTrans(s16 channel, u16 mode, u8 *m_addr, u32 size, ...)
 {
 	return(-1);
 }
 
-u32 SdVoiceTransStatus (s16 channel, s16 flag)
+u32 sceSdVoiceTransStatus (s16 channel, s16 flag)
 {
 	s32 buf[2] ALIGNED(64);
 	buf[0] = channel;
@@ -166,7 +164,7 @@ u32 SdVoiceTransStatus (s16 channel, s16 flag)
 	return(((u32 *)buf)[0]);
 }
 
-u32 SdBlockTransStatus (s16 channel, s16 flag)
+u32 sceSdBlockTransStatus (s16 channel, s16 flag)
 {
 	s32 buf[2] ALIGNED(64);
 	buf[0] = channel;
@@ -179,24 +177,24 @@ u32 SdBlockTransStatus (s16 channel, s16 flag)
 //void* sceSdSetTransCallback (u16 channel, void SD_TRANS_CBProc(void *) );
 //void *sceSdSetIRQCallback( void SD_IRQ_CBProc(void *) );
 
-int SdSetEffectAttr (int core, SdEffectAttr *attr)
+int sceSdSetEffectAttr (int core, sceSdEffectAttr *attr)
 {
-	s32 buf[1+((sizeof(SdEffectAttr)+3)/4)] ALIGNED(64);
+	s32 buf[1+((sizeof(sceSdEffectAttr)+3)/4)] ALIGNED(64);
 	buf[0] = core;
-	memcpy(&buf[1], attr, sizeof(SdEffectAttr));
-	SifCallRpc(&sd_client, PS2SND_SetEffectAttr, 0, buf, 4+sizeof(SdEffectAttr), buf, 4, NULL, NULL);
+	memcpy(&buf[1], attr, sizeof(sceSdEffectAttr));
+	SifCallRpc(&sd_client, PS2SND_SetEffectAttr, 0, buf, 4+sizeof(sceSdEffectAttr), buf, 4, NULL, NULL);
 	return(buf[0]);
 }
 
-void SdGetEffectAttr (int core, SdEffectAttr *attr)
+void sceSdGetEffectAttr (int core, sceSdEffectAttr *attr)
 {
-	s32 buf[((sizeof(SdEffectAttr)+3)/4)] ALIGNED(64);
+	s32 buf[((sizeof(sceSdEffectAttr)+3)/4)] ALIGNED(64);
 	buf[0] = core;
-	SifCallRpc(&sd_client, PS2SND_GetEffectAttr, 0, buf, 4, buf, sizeof(SdEffectAttr), NULL, NULL);
-	memcpy(attr, buf, sizeof(SdEffectAttr));
+	SifCallRpc(&sd_client, PS2SND_GetEffectAttr, 0, buf, 4, buf, sizeof(sceSdEffectAttr), NULL, NULL);
+	memcpy(attr, buf, sizeof(sceSdEffectAttr));
 }
 
-int SdClearEffectWorkArea (int core, int channel, int effect_mode)
+int sceSdClearEffectWorkArea (int core, int channel, int effect_mode)
 {
 	s32 buf[3] ALIGNED(64);
 	buf[0] = core;
@@ -302,19 +300,10 @@ int sndLoadSample(void *buf, u32 spuaddr, int size)
 	while(SifDmaStat(id) >= 0);;
 	FlushCache(0);
 
-	SdVoiceTrans(0, SD_TRANS_WRITE, iopbuf, (void*)spuaddr, size);
-	SdVoiceTransStatus(0, 1);
+	sceSdVoiceTrans(0, SD_TRANS_WRITE, iopbuf, (void*)spuaddr, size);
+	sceSdVoiceTransStatus(0, 1);
 
 	SifFreeIopHeap(iopbuf);
 
 	return(size);
 }
-
-
-#if 0
-int sceSdClearEffectWorkArea (int core, int channel, int effect_mode );
-
-SdIntrHandler sceSdSetTransIntrHandler(int channel, SdIntrHandler func, void *arg);
-SdIntrHandler sceSdSetSpu2IntrHandler(SdIntrHandler func, void *arg);
-
-#endif

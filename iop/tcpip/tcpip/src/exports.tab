@@ -1,6 +1,6 @@
 void _retonly(void){}
 
-DECLARE_EXPORT_TABLE(ps2ip, 2, 4)
+DECLARE_EXPORT_TABLE(ps2ip, 2, 6)
 	DECLARE_EXPORT(_start)
 	DECLARE_EXPORT(_retonly)
 	DECLARE_EXPORT(_exit)
@@ -45,9 +45,9 @@ DECLARE_EXPORT_TABLE(ps2ip, 2, 4)
 	DECLARE_EXPORT(pbuf_chain)		//40
 	DECLARE_EXPORT(pbuf_dechain)
 	DECLARE_EXPORT(pbuf_take)
-	DECLARE_EXPORT(ipaddr_aton)
-	DECLARE_EXPORT(ipaddr_ntoa)
-	DECLARE_EXPORT(ipaddr_ntoa_r)		//45
+	DECLARE_EXPORT(ip4addr_aton)
+	DECLARE_EXPORT(ip4addr_ntoa)
+	DECLARE_EXPORT(ip4addr_ntoa_r)		//45
 	DECLARE_EXPORT(lwip_shutdown)
 	DECLARE_EXPORT(lwip_fcntl)
 #ifdef PS2IP_DNS
@@ -60,9 +60,13 @@ DECLARE_EXPORT_TABLE(ps2ip, 2, 4)
 #else
 	DECLARE_EXPORT(_retonly)
 	DECLARE_EXPORT(_retonly)
-	DECLARE_EXPORT(_retonly)	//50
+	DECLARE_EXPORT(_retonly)		//50
 	DECLARE_EXPORT(_retonly)
 	DECLARE_EXPORT(_retonly)
 	DECLARE_EXPORT(_retonly)
 #endif
+	DECLARE_EXPORT(netif_set_link_up)
+	DECLARE_EXPORT(netif_set_link_down)	//55
+	DECLARE_EXPORT(tcpip_callback_with_block)
+	DECLARE_EXPORT(pbuf_coalesce)
 END_EXPORT_TABLE

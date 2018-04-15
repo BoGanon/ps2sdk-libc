@@ -6,27 +6,25 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# The relocatable elf loader/linker.
 */
+
+/**
+ * @file
+ * The relocatable elf loader/linker.
+ */
 
 #ifndef __ERL_H__
 #define __ERL_H__
 
 #include <tamtypes.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct htab;
 
-/* ERL is sticky and cannot be unloaded */
+/** ERL is sticky and cannot be unloaded */
 #define ERL_FLAG_STICKY 1
-/* ERL is relocated at a static memory address; set by *_to_addr functions */
+/** ERL is relocated at a static memory address; set by *_to_addr functions */
 #define ERL_FLAG_STATIC 2
-/* Clear ERL bytes on unload */
+/** Clear ERL bytes on unload */
 #define ERL_FLAG_CLEAR  4
 
 struct erl_record_t {
@@ -45,6 +43,10 @@ struct symbol_t {
     struct erl_record_t * provider;
     u32 address;
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern char _init_erl_prefix[];
 
@@ -83,4 +85,4 @@ void erl_flush_symbols(struct erl_record_t * erl);
 }
 #endif
 
-#endif // __ERL_H__
+#endif /* __ERL_H__ */

@@ -6,16 +6,19 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# USB Mouse Driver for PS2
 */
+
+/**
+ * @file
+ * USB Mouse Driver for PS2
+ */
 
 #ifndef __PS2MOUSE_H__
 #define __PS2MOUSE_H__
 
-typedef struct _mouse_data
+#include <types.h>
 
+typedef struct _mouse_data
 {
   s32 x, y;
   s32 wheel;
@@ -53,4 +56,4 @@ typedef struct _mouse_data
 #define PS2MOUSE_GETDBLCLICKTIME 0xE
 #define PS2MOUSE_GETVERSION 0x20
 
-#endif
+#endif /* __PS2MOUSE_H__ */

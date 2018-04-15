@@ -6,14 +6,15 @@
 # Copyright (c) 2009 jimmikaelkael
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id: ps2mc_fio.c 1410 2009-01-18 15:24:54Z jimmikaelkael $
 */
 
-#include "mcman.h"
+#include <mcman.h>
+#include "mcman-internal.h"
 
 extern char SUPERBLOCK_MAGIC[];
 extern char SUPERBLOCK_VERSION[];
+
+extern union mcman_pagebuf mcman_pagebuf;
 
 extern int mcman_wr_port;
 extern int mcman_wr_slot;
@@ -21,10 +22,19 @@ extern int mcman_wr_block;
 extern int mcman_wr_flag3;
 extern int mcman_curdircluster;
 
-extern u32 DOT;
-extern u32 DOTDOT;
-
 extern int PS1CardFlag;
+
+extern McFsEntry mcman_dircache[MAX_CACHEDIRENTRY];
+extern MC_FHANDLE mcman_fdhandles[MAX_FDHANDLES];
+extern MCDevInfo mcman_devinfos[4][MCMAN_MAXSLOT];
+
+extern u8 mcman_eccdata[512]; // size for 32 ecc
+
+static int mcman_curdirmaxent;
+static int mcman_curdirlength;
+static char mcman_curdirpath[1024];
+static char *mcman_curdirname;
+static sceMcStDateTime mcman_fsmodtime;
 
 //--------------------------------------------------------------
 int mcman_format2(int port, int slot)
@@ -59,16 +69,8 @@ int mcman_format2(int port, int slot)
 lbl1:
 	// set superblock magic & version
 	memset((void *)&mcdi->magic, 0, sizeof (mcdi->magic) + sizeof (mcdi->version));
-	*((u32 *)&mcdi->magic    ) = *((u32 *)&SUPERBLOCK_MAGIC    );
-	*((u32 *)&mcdi->magic + 1) = *((u32 *)&SUPERBLOCK_MAGIC + 1);
-	*((u32 *)&mcdi->magic + 2) = *((u32 *)&SUPERBLOCK_MAGIC + 2);
-	*((u32 *)&mcdi->magic + 3) = *((u32 *)&SUPERBLOCK_MAGIC + 3);
-	*((u32 *)&mcdi->magic + 4) = *((u32 *)&SUPERBLOCK_MAGIC + 4);
-	*((u32 *)&mcdi->magic + 5) = *((u32 *)&SUPERBLOCK_MAGIC + 5);
-	*((u32 *)&mcdi->magic + 6) = *((u32 *)&SUPERBLOCK_MAGIC + 6);
-	*((u8 *)&mcdi->magic + 28) = *((u8 *)&SUPERBLOCK_MAGIC + 28);
-
-	strcat((char *)&mcdi->magic, SUPERBLOCK_VERSION);
+	strcpy(mcdi->magic, SUPERBLOCK_MAGIC);
+	strcat(mcdi->magic, SUPERBLOCK_VERSION);
 
 	//size = 8192 / mcdi->cluster_size; // get blocksize in cluster a better way must be found
 	size = mcdi->blocksize;
@@ -134,7 +136,7 @@ lbl1:
 			indirect_offset = j % mcdi->FATentries_per_cluster;
 
 			if (indirect_offset == 0) {
-				if (mcman_readcluster(port, slot, mcdi->ifc_list[ifc_index], &mce) != sceMcResSucceed)
+				if (McReadCluster(port, slot, mcdi->ifc_list[ifc_index], &mce) != sceMcResSucceed)
 					return -42;
 				mce->wr_flag = 1;
 			}
@@ -217,7 +219,7 @@ lbl1:
 				fat_entry = 0xfffffffd; // marking bad cluster
 			}
 
-			if (mcman_setFATentry(port, slot, j - mcdi->alloc_offset, fat_entry) != sceMcResSucceed)
+			if (McSetFATentry(port, slot, j - mcdi->alloc_offset, fat_entry) != sceMcResSucceed)
 				return -46;
 
 			j++;
@@ -239,7 +241,7 @@ lbl1:
 		else
 			size = i;
 
-		if (mcman_readcluster(port, slot, size >> 10, &mce) != sceMcResSucceed)
+		if (McReadCluster(port, slot, size >> 10, &mce) != sceMcResSucceed)
 			return -48;
 
 		size = MCMAN_CLUSTERSIZE;
@@ -257,11 +259,11 @@ lbl1:
 	mcdi->rootdir_cluster2 = mcdi->rootdir_cluster;
 
 	// Create root dir
-	if (mcman_createDirentry(port, slot, 0, 0, 0, NULL) != sceMcResSucceed)
+	if (McCreateDirentry(port, slot, 0, 0, 0, NULL) != sceMcResSucceed)
 		return -49;
 
 	// finally flush cache to memcard
-	r = mcman_flushmccache(port, slot);
+	r = McFlushCache(port, slot);
 	if (r != sceMcResSucceed)
 		return r;
 
@@ -285,7 +287,7 @@ int mcman_dread2(int fd, io_dirent_t *dirent)
 		return sceMcResSucceed;
 
 	do {
-		r = mcman_readdirentry(fh->port, fh->slot, fh->freeclink, fh->position, &fse);
+		r = McReadDirEntry(fh->port, fh->slot, fh->freeclink, fh->position, &fse);
 		if (r != sceMcResSucceed)
 			return r;
 
@@ -322,10 +324,8 @@ int mcman_dread2(int fd, io_dirent_t *dirent)
 
 	dirent->stat.attr = fse->attr;
 	dirent->stat.size = fse->length;
-	*((u32 *)&dirent->stat.ctime  ) = *((u32 *)&fse->created  );
-	*((u32 *)&dirent->stat.ctime+1) = *((u32 *)&fse->created+1);
-	*((u32 *)&dirent->stat.mtime  ) = *((u32 *)&fse->modified  );
-	*((u32 *)&dirent->stat.mtime+1) = *((u32 *)&fse->modified+1);
+	memcpy(dirent->stat.ctime, &fse->created, sizeof(sceMcStDateTime));
+	memcpy(dirent->stat.mtime, &fse->modified, sizeof(sceMcStDateTime));
 
 	return 1;
 }
@@ -368,10 +368,8 @@ int mcman_getstat2(int port, int slot, char *filename, io_stat_t *stat)
 	if (!(fse->mode & sceMcFileAttrSubdir))
 		stat->size = fse->length;
 
-	*((u32 *)&stat->ctime  ) = *((u32 *)&fse->created  );
-	*((u32 *)&stat->ctime+1) = *((u32 *)&fse->created+1);
-	*((u32 *)&stat->mtime  ) = *((u32 *)&fse->modified  );
-	*((u32 *)&stat->mtime+1) = *((u32 *)&fse->modified+1);
+	memcpy(stat->ctime, &fse->created, sizeof(sceMcStDateTime));
+	memcpy(stat->mtime, &fse->modified, sizeof(sceMcStDateTime));
 
 	return sceMcResSucceed;
 }
@@ -394,24 +392,24 @@ int mcman_setinfo2(int port, int slot, char *filename, sceMcTblGetDir *info, int
 		return r;
 
 	if ((flags & sceMcFileAttrFile) != 0)	{
-		if ((!strcmp(".", info->EntryName)) || (!strcmp("..", info->EntryName)))
+		if ((!strcmp(".", (char*)info->EntryName)) || (!strcmp("..", (char*)info->EntryName)))
 			return sceMcResNoEntry;
 
 		if (info->EntryName[0] == 0)
 			return sceMcResNoEntry;
 
-		r = mcman_chrpos(info->EntryName, '/');
+		r = mcman_chrpos((char*)info->EntryName, '/');
 		if (r >= 0)
 			return sceMcResNoEntry;
 
 		if (dirInfo.fsindex < 2)
 			return sceMcResNoEntry;
 
-		r = mcman_readdirentry(port, slot, dirInfo.cluster, 0, &fse);
+		r = McReadDirEntry(port, slot, dirInfo.cluster, 0, &fse);
 		if (r != sceMcResSucceed)
 			return r;
 
-		r = mcman_readdirentry(port, slot, fse->cluster, fse->dir_entry, &fse);
+		r = McReadDirEntry(port, slot, fse->cluster, fse->dir_entry, &fse);
 		if (r != sceMcResSucceed)
 			return r;
 
@@ -428,7 +426,7 @@ int mcman_setinfo2(int port, int slot, char *filename, sceMcTblGetDir *info, int
 			mfee += 16;
 		} while (pfsentry < pfseend);
 
-		r = mcman_getdirinfo(port, slot, &mfe, info->EntryName, NULL, 1);
+		r = mcman_getdirinfo(port, slot, &mfe, (char*)info->EntryName, NULL, 1);
 		if (r != 1) {
 			if (r < 2) {
 				if (r == 0)
@@ -443,11 +441,11 @@ int mcman_setinfo2(int port, int slot, char *filename, sceMcTblGetDir *info, int
 		}
 	}
 
-	r = mcman_readdirentry(port, slot, dirInfo.cluster, dirInfo.fsindex, &fse);
+	r = McReadDirEntry(port, slot, dirInfo.cluster, dirInfo.fsindex, &fse);
 	if (r != sceMcResSucceed)
 		return r;
 
-	mcman_1stcacheEntsetwrflagoff();
+	Mc1stCacheEntSetWrFlagOff();
 
 	//Special fix clause for file managers (like uLaunchELF)
 	//This allows writing most entries that can be read by mcGetDir
@@ -485,7 +483,7 @@ int mcman_setinfo2(int port, int slot, char *filename, sceMcTblGetDir *info, int
 		fse->modified = info->_Modify;
 
 	if ((flags & sceMcFileAttrFile) != 0) {
-		strncpy(fse->name, info->EntryName, 32);
+		strncpy(fse->name, (char*)info->EntryName, 32);
 		fse->name[31] = 0;
 	}
 
@@ -526,7 +524,7 @@ int mcman_read2(int fd, void *buffer, int nbyte)
 				if (r <= 0)
 					return r;
 
-				r = mcman_readcluster(fh->port, fh->slot, r, &mce);
+				r = McReadCluster(fh->port, fh->slot, r, &mce);
 				if (r != sceMcResSucceed)
 					return r;
 
@@ -559,7 +557,7 @@ int mcman_write2(int fd, void *buffer, int nbyte)
 			r = mcman_close2(fd);
 			if (r != sceMcResSucceed)
 				return r;
-			r = mcman_flushmccache(fh->port, fh->slot);
+			r = McFlushCache(fh->port, fh->slot);
 			if (r != sceMcResSucceed)
 				return r;
 		}
@@ -585,7 +583,7 @@ int mcman_write2(int fd, void *buffer, int nbyte)
 					return r;
 			}
 
-			r = mcman_readcluster(fh->port, fh->slot, r, &mce);
+			r = McReadCluster(fh->port, fh->slot, r, &mce);
 			if (r != sceMcResSucceed)
 				return r;
 
@@ -634,7 +632,7 @@ int mcman_close2(int fd)
 	DPRINTF("mcman: mcman_close2 fd %d\n", fd);
 #endif
 
-	r = mcman_readdirentry(fh->port, fh->slot, fh->field_20, fh->field_24, &fse1);
+	r = McReadDirEntry(fh->port, fh->slot, fh->field_20, fh->field_24, &fse1);
 	if (r != sceMcResSucceed)
 		return -31;
 
@@ -651,17 +649,17 @@ int mcman_close2(int fd)
 	fse1->cluster = fh->freeclink;
 	fse1->length = fh->filesize;
 
-	mcman_1stcacheEntsetwrflagoff();
+	Mc1stCacheEntSetWrFlagOff();
 
 	mcman_fsmodtime = fse1->modified;
 
-	r = mcman_readdirentry(fh->port, fh->slot, fh->field_28, fh->field_2C, &fse2);
+	r = McReadDirEntry(fh->port, fh->slot, fh->field_28, fh->field_2C, &fse2);
 	if (r != sceMcResSucceed)
 		return r;
 
 	fse2->modified = mcman_fsmodtime;
 
-	mcman_1stcacheEntsetwrflagoff();
+	Mc1stCacheEntSetWrFlagOff();
 
 	return sceMcResSucceed;
 }
@@ -675,7 +673,8 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 	McCacheDir cacheDir;
 	McFsEntry *fse1, *fse2;
 	McCacheEntry *mce;
-	u8 *p, *pfsentry, *pcache, *pfseend;
+	u8 *pfsentry, *pcache, *pfseend;
+	char *p;
 	int fat_entry;
 
 #ifdef DEBUG
@@ -778,7 +777,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 					return sceMcResDeniedPermit;
 			}
 		}
-		r = mcman_readdirentry(port, slot, cacheDir.cluster, 0, &fse2);
+		r = McReadDirEntry(port, slot, cacheDir.cluster, 0, &fse2);
 		if (r != sceMcResSucceed)
 			return r;
 
@@ -817,8 +816,8 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 		}
 
 		if ((flags & sceMcFileCreateFile) != 0) {
-			r = mcman_setdirentrystate(port, slot, cacheDir.cluster, cacheDir.fsindex, 0);
-			mcman_flushmccache(port, slot);
+			r = McSetDirEntryState(port, slot, cacheDir.cluster, cacheDir.fsindex, 0);
+			McFlushCache(port, slot);
 
 			if (r != sceMcResSucceed)
 				return -43;
@@ -851,7 +850,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 		fh->field_2C = cacheDir.fsindex;
 	}
 
-	r = mcman_readdirentry(port, slot, fh->field_28, fh->field_2C, &fse1);
+	r = McReadDirEntry(port, slot, fh->field_28, fh->field_2C, &fse1);
 	if (r != sceMcResSucceed)
 		return r;
 
@@ -889,7 +888,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 			if (i != -1) {
 
 				do {
-					r = mcman_getFATentry(port, slot, fat_index, &fat_entry);
+					r = McGetFATentry(port, slot, fat_index, &fat_entry);
 					if (r != sceMcResSucceed)
 						return r;
 
@@ -903,7 +902,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 
 						fat_entry |= 0x80000000;
 
-						r = mcman_setFATentry(port, slot, fat_index, fat_entry);
+						r = McSetFATentry(port, slot, fat_index, fat_entry);
 						if (r != sceMcResSucceed)
 							return r;
 
@@ -916,7 +915,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 			}
 		}
 
-		r = mcman_flushmccache(port, slot);
+		r = McFlushCache(port, slot);
 		if (r != sceMcResSucceed)
 			return r;
 
@@ -926,7 +925,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 	}
 
 	do {
-		p = (u8 *)(filename + i + 1);
+		p = filename + i + 1;
 		pos = i + 1;
 		r = mcman_chrpos(p, '/');
 		if (r < 0)
@@ -934,7 +933,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 		i = pos + r;
 	} while (1);
 
-	p = (char *)(filename + pos);
+	p = filename + pos;
 
 	mcfree = 0;
 
@@ -949,18 +948,18 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 
 	mcman_getmcrtime(&mcman_dircache[2].modified);
 
-	r = mcman_readdirentry(port, slot, mcman_dircache[2].cluster, cacheDir.maxent, &fse2);
+	r = McReadDirEntry(port, slot, mcman_dircache[2].cluster, cacheDir.maxent, &fse2);
 	if (r != sceMcResSucceed)
 		return r;
 
 	mcman_wmemset((void *)fse2, sizeof (McFsEntry), 0);
 
-	strncpy((void *)fse2->name, p, 32);
+	strncpy(fse2->name, p, 32);
 
 	fse2->created = mcman_dircache[2].modified;
 	fse2->modified = mcman_dircache[2].modified;
 
-	mcman_1stcacheEntsetwrflagoff();
+	Mc1stCacheEntSetWrFlagOff();
 
 	mcman_addcacheentry(mce);
 
@@ -975,11 +974,11 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 		fse2->length = 2;
 		fse2->cluster = mcfree;
 
-		r = mcman_createDirentry(port, slot, mcman_dircache[2].cluster, cacheDir.maxent, mcfree, (sceMcStDateTime *)&fse2->created);
+		r = McCreateDirentry(port, slot, mcman_dircache[2].cluster, cacheDir.maxent, mcfree, (sceMcStDateTime *)&fse2->created);
 		if (r != sceMcResSucceed)
 			return -46;
 
-		r = mcman_readdirentry(port, slot, fh->field_28, fh->field_2C, &fse1);
+		r = McReadDirEntry(port, slot, fh->field_28, fh->field_2C, &fse1);
 		if (r != sceMcResSucceed)
 			return r;
 
@@ -996,9 +995,9 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 			pcache += 16;
 		} while (pfsentry < pfseend);
 
-		mcman_1stcacheEntsetwrflagoff();
+		Mc1stCacheEntSetWrFlagOff();
 
-		r = mcman_flushmccache(port, slot);
+		r = McFlushCache(port, slot);
 		if (r != sceMcResSucceed)
 			return r;
 
@@ -1014,7 +1013,7 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 		fh->status = 1;
 		fh->field_24 = cacheDir.maxent;
 
-		r = mcman_readdirentry(port, slot, fh->field_28, fh->field_2C, &fse1);
+		r = McReadDirEntry(port, slot, fh->field_28, fh->field_2C, &fse1);
 		if (r != sceMcResSucceed)
 			return r;
 
@@ -1031,9 +1030,9 @@ int mcman_open2(int port, int slot, char *filename, int flags)
 			pcache += 16;
 		} while (pfsentry < pfseend);
 
-		mcman_1stcacheEntsetwrflagoff();
+		Mc1stCacheEntSetWrFlagOff();
 
-		r = mcman_flushmccache(port, slot);
+		r = McFlushCache(port, slot);
 		if (r != sceMcResSucceed)
 			return r;
 	}
@@ -1070,7 +1069,7 @@ int mcman_chdir(int port, int slot, char *newdir, char *currentdir)
 
 	cluster = cacheDir.cluster;
 	if (!strcmp(fse->name, "..")) {
-		r = mcman_readdirentry(port, slot, cluster, 0, &fse);
+		r = McReadDirEntry(port, slot, cluster, 0, &fse);
 		if (r != sceMcResSucceed)
 			return r;
 	}
@@ -1080,7 +1079,7 @@ int mcman_chdir(int port, int slot, char *newdir, char *currentdir)
 		mcdi->unknown1 = fse->dir_entry;
 
 		cluster = fse->cluster;
-		r = mcman_readdirentry(port, slot, cluster, fse->dir_entry, &fse);
+		r = McReadDirEntry(port, slot, cluster, fse->dir_entry, &fse);
 		if (r != sceMcResSucceed)
 			return r;
 	}
@@ -1110,11 +1109,11 @@ lbl1:
 			currentdir[32] = 0;
 		}
 
-		r = mcman_readdirentry(port, slot, cluster, 0, &fse);
+		r = McReadDirEntry(port, slot, cluster, 0, &fse);
 		if (r != sceMcResSucceed)
 			return r;
 
-		r = mcman_readdirentry(port, slot, fse->cluster, fse->dir_entry, &fse);
+		r = McReadDirEntry(port, slot, fse->cluster, fse->dir_entry, &fse);
 
 		if (r == sceMcResSucceed)
 			goto lbl1;
@@ -1155,7 +1154,7 @@ int mcman_getdir2(int port, int slot, char *dirname, int flags, int maxent, sceM
 
 	if (!flags) {
 
-		p = (char *)mcman_curdirpath;
+		p = mcman_curdirpath;
 		strncpy(p, dirname, 1023);
 		mcman_curdirpath[1023] = 0;
 
@@ -1209,7 +1208,7 @@ int mcman_getdir2(int port, int slot, char *dirname, int flags, int maxent, sceM
 			if (mcman_curdirmaxent >= mcman_curdirlength)
 				break;
 
-			r = mcman_readdirentry(port, slot, mcman_curdircluster, mcman_curdirmaxent, &fse);
+			r = McReadDirEntry(port, slot, mcman_curdircluster, mcman_curdirmaxent, &fse);
 			if (r != sceMcResSucceed)
 				return r;
 
@@ -1226,35 +1225,37 @@ int mcman_getdir2(int port, int slot, char *dirname, int flags, int maxent, sceM
 
 			if (mcman_curdirmaxent == 2) {
 
-				r = mcman_readdirentry(port, slot, mcman_curdircluster, 0, &fse);
+				r = McReadDirEntry(port, slot, mcman_curdircluster, 0, &fse);
 				if (r != sceMcResSucceed)
 					return r;
 
-				r = mcman_readdirentry(port, slot, fse->cluster, 0, &fse);
+				r = McReadDirEntry(port, slot, fse->cluster, 0, &fse);
 				if (r != sceMcResSucceed)
 					return r;
 
-				r = mcman_readdirentry(port, slot, fse->cluster, fse->dir_entry, &fse);
+				r = McReadDirEntry(port, slot, fse->cluster, fse->dir_entry, &fse);
 				if (r != sceMcResSucceed)
 					return r;
 
-				*(u16 *)&info->EntryName = *(u16 *)&DOTDOT;
-				*(u8 *)&info->EntryName[2] = *((u8 *)&DOTDOT+2);
+				info->EntryName[0] = '.';
+				info->EntryName[1] = '.';
+				info->EntryName[2] = '\0';
 			}
 			else if (mcman_curdirmaxent == 1) {
 
-				r = mcman_readdirentry(port, slot, mcman_curdircluster, 0, &fse);
+				r = McReadDirEntry(port, slot, mcman_curdircluster, 0, &fse);
 				if (r != sceMcResSucceed)
 					return r;
 
-				r = mcman_readdirentry(port, slot, fse->cluster, fse->dir_entry, &fse);
+				r = McReadDirEntry(port, slot, fse->cluster, fse->dir_entry, &fse);
 				if (r != sceMcResSucceed)
 					return r;
 
-				*(u16 *)&info->EntryName = *(u16 *)&DOT;
+				info->EntryName[0] = '.';
+				info->EntryName[1] = '\0';
 			}
 			else {
-				strncpy(info->EntryName, fse->name, 32);
+				strncpy((char*)info->EntryName, fse->name, 32);
 			}
 
 			info->AttrFile = fse->mode;
@@ -1317,7 +1318,7 @@ int mcman_delete2(int port, int slot, char *filename, int flags)
 	if ((!flags) && (fse1->mode & sceMcFileAttrSubdir) && (i < fse1->length)) {
 
 		do {
-			r = mcman_readdirentry(port, slot, fse1->cluster, i, &fse2);
+			r = McReadDirEntry(port, slot, fse1->cluster, i, &fse2);
 			if (r != sceMcResSucceed)
 				return r;
 
@@ -1327,11 +1328,11 @@ int mcman_delete2(int port, int slot, char *filename, int flags)
 		} while (++i < fse1->length);
 	}
 
-	r = mcman_setdirentrystate(port, slot, cacheDir.cluster, cacheDir.fsindex, flags);
+	r = McSetDirEntryState(port, slot, cacheDir.cluster, cacheDir.fsindex, flags);
 	if (r != sceMcResSucceed)
 		return r;
 
-	r = mcman_flushmccache(port, slot);
+	r = McFlushCache(port, slot);
 	if (r != sceMcResSucceed)
 		return r;
 
@@ -1357,7 +1358,7 @@ int mcman_unformat2(int port, int slot)
 		erase_value = 0x00000000;
 
 	for (i = 0; i < pageword_cnt; i++)
-		*((u32 *)&mcman_pagebuf + i) = erase_value;
+		mcman_pagebuf.word[i] = erase_value;
 
 	for (i = 0; i < 128; i++)
 		*((u32 *)&mcman_eccdata + i) = erase_value;
@@ -1384,7 +1385,7 @@ int mcman_unformat2(int port, int slot)
 				z = 0;
 				if (mcdi->blocksize > 0) {
 					do {
-						r = McReadPage(port, slot, page + z, mcman_pagebuf);
+						r = McReadPage(port, slot, page + z, &mcman_pagebuf);
 						if (r == sceMcResNoFormat) {
 							j = -2;
 							break;
@@ -1394,7 +1395,7 @@ int mcman_unformat2(int port, int slot)
 
 						if ((mcdi->cardflags & CF_USE_ECC) == 0)	{
 							for (l = 0; l < mcdi->pagesize; l++) {
-								if (mcman_pagebuf[l] != erase_byte)
+								if (mcman_pagebuf.byte[l] != erase_byte)
 									err_cnt++;
 								if (err_cnt >= (mcdi->clusters_per_block << 6)) {
 									j = 16;
@@ -1418,12 +1419,12 @@ lbl1:
 			}
 			else {
 				for (l = 0; l < pageword_cnt; l++)
-					*((u32 *)&mcman_pagebuf + l) = erase_value;
+					mcman_pagebuf.word[l] = erase_value;
 
 				if (mcdi->blocksize > 0) {
 					z = 0;
 					do {
-						r = McWritePage(port, slot, page + z, mcman_pagebuf, mcman_eccdata);
+						r = McWritePage(port, slot, page + z, &mcman_pagebuf, mcman_eccdata);
 						if (r != sceMcResSucceed)
 							return -44;
 					} while (++z < mcdi->blocksize);

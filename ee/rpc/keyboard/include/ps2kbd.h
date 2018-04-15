@@ -6,18 +6,21 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# ps2kbd.h - USB Keyboard Driver for PS2
 */
+
+/**
+ * @file
+ * USB Keyboard Driver for PS2
+ */
 
 #ifndef __PS2KBD_H__
 #define __PS2KBD_H__
 
+#include <tamtypes.h>
+
 #define PS2KBD_FSNAME "usbkbd"
 #define PS2KBD_KBDFILE "dev"
 #define PS2KBD_DEVFILE (PS2KBD_FSNAME ":" PS2KBD_KBDFILE)
-
 
 #define PS2KBD_LED_NUMLOCK   1
 #define PS2KBD_LED_CAPSLOCK  2
@@ -47,11 +50,10 @@
 #define PS2KBD_RAWKEY_DOWN 0xF1
 
 typedef struct _kbd_rawkey
-
 {
   u8 state;
   u8 key;
-} kbd_rawkey __attribute__ ((packed));
+} kbd_rawkey;
 
 #define PS2KBD_READMODE_NORMAL 1
 #define PS2KBD_READMODE_RAW    2
@@ -69,7 +71,6 @@ typedef struct _kbd_rawkey
 #define PS2KBD_KEYMAP_SIZE 256
 
 typedef struct _kbd_keymap
-
 {
   u8 keymap[PS2KBD_KEYMAP_SIZE];
   u8 shiftkeymap[PS2KBD_KEYMAP_SIZE];
@@ -78,20 +79,30 @@ typedef struct _kbd_keymap
 
 /* IOCTLs for the keyboard file driver */
 
-#define PS2KBD_IOCTL_SETREADMODE     1 /* Sets up keymapped or raw mode */
-#define PS2KBD_IOCTL_SETLEDS         2 /* Sets the LED state for ALL keyboards connected */
-#define PS2KBD_IOCTL_SETREPEATRATE   3 /* Sets the repeat rate of the keyboard */
-#define PS2KBD_IOCTL_SETKEYMAP       4 /* Sets the keymap for the standard keys, non shifted and shifted */
-#define PS2KBD_IOCTL_SETCTRLMAP      5 /* Sets the control key mapping */
-#define PS2KBD_IOCTL_SETALTMAP       6 /* Sets the alt key mapping */
-#define PS2KBD_IOCTL_SETSPECIALMAP   7 /* Sets the special key mapping */
-#define PS2KBD_IOCTL_SETBLOCKMODE    8 /* Sets whether the keyboard driver blocks on read */
-#define PS2KBD_IOCTL_FLUSHBUFFER     9 /* Flush the internal buffer, probably best after a keymap change */
-#define PS2KBD_IOCTL_RESETKEYMAP    10 /* Reset keymaps to default states */
+/** Sets up keymapped or raw mode */
+#define PS2KBD_IOCTL_SETREADMODE     1 
+/** Sets the LED state for ALL keyboards connected */
+#define PS2KBD_IOCTL_SETLEDS         2 
+/** Sets the repeat rate of the keyboard */
+#define PS2KBD_IOCTL_SETREPEATRATE   3 
+/** Sets the keymap for the standard keys, non shifted and shifted */
+#define PS2KBD_IOCTL_SETKEYMAP       4 
+/** Sets the control key mapping */
+#define PS2KBD_IOCTL_SETCTRLMAP      5 
+/** Sets the alt key mapping */
+#define PS2KBD_IOCTL_SETALTMAP       6 
+/** Sets the special key mapping */
+#define PS2KBD_IOCTL_SETSPECIALMAP   7 
+/** Sets whether the keyboard driver blocks on read */
+#define PS2KBD_IOCTL_SETBLOCKMODE    8 
+/** Flush the internal buffer, probably best after a keymap change */
+#define PS2KBD_IOCTL_FLUSHBUFFER     9 
+/** Reset keymaps to default states */
+#define PS2KBD_IOCTL_RESETKEYMAP    10 
 
 /* Note on keymaps. In normal keymap a 0 would indicate no key */
 /* Key maps are represented by 3 256*8bit tables. First table maps USB key to a char when not shifted */
 /* Second table maps USB key to a char when shifted */
 /* Third table contains boolean values. If 1 then the key is shifted/unshifted in capslock, else capslock is ignored */
 
-#endif
+#endif /* __PS2KBD_H__ */

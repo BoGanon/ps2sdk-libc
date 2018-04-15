@@ -6,13 +6,15 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id: cdvdman.h 1224 2005-10-14 16:37:42Z eeug $
-# Definitions and imports for cdvdman
 */
 
-#ifndef IOP_CDVDMAN_H
-#define IOP_CDVDMAN_H
+/**
+ * @file
+ * Definitions and imports for cdvdman
+ */
+
+#ifndef __CDVDMAN_H__
+#define __CDVDMAN_H__
 
 #include <types.h>
 #include <irx.h>
@@ -32,43 +34,69 @@ int sceCdSC(int code, int *param);
 int sceCdRC(sceCdCLOCK *clock);
 int sceCdRead0(u32 lsn, u32 sectors, void *buffer, sceCdRMode *mode, int csec, void *callback);
 
-// send an s-command by function number
-// 
-// arguments:	command number
-//			input buffer  (can be null)
-//			size of input buffer  (0 - 16 bytes)
-//			output buffer (can be null)
-// returns:	1 if successful
-//		0 if error
+/** send an s-command by function number
+ * 
+ * @param cmdNum command number
+ * @param inBuff input buffer  (can be null)
+ * @param inBuffSize size of input buffer  (0 - 16 bytes)
+ * @param outBuff output buffer (can be null)
+ * @return 1 on success, 0 on failure.
+ */
 int sceCdApplySCmd(u8 cmdNum, const void* inBuff, u16 inBuffSize, void *outBuff);
 
-// send an n-command by function number
-// 
-// arguments:	command number
-//			input buffer  (can be null)
-//			size of input buffer  (0 - 16 bytes)
-//			output buffer (can be null)
-// returns:	1 if successful
-//		0 if error
+/** send an s-command by function number
+ * 
+ * @param cmdNum command number
+ * @param inBuff input buffer  (can be null)
+ * @param inBuffSize size of input buffer  (>= 16 bytes)
+ * @param outBuff output buffer (can be null)
+ * @return 1 on success, 0 on failure.
+ */
+int sceCdApplySCmd2(u8 cmdNum, const void* inBuff, unsigned long int inBuffSize, void *outBuff);
+
+/** send an n-command by function number
+ * 
+ * @param cmdNum command number
+ * @param inBuff input buffer  (can be null)
+ * @param inBuffSize size of input buffer  (0 - 16 bytes)
+ * @param outBuff output buffer (can be null)
+ * @return 1 on success, 0 on failure.
+ */
 int sceCdApplyNCmd(u8 cmdNum, const void* inBuff, u16 inBuffSize, void* outBuff);
 
-// Opens a specified configuration block, within NVRAM. Each block is 15 bytes long.
-//
-// arguments:	Block number.
-//		Mode (0 = read, 1 = write).
-//		Number of blocks.
-// returns:	1 on success, 0 on failure.
+/** Opens a specified configuration block, within NVRAM. Each block is 15 bytes long.
+ *
+ * @param block Block number.
+ * @param mode Mode (0 = read, 1 = write).
+ * @param NumBlocks Number of blocks.
+ * @return 1 on success, 0 on failure.
+ */
 int sceCdOpenConfig(int block, int mode, int NumBlocks);
 
-// Controls spindle speed? Not sure what it really does.
-// SUPPORTED IN XCDVDMAN ONLY
-//
-// arguments:	Speed mode.
-// returns:	1 on success, 0 on failure.
+/** Controls spindle speed? Not sure what it really does.
+ * SUPPORTED IN XCDVDMAN ONLY
+ *
+ * @param speed Speed mode.
+ * @return 1 on success, 0 on failure.
+ */
 int sceCdSpinCtrlIOP(u32 speed);
 
 //DNAS functions
+
+/** Reads the Disk ID.
+ * SUPPORTED IN NEWER CDVDMAN MODULES INCLUDED WITHIN DNAS IOPRP ONLY
+ *
+ * @param id integer where the Disk ID is stored.
+ * @return 1 on success, 0 on failure.
+ */
 int sceCdReadDiskID(unsigned int *id);
+
+/** Reads a GUID.
+ * SUPPORTED IN NEWER CDVDMAN MODULES INCLUDED WITHIN DNAS IOPRP ONLY
+ *
+ * @param guid u64 integer where the GUID is stored.
+ * @return 1 on success, 0 on failure.
+ */
 int sceCdReadGUID(u64 *guid);
 
 #define cdvdman_IMPORTS_start DECLARE_IMPORT_TABLE(cdvdman, 1, 1)
@@ -144,4 +172,18 @@ int sceCdReadGUID(u64 *guid);
 #define I_sceCdPowerOff DECLARE_IMPORT(74, sceCdPowerOff)
 #define I_sceCdMmode DECLARE_IMPORT(75, sceCdMmode)
 
-#endif /* IOP_CDVDMAN_H */
+#define I_sceCdReadFull DECLARE_IMPORT(76, sceCdReadFull)
+#define I_sceCdStSeekF DECLARE_IMPORT(77, sceCdStSeekF)
+#define I_sceCdPOffCallback DECLARE_IMPORT(78, sceCdPOffCallback)
+#define I_sceCdReadDiskID DECLARE_IMPORT(79, sceCdReadDiskID)
+#define I_sceCdReadGUID DECLARE_IMPORT(80, sceCdReadGUID)
+#define I_sceCdSetTimeout DECLARE_IMPORT(81, sceCdSetTimeout)
+#define I_sceCdReadModelID DECLARE_IMPORT(82, sceCdReadModelID)
+#define I_sceCdReadDvdDualInfo DECLARE_IMPORT(83, sceCdReadDvdDualInfo)
+#define I_sceCdLayerSearchFile DECLARE_IMPORT(84, sceCdLayerSearchFile)
+#define I_sceCdStatus2 DECLARE_IMPORT(90, sceCdStatus2)
+#define I_sceCdApplySCmd2 DECLARE_IMPORT(112, sceCdApplySCmd2)
+#define I_sceCdRE DECLARE_IMPORT(114, sceCdRE)
+#define I_sceCdRcBypassCtl DECLARE_IMPORT(115, sceCdRcBypassCtl)
+
+#endif /* __CDVDMAN_H__ */

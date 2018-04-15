@@ -41,11 +41,21 @@ typedef struct _part_raw_record {
 } part_raw_record;
 
 //---------------------------------------------------------------------------
-static USBHD_INLINE void part_getPartitionRecord(part_raw_record* raw, part_record* rec)
+static USBHD_INLINE int part_getPartitionRecord(mass_dev* dev, part_raw_record* raw, part_record* rec)
 {
 	rec->sid = raw->sid;
 	rec->start = getI32(raw->startLBA);
 	rec->count = getI32(raw->size);
+
+	if(rec->sid != 0x00)
+	{	/*	Windows appears to check if the start LBA is not 0 and whether the start LBA is within the disk.
+			There may be checks against the size, but I didn't manage to identify a pattern.
+			If the disk has no partition table (i.e. disks with "removable" media), then this check is also one safeguard. */
+		if((rec->start == 0) || (rec->start >= dev->maxLBA))
+			return 1;
+	}
+
+	return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -69,7 +79,8 @@ static int part_getPartitionTable(mass_dev* dev, part_table* part)
 		for ( i = 0; i < 4; i++)
 		{
 			part_raw = ( part_raw_record* )(  sbuf + 0x01BE + ( i * 16 )  );
-			part_getPartitionRecord(part_raw, &part->record[i]);
+			if(part_getPartitionRecord(dev, part_raw, &part->record[i]) != 0)
+				return 0;	//Invalid record encountered, so the table is probably invalid.
 		}
 		return 4;
 	}
@@ -88,31 +99,39 @@ int part_connect(mass_dev* dev)
 {
 	part_table partTable;
 	unsigned int count = 0, i;
+	int parts;
 	XPRINTF("USBHDFSD: part_connect devId %i \n", dev->devId);
 
-	if (part_getPartitionTable(dev, &partTable) < 0)
+	if ((parts = part_getPartitionTable(dev, &partTable)) < 0)
 		return -1;
 
-	for ( i = 0; i < 4; i++)
+	if (parts > 0)
 	{
-		if(
-			partTable.record[ i ].sid == 6    ||
-			partTable.record[ i ].sid == 4    ||
-			partTable.record[ i ].sid == 1    ||  // fat 16, fat 12
-			partTable.record[ i ].sid == 0x0B ||
-			partTable.record[ i ].sid == 0x0C ||  // fat 32
-			partTable.record[ i ].sid == 0x0E)    // fat 16 LBA
+		for ( i = 0; i < parts; i++)
 		{
-			XPRINTF("USBHDFSD: mount partition %d\n", i);
-			if (fat_mount(dev, partTable.record[i].start, partTable.record[i].count) >= 0)
-				count++;
+			if(
+				partTable.record[ i ].sid == 6    ||
+				partTable.record[ i ].sid == 4    ||
+				partTable.record[ i ].sid == 1    ||  // fat 16, fat 12
+				partTable.record[ i ].sid == 0x0B ||
+				partTable.record[ i ].sid == 0x0C ||  // fat 32
+				partTable.record[ i ].sid == 0x0E)    // fat 16 LBA
+			{
+				XPRINTF("USBHDFSD: mount partition %d id %02x\n", i, partTable.record[i].sid);
+				if (fat_mount(dev, partTable.record[i].start, partTable.record[i].count) >= 0)
+					count++;
+			}
+		}
+
+		if (count == 0)
+		{
+			printf("USBHDFSD: error - no mountable partitions.\n");
+			return -1;
 		}
 	}
-
-	if ( count == 0 )
-	{	// no partition table detected
-		// try to use "floppy" option
-		XPRINTF("USBHDFSD: mount drive\n");
+	else
+	{	/* No partition table detected, so try to use "floppy" option and hope for the best. */
+		printf("USBHDFSD: mount drive\n");
 		if (fat_mount(dev, 0, dev->maxLBA) < 0)
 			return -1;
 	}

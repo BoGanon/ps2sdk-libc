@@ -5,8 +5,6 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-
 
 
 #
@@ -17,7 +15,7 @@ RELEASE_IOP_DIRS = iop/ iop/include/ iop/irx/ iop/lib
 RELEASE_IOP_DIRS := $(RELEASE_IOP_DIRS:%=$(PS2SDK)/%)
 
 
-release-dirs:
+release-iop-dirs:
 	$(MKDIR) -p $(RELEASE_IOP_DIRS)
 
 
@@ -26,11 +24,14 @@ release-dirs:
 # exists then copy it to the iop/lib directory.
 #
 
-release-lib:
+release-iop-lib:
 	@if test $(IOP_LIB) ; then \
 	   $(ECHO) Installing $(IOP_LIB) to $(PS2SDK)/iop/lib ; \
 	   cp -f $(IOP_LIB) $(PS2SDK)/iop/lib/ ; \
-	   chmod 644 $(PS2SDK)/iop/$(IOP_LIB) ; \
+	   chmod 644 $(PS2SDK)/iop/lib/`basename $(IOP_LIB)` ; \
+	   for file in $(IOP_LIB_ALTNAMES); do \
+	      ln -s `basename $(IOP_LIB)` $(PS2SDK)/iop/lib/$$file; \
+	   done; \
 	fi;
 
 
@@ -38,11 +39,14 @@ release-lib:
 # Any irx files should go to iop/irx
 #
 
-release-bin:
+release-iop-bin:
 	@if test $(IOP_BIN) ; then \
 	   $(ECHO) Installing $(IOP_BIN) to $(PS2SDK)/iop/irx ; \
 	   cp -f $(IOP_BIN) $(PS2SDK)/iop/irx/ ; \
-	   chmod 644 $(PS2SDK)/iop/$(IOP_BIN) ; \
+	   chmod 644 $(PS2SDK)/iop/irx/`basename $(IOP_BIN)` ; \
+	   for file in $(IOP_BIN_ALTNAMES); do \
+	      ln -s `basename $(IOP_BIN)` $(PS2SDK)/iop/irx/$$file; \
+	   done; \
 	fi;
 
 #
@@ -50,21 +54,21 @@ release-bin:
 # directory.  This does not currently handle subdirectories.
 #
 
-release-include:
+release-iop-include:
 	@if test -d include ; then \
 	   for file in include/*; do \
 	     if test -f $$file ; then \
 	       $(ECHO) Installing $$file to $(PS2SDK)/iop/include ; \
 	       cp -f $$file $(PS2SDK)/iop/include ; \
-	       chmod 644 $(PS2SDK)/iop/$$file ; \
+	       chmod 644 $(PS2SDK)/iop/include/`basename $$file` ; \
 	     fi \
 	   done; \
 	fi;
 
-release: release-dirs release-lib release-bin release-include
+release: release-iop-dirs release-iop-lib release-iop-bin release-iop-include
 
 
-release-clean:
+release-iop-clean:
 	rm -f $(PS2SDK)/iop/include/*
 	rm -f $(PS2SDK)/iop/irx/*
 	rm -f $(PS2SDK)/iop/lib/*

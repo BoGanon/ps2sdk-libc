@@ -6,56 +6,66 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Common used typedef
 */
 
-#ifndef _TAMTYPES_H_
-#define _TAMTYPES_H_ 1
+/**
+ * @file
+ * Commonly used typedefs
+ */
 
-typedef	unsigned char 		u8;
-typedef unsigned short 		u16;
+#ifndef __TAMTYPES_H__
+#define __TAMTYPES_H__
 
-typedef	volatile unsigned char 		vu8;
-typedef volatile unsigned short 	vu16;
-
-#ifdef _EE
-typedef unsigned int		u32;
-typedef unsigned long int	u64;
-typedef unsigned int		u128 __attribute__(( mode(TI) ));
-
-typedef volatile unsigned int		vu32;
-typedef volatile unsigned long int	vu64;
-typedef volatile unsigned int		vu128 __attribute__(( mode(TI) ));
-#else
-typedef unsigned long int	u32;
-typedef unsigned long long	u64;
-
-typedef volatile unsigned long int	vu32;
-typedef volatile unsigned long long	vu64;
+#if !defined(_EE) && !defined(_IOP)
+#error Either _EE or _IOP must be defined!
 #endif
 
-typedef signed char 		s8;
-typedef signed short 		s16;
+typedef	unsigned char u8;
+typedef unsigned short u16;
 
-typedef volatile signed char	vs8;
-typedef volatile signed short	vs16;
+typedef	volatile u8 vu8;
+typedef volatile u16 vu16;
 
 #ifdef _EE
-typedef signed int		s32;
-typedef signed long int		s64;
-typedef signed int		s128 __attribute__(( mode(TI) ));
+typedef unsigned int u32;
+typedef unsigned long u64;
+typedef unsigned int u128 __attribute__(( mode(TI) ));
 
-typedef volatile signed int		vs32;
-typedef volatile signed long int	vs64;
-typedef volatile signed int		vs128 __attribute__(( mode(TI) ));
-#else
-typedef signed long int		s32;
-typedef signed long long	s64;
+typedef volatile u32 vu32;
+typedef volatile u64 vu64;
+typedef volatile u128 vu128 __attribute__(( mode(TI) ));
+#endif
 
-typedef volatile signed long int	vs32;
-typedef volatile signed long long	vs64;
+#ifdef _IOP
+typedef unsigned long u32;
+typedef unsigned long long u64;
+
+typedef volatile u32 vu32;
+typedef volatile u64 vu64;
+#endif
+
+typedef signed char s8;
+typedef signed short s16;
+
+typedef volatile s8 vs8;
+typedef volatile s16 vs16;
+
+#ifdef _EE
+typedef signed int s32;
+typedef signed long s64;
+typedef signed int s128 __attribute__(( mode(TI) ));
+
+typedef volatile s32 vs32;
+typedef volatile s64 vs64;
+typedef volatile s128 vs128 __attribute__(( mode(TI) ));
+#endif
+
+#ifdef _IOP
+typedef signed long s32;
+typedef signed long long s64;
+
+typedef volatile s32 vs32;
+typedef volatile s64 vs64;
 #endif
 
 #ifdef _EE
@@ -70,7 +80,7 @@ typedef union {
 #endif
 
 #ifndef NULL
-#define NULL	(void *)0
+#define NULL (void *)0
 #endif
 
 static inline u8  _lb(u32 addr) { return *(vu8 *)addr; }
@@ -88,4 +98,4 @@ static inline void _sd(u64 val, u32 addr) { *(vu64 *)addr = val; }
 static inline void _sq(u128 val, u32 addr) { *(vu128 *)addr = val; }
 #endif
 
-#endif
+#endif /* __TAMTYPES_H__ */

@@ -5,19 +5,15 @@
 #-----------------------------------------------------------------------
 # Copyright 2005, ps2dev - http://www.ps2dev.org
 # Licenced under GNU Library General Public License version 2
-#
-# $Id$
-# SPU definitions header
 */
+
+/**
+ * @file
+ * SPU definitions header
+ */
 
 #ifndef __SPU_H__
 #define __SPU_H__
-
-/**
- * \file spu.h
- * \author gawd (Gil Megidish)
- * \date 05-09-05
- */
 
 #define MAX_VOLUME               0x3fff
 

@@ -6,10 +6,13 @@
 # Copyright 2001-2005, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Miscellaneous Unix symbolic constants, types, and declarations
 */
+
+/**
+ * @file
+ * Trap the unistd.h include and redirect it to stdio.h
+ */
+
 #ifndef __UNISTD_H__
 #define __UNISTD_H__
 
@@ -60,4 +63,4 @@ ssize_t      write(int handle, const void * buffer, size_t size);
 }
 #endif
 
-#endif
+#endif /* __UNISTD_H__ */

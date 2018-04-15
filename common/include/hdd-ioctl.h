@@ -6,20 +6,34 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Common HDD IOCTL, DEVCTL and IOCTL2 command definitions
 */
 
-#ifndef _HDD_IOCTL_H
-#define _HDD_IOCTL_H
+/**
+ * @file
+ * Common HDD IOCTL, DEVCTL and IOCTL2 command definitions
+ */
+
+#ifndef __HDD_IOCTL_H__
+#define __HDD_IOCTL_H__
+
+#include <tamtypes.h>
+
+///////////////////////////////////////////////////////////////////////////////
+//	DEV9.IRX
+
+#define DEV9_TYPE_PCMCIA	0
+#define DEV9_TYPE_EXPBAY	1
+
+#define DDIOC_MODEL		0x4401
+#define DDIOC_OFF		0x4402
 
 ///////////////////////////////////////////////////////////////////////////////
 //	HDD.IRX
 
 // Partition format/types (as returned via the mode field for getstat/dread)
 #define APA_TYPE_FREE		0x0000
-#define APA_TYPE_MBR		0x0001	// Master Boot Record
+/** Master Boot Record */
+#define APA_TYPE_MBR		0x0001
 #define APA_TYPE_EXT2SWAP	0x0082
 #define APA_TYPE_EXT2		0x0083
 #define APA_TYPE_REISER		0x0088
@@ -27,9 +41,11 @@
 #define APA_TYPE_CFS		0x0101
 
 #define APA_IDMAX		32
-#define APA_MAXSUB		64	// Maximum # of sub-partitions
+/** Maximum # of sub-partitions */
+#define APA_MAXSUB		64
 #define APA_PASSMAX		8
-#define APA_FLAG_SUB		0x0001	// Sub-partition status for partitions (attr field)
+/** Sub-partition status for partitions (attr field) */
+#define APA_FLAG_SUB		0x0001
 
 //
 // IOCTL2 commands
@@ -40,10 +56,14 @@
 #define HIOCFLUSH		0x6804
 
 // Arbitrarily-named commands
-#define HIOCTRANSFER		0x6832	// Used by PFS.IRX to read/write data
-#define HIOCGETSIZE		0x6833	// For main(0)/subs(1+)
-#define HIOCSETPARTERROR	0x6834	// Set (sector of a partition) that has an error
-#define HIOCGETPARTERROR	0x6835	// Get (sector of a partition) that has an error
+/** Used by PFS.IRX to read/write data */
+#define HIOCTRANSFER		0x6832
+/** For main(0)/subs(1+) */
+#define HIOCGETSIZE		0x6833
+/** Set (sector of a partition) that has an error */
+#define HIOCSETPARTERROR	0x6834
+/** Get (sector of a partition) that has an error */
+#define HIOCGETPARTERROR	0x6835
 
 // I/O direction
 #define APA_IO_MODE_READ	0x00
@@ -52,10 +72,13 @@
 // structs for IOCTL2 commands
 typedef struct
 {
-	u32		sub;	// main(0)/subs(1+) to read/write
+	/** main(0)/subs(1+) to read/write */
+	u32		sub;
 	u32		sector;
-	u32		size;	// in sectors
-	u32		mode;	// ATAD_MODE_READ/ATAD_MODE_WRITE.....
+	/** in sectors */
+	u32		size;
+	/** ATAD_MODE_READ/ATAD_MODE_WRITE..... */
+	u32		mode;
 	void	*buffer;
 } hddIoctl2Transfer_t;
 
@@ -63,8 +86,10 @@ typedef struct
 // DEVCTL commands
 //
 // 'H' set
-#define HDIOC_MAXSECTOR		0x4801	// Maximum partition size (in sectors)
-#define HDIOC_TOTALSECTOR	0x4802	// Capacity of the disk (in sectors)
+/** Maximum partition size (in sectors) */
+#define HDIOC_MAXSECTOR		0x4801
+/** Capacity of the disk (in sectors) */
+#define HDIOC_TOTALSECTOR	0x4802
 #define HDIOC_IDLE		0x4803
 #define HDIOC_FLUSH		0x4804
 #define HDIOC_SWAPTMP		0x4805
@@ -72,18 +97,24 @@ typedef struct
 #define HDIOC_STATUS		0x4807
 #define HDIOC_FORMATVER		0x4808
 #define HDIOC_SMARTSTAT		0x4809
-#define HDIOC_FREESECTOR	0x480A	// Returns the approximate amount of free space
+/** Returns the approximate amount of free space */
+#define HDIOC_FREESECTOR	0x480A
 #define HDIOC_IDLEIMM		0x480B
 
 // 'h' command set
 // Arbitrarily-named commands
 #define HDIOC_GETTIME		0x6832
-#define HDIOC_SETOSDMBR		0x6833	// arg = hddSetOsdMBR_t
+/** arg = hddSetOsdMBR_t */
+#define HDIOC_SETOSDMBR		0x6833
 #define HDIOC_GETSECTORERROR	0x6834
-#define HDIOC_GETERRORPARTNAME	0x6835	// bufp = namebuffer[0x20]
-#define HDIOC_READSECTOR	0x6836	// arg  = hddAtaTransfer_t
-#define HDIOC_WRITESECTOR	0x6837	// arg  = hddAtaTransfer_t
-#define HDIOC_SCEIDENTIFY	0x6838	// bufp = buffer for atadSceIdentifyDrive
+/** bufp = namebuffer[0x20] */
+#define HDIOC_GETERRORPARTNAME	0x6835
+/** arg  = hddAtaTransfer_t */
+#define HDIOC_READSECTOR	0x6836
+/** arg  = hddAtaTransfer_t */
+#define HDIOC_WRITESECTOR	0x6837
+/** bufp = buffer for atadSceIdentifyDrive */
+#define HDIOC_SCEIDENTIFY	0x6838
 
 // structs for DEVCTL commands
 
@@ -160,6 +191,7 @@ typedef struct
 #define PIOCATTRDEL			0x7004
 #define PIOCATTRLOOKUP			0x7005
 #define PIOCATTRREAD			0x7006
+#define PIOCINVINODE			0x7032	//Only available in OSD version. Arbitrarily named.
 
 // DEVCTL commands
 // Command set 'P'
@@ -211,4 +243,4 @@ typedef struct
 #define PFS_DEVCTL_SET_GID		PDIOC_SETGID
 #define PFS_DEVCTL_SHOW_BITMAP		PDIOC_SHOWBITMAP
 
-#endif /* _HDD_IOCTL_H */
+#endif /* __HDD_IOCTL_H__ */

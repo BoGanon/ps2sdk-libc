@@ -1,14 +1,18 @@
-#ifndef _SYSCALLNR_H_
-#define _SYSCALLNR_H_
-
-/*
+/**
+ * @file
  * This file contains the system call numbers, similar to asm/unistd.h on Linux.
  */
+
+#ifndef __SYSCALLNR_H__
+#define __SYSCALLNR_H__
+
 #define __NR_ResetEE			1
 #define __NR_SetGsCrt			2
-#define __NR_Exit			4
-#define __NR_LoadExecPS2		6
-#define __NR_ExecPS2			7
+#define __NR__Exit			4
+#define __NR_ResumeIntrDispatch		5	//Arbitrarily named
+#define __NR__LoadExecPS2		6
+#define __NR__ExecPS2			7
+#define __NR_ResumeT3IntrDispatch	8	//Arbitrarily named (used by alarm update)
 #define __NR_RFU009			9
 #define __NR_AddSbusIntcHandler		0xa
 #define __NR_RemoveSbusIntcHandler	0xb
@@ -20,19 +24,24 @@
 #define __NR_AddIntcHandler2		__NR_AddIntcHandler
 #define __NR_RemoveIntcHandler		0x11
 #define __NR_AddDmacHandler		0x12
+#define __NR_AddDmacHandler2		__NR_AddDmacHandler
 #define __NR_RemoveDmacHandler		0x13
 #define __NR__EnableIntc		0x14
 #define __NR__DisableIntc		0x15
 #define __NR__EnableDmac		0x16
 #define __NR__DisableDmac		0x17
-#define __NR_SetAlarm			0x18
-#define __NR_ReleaseAlarm		0x19
+#define __NR__SetAlarm			0x18
+#define __NR__ReleaseAlarm		0x19
+#define __NR_SetAlarm			0xfc
+#define __NR_ReleaseAlarm		0xfe
 #define __NR__iEnableIntc		(-0x1a)
 #define __NR__iDisableIntc		(-0x1b)
 #define __NR__iEnableDmac		(-0x1c)
 #define __NR__iDisableDmac		(-0x1d)
-#define __NR_iSetAlarm			(-0x1e)
-#define __NR_iReleaseAlarm		(-0x1f)
+#define __NR__iSetAlarm			(-0x1e)
+#define __NR__iReleaseAlarm		(-0x1f)
+#define __NR_iSetAlarm			(-0xfd)
+#define __NR_iReleaseAlarm		(-0xff)
 #define __NR_CreateThread		0x20
 #define __NR_DeleteThread		0x21
 #define __NR_StartThread		0x22
@@ -45,19 +54,20 @@
 #define __NR_ChangeThreadPriority	0x29
 #define __NR_iChangeThreadPriority	(-0x2a)
 #define __NR_RotateThreadReadyQueue	0x2b
-#define __NR_iRotateThreadReadyQueue	(-0x2c)
+#define __NR__iRotateThreadReadyQueue	(-0x2c)
 #define __NR_ReleaseWaitThread		0x2d
 #define __NR_iReleaseWaitThread		(-0x2e)
 #define __NR_GetThreadId		0x2f
+#define __NR__iGetThreadId		(-0x2f)	//Used for a hack by SCE to workaround iWakeupThread
 #define __NR_ReferThreadStatus		0x30
 #define __NR_iReferThreadStatus		(-0x31)
 #define __NR_SleepThread		0x32
 #define __NR_WakeupThread		0x33
-#define __NR_iWakeupThread		(-0x34)
+#define __NR__iWakeupThread		(-0x34)
 #define __NR_CancelWakeupThread		0x35
 #define __NR_iCancelWakeupThread	(-0x36)
 #define __NR_SuspendThread		0x37
-#define __NR_iSuspendThread		(-0x38)
+#define __NR__iSuspendThread		(-0x38)
 #define __NR_ResumeThread		0x39
 #define __NR_iResumeThread		(-0x3a)
 #define __NR_RFU059			0x3b
@@ -134,7 +144,7 @@
 #define __NR_iSifSetDChain		(-0x78)
 #define __NR_SifSetReg			0x79
 #define __NR_SifGetReg			0x7a
-#define __NR_ExecOSD			0x7b
+#define __NR__ExecOSD			0x7b
 #define __NR_Deci2Call			0x7c
 #define __NR_PSMode			0x7d
 #define __NR_MachineType		0x7e
@@ -142,4 +152,4 @@
 #define __NR__GetGsDxDyOffset		0x80
 #define __NR__InitTLB			0x82
 
-#endif /* _SYSCALLNR_H_ */
+#endif /* __SYSCALLNR_H__ */

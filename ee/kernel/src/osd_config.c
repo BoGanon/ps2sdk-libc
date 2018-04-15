@@ -6,12 +6,14 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# PS2 Configuration settings
-# note: the 'set' methods are only valid till the ps2 gets
-# turned off or reset!
 */
+
+/**
+ * @file
+ * PS2 Configuration settings
+ * note: the 'set' methods are only valid till the ps2 gets
+ * turned off or reset!
+ */
 
 #include <sys/fcntl.h>
 
@@ -21,7 +23,7 @@
 #include "kernel/unistd.h"
 #include <osd_config.h>
 
-// config param data as stored on a DTL-T10000(H) TOOL
+/** config param data as stored on a DTL-T10000(H) TOOL */
 typedef struct {
 	u16 timezoneOffset;
 	u8  screenType;
@@ -38,7 +40,7 @@ extern char g_RomName[];
 #ifdef F__config_internals
 ConfigParamT10K g_t10KConfig = {540, TV_SCREEN_43, DATE_YYYYMMDD, LANGUAGE_JAPANESE, 0, 0, 0};
 
-// stores romname of ps2
+/** stores romname of ps2 */
 char g_RomName[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #endif
 
@@ -59,10 +61,6 @@ char* GetRomName(char *romname)
 }
 #endif
 
-// check whether the PlayStation 2 is actually a TOOL DTL-T10000(H)
-//
-// returns:	1 if DTL-T10000(H)
-//		0 if not
 #ifdef F_IsT10K
 int IsT10K(void)
 {
@@ -73,11 +71,6 @@ int IsT10K(void)
 }
 #endif
 
-// check if ps2 has a 'Protokernel' (Really early Japanese models)
-//
-// args:	unsigned int config value from GetOsdConfigParam() syscall
-// returns:	1 if early jap model
-//			0 if not
 #ifdef F_IsEarlyJap
 int IsEarlyJap(ConfigParam config)
 {
@@ -85,9 +78,6 @@ int IsEarlyJap(ConfigParam config)
 }
 #endif
 
-// get the language the ps2 is currently set to
-//
-// returns:		Language value (See OSD_LANGUAGES in header file)
 #ifdef F_configGetLanguage
 int  configGetLanguage(void)
 {
@@ -103,9 +93,6 @@ int  configGetLanguage(void)
 }
 #endif
 
-// sets the default language of the ps2
-//
-// args:	Language value (See OSD_LANGUAGES in header file)
 #ifdef F_configSetLanguage
 void configSetLanguage(int language)
 {
@@ -127,11 +114,6 @@ void configSetLanguage(int language)
 }
 #endif
 
-// get the tv screen type the ps2 is setup for
-//
-// returns:	0 = 4:3
-//		1 = fullscreen
-//		2 = 16:9
 #ifdef F_configGetTvScreenType
 int  configGetTvScreenType(void)
 {
@@ -146,11 +128,6 @@ int  configGetTvScreenType(void)
 #endif
 
 #ifdef F_configSetTvScreenType
-// set the tv screen type
-//
-// args:	0 = 4:3
-//			1 = fullscreen
-//			2 = 16:9
 void configSetTvScreenType(int screenType)
 {
 	ConfigParam config;
@@ -168,11 +145,6 @@ void configSetTvScreenType(int screenType)
 }
 #endif
 
-// gets the date display format
-//
-// returns:	0 = yyyy/mm/dd
-//			1 = mm/dd/yyyy
-//			2 = dd/mm/yyyy
 #ifdef F_configGetDateFormat
 int  configGetDateFormat(void)
 {
@@ -190,11 +162,6 @@ int  configGetDateFormat(void)
 }
 #endif
 
-// sets the date display format
-//
-// args:	0 = yyyy/mm/dd
-//			1 = mm/dd/yyyy
-//			2 = dd/mm/yyyy
 #ifdef F_configSetDateFormat
 void configSetDateFormat(int dateFormat)
 {
@@ -217,11 +184,6 @@ void configSetDateFormat(int dateFormat)
 }
 #endif
 
-// gets the time display format
-// (whether 24hour time or not)
-//
-// returns:	0 = 24hour
-//			1 = 12hour
 #ifdef F_configGetTimeFormat
 int  configGetTimeFormat(void)
 {
@@ -239,11 +201,6 @@ int  configGetTimeFormat(void)
 }
 #endif
 
-// sets the time display format
-// (whether 24hour time or not)
-//
-// args:	0 = 24hour
-//		1 = 12hour
 #ifdef F_configSetTimeFormat
 void configSetTimeFormat(int timeFormat)
 {
@@ -266,9 +223,6 @@ void configSetTimeFormat(int timeFormat)
 }
 #endif
 
-// get timezone
-//
-// returns: offset in minutes from GMT
 #ifdef F_configGetTimezone
 int  configGetTimezone(void)
 {
@@ -284,9 +238,6 @@ int  configGetTimezone(void)
 }
 #endif
 
-// set timezone
-//
-// args:	offset in minutes from GMT
 #ifdef F_configSetTimezone
 void configSetTimezone(int timezoneOffset)
 {
@@ -304,10 +255,6 @@ void configSetTimezone(int timezoneOffset)
 }
 #endif
 
-// checks whether the spdif is enabled or not
-//
-// returns:	1 = on
-//			0 = off
 #ifdef F_configIsSpdifEnabled
 int  configIsSpdifEnabled(void)
 {
@@ -321,10 +268,6 @@ int  configIsSpdifEnabled(void)
 }
 #endif
 
-// sets whether the spdif is enabled or not
-//
-// args:	1 = on
-//			0 = off
 #ifdef F_configSetSpdifEnabled
 void configSetSpdifEnabled(int enabled)
 {
@@ -339,10 +282,6 @@ void configSetSpdifEnabled(int enabled)
 }
 #endif
 
-// checks whether daylight saving is currently set
-//
-// returns:	1 = on
-//			0 = off
 #ifdef F_configIsDaylightSavingEnabled
 int  configIsDaylightSavingEnabled(void)
 {
@@ -361,10 +300,6 @@ int  configIsDaylightSavingEnabled(void)
 }
 #endif
 
-// checks whether daylight saving is currently set
-//
-// returns:	1 = on
-//			0 = off
 #ifdef F_configSetDaylightSavingEnabled
 void configSetDaylightSavingEnabled(int daylightSaving)
 {
@@ -523,15 +458,11 @@ void AdjustTime(sceCdCLOCK* time, int offset)
 	converttobcd(time);
 }
 
-// converts the time returned from the ps2's clock into GMT time
-// (ps2 clock is in JST time)
 void configConvertToGmtTime(sceCdCLOCK* time)
 {
 	AdjustTime(time, -540);
 }
 
-// converts the time returned from the ps2's clock into LOCAL time
-// (ps2 clock is in JST time)
 void configConvertToLocalTime(sceCdCLOCK* time)
 {
 	int timezone_offset = configGetTimezone();

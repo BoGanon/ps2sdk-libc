@@ -7,13 +7,13 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # Based on freesd source
 */
 
 #ifndef LIBSD
 
 #include "types.h"
+#include <stdarg.h>
 #include "spu2regs.h"
 #include "freesd.h"
 #include "thbase.h"
@@ -33,13 +33,13 @@ u32 VoiceTransIoMode[2];
 #endif
 // Global
 
-SdTransIntrHandler	TransIntrHandlers[2];
-IntrCallback		TransIntrCallbacks[2];
+sceSdTransIntrHandler	TransIntrHandlers[2];
+SdIntrCallback		TransIntrCallbacks[2];
 #ifndef ISJPCM
 u16 SpdifSettings;
 void *Spu2IntrData;
-SdSpu2IntrHandler	Spu2IntrHandler;
-IntrCallback		Spu2IrqCallback;
+sceSdSpu2IntrHandler	Spu2IntrHandler;
+SdIntrCallback		Spu2IrqCallback;
 #endif
 IntrData			TransIntrData[2];
 
@@ -87,14 +87,14 @@ int TransInterrupt(void *data)
 		if(*SD_CORE_ATTR(core) & 0x30)	while((*SD_CORE_ATTR(core) & 0x30));
 
 		if(TransIntrHandlers[core])		goto intr_handler;
-		if(TransIntrCallbacks[core])	goto IntrCallback;
+		if(TransIntrCallbacks[core])	goto SdIntrCallback;
 
 		VoiceTransComplete[core] = 1;
 		#endif
 	}
 	else
 	{	// Block Transfer
-		if(intr->mode & (SD_BLOCK_TRANS_LOOP << 8))
+		if(intr->mode & (SD_TRANS_LOOP << 8))
 		{
 			// Switch buffers
 			BlockTransBuff[core] = 1 - BlockTransBuff[core];
@@ -124,7 +124,7 @@ int TransInterrupt(void *data)
 			if(TransIntrCallbacks[core])
 			{
 				#ifndef ISJPCM
-				IntrCallback:
+				SdIntrCallback:
 				#endif
 				TransIntrCallbacks[core](0);
 			}
@@ -414,7 +414,7 @@ void InitSpdif()
 	*U16_REGISTER(0x7CA) = 8;
 }
 
-s32 SdInit(s32 flag)
+int sceSdInit(int flag)
 {
 	flag &= 1;
 
@@ -495,7 +495,7 @@ void SetSpdifMode(u16 val)
 // Enable/disable bits in SD_CORE_ATTR
 u8 CoreAttrShifts[4] = {7, 6, 14, 8};
 
-void SdSetCoreAttr(u16 entry, u16 val)
+void sceSdSetCoreAttr(u16 entry, u16 val)
 {
 	u16 core_attr = *SD_CORE_ATTR(entry & 1);
 
@@ -522,7 +522,7 @@ void SdSetCoreAttr(u16 entry, u16 val)
 	}
 }
 
-void SdSetParam(u16 reg, u16 val)
+void sceSdSetParam(u16 reg, u16 val)
 {
 	#ifndef ISJPCM
 	u32 offs;
@@ -574,9 +574,9 @@ void SdSetParam(u16 reg, u16 val)
 
 }
 
-IntrCallback SdSetTransCallback(s32 core, IntrCallback cb)
+SdIntrCallback sceSdSetTransCallback(s32 core, SdIntrCallback cb)
 {
-	IntrCallback old_cb;
+	SdIntrCallback old_cb;
 
 	old_cb = TransIntrCallbacks[core & 1];
 	TransIntrCallbacks[core & 1] = cb;
@@ -635,7 +635,7 @@ s32 BlockTransWriteFrom(u8 *iopaddr, u32 size, s32 chan, u16 mode, u8 *startaddr
 
 	if(offset > size)
 	{
-		if(mode & SD_BLOCK_TRANS_LOOP)
+		if(mode & SD_TRANS_LOOP)
 		{
 			offset -= size;
 			BlockTransBuff[core] = 1;
@@ -742,24 +742,26 @@ s32 BlockTransRead(u8 *iopaddr, u32 size, s32 chan, s16 mode)
 #endif
 
 
-s32 SdBlockTrans(s16 chan, u16 mode, u8 *iopaddr, u32 size, u8 *startaddr)
+int sceSdBlockTrans(s16 chan, u16 mode, u8 *iopaddr, u32 size, ...)
 {
 	#ifndef ISJPCM
 	int transfer_dir = mode & 3;
 	#endif
 	int core = chan & 1;
 	int _size = size;
+	va_list alist;
+	u8* startaddr;
 
 	#ifndef ISJPCM
 	switch(transfer_dir)
 	{
-		case SD_BLOCK_TRANS_WRITE:
+		case SD_TRANS_WRITE:
 		{
 			TransIntrData[core].mode = 0x100 | core;
 
-			if(mode & SD_BLOCK_TRANS_LOOP)
+			if(mode & SD_TRANS_LOOP)
 			{
-				TransIntrData[core].mode |= SD_BLOCK_TRANS_LOOP << 8;
+				TransIntrData[core].mode |= SD_TRANS_LOOP << 8;
 				_size /= 2;
 			}
 
@@ -769,13 +771,13 @@ s32 SdBlockTrans(s16 chan, u16 mode, u8 *iopaddr, u32 size, u8 *startaddr)
 		} break;
 
 
-		case SD_BLOCK_TRANS_READ:
+		case SD_TRANS_READ:
 		{
 			TransIntrData[core].mode = 0x300 | core;
 
-			if(mode & SD_BLOCK_TRANS_LOOP)
+			if(mode & SD_TRANS_LOOP)
 			{
-				TransIntrData[core].mode |= SD_BLOCK_TRANS_LOOP << 8;
+				TransIntrData[core].mode |= SD_TRANS_LOOP << 8;
 				_size /= 2;
 			}
 
@@ -784,19 +786,23 @@ s32 SdBlockTrans(s16 chan, u16 mode, u8 *iopaddr, u32 size, u8 *startaddr)
 
 		} break;
 
-		case SD_BLOCK_TRANS_STOP:
+		case SD_TRANS_STOP:
 		{
 			return DmaStop(core);
 
 		} break;
 
-		case SD_BLOCK_TRANS_WRITE_FROM:
+		case SD_TRANS_WRITE_FROM:
 		{
+			va_start(alist, size);
+			startaddr = va_arg(alist, u8*);
+			va_end(alist);
+
 			TransIntrData[core].mode = 0x100 | core;
 
-			if(mode & SD_BLOCK_TRANS_LOOP)
+			if(mode & SD_TRANS_LOOP)
 			{
-				TransIntrData[core].mode |= SD_BLOCK_TRANS_LOOP << 8;
+				TransIntrData[core].mode |= SD_TRANS_LOOP << 8;
 				_size /= 2;
 			}
 
@@ -810,7 +816,7 @@ s32 SdBlockTrans(s16 chan, u16 mode, u8 *iopaddr, u32 size, u8 *startaddr)
 	}
 	#else
 	TransIntrData[core].mode = 0x100 | core;
-	TransIntrData[core].mode |= SD_BLOCK_TRANS_LOOP << 8;
+	TransIntrData[core].mode |= SD_TRANS_LOOP << 8;
 	_size /= 2;
 
 	if(BlockTransWrite(iopaddr, _size, core) >= 0)
@@ -820,7 +826,7 @@ s32 SdBlockTrans(s16 chan, u16 mode, u8 *iopaddr, u32 size, u8 *startaddr)
 	return -1;
 }
 
-u32 SdBlockTransStatus(s16 chan, s16 flag)
+u32 sceSdBlockTransStatus(s16 chan, s16 flag)
 {
 	u32 retval;
 

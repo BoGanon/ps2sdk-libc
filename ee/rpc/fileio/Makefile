@@ -9,30 +9,18 @@
 
 EE_INCS = -I$(PS2SDKSRC)/ee/kernel/src
 
-EE_OBJS_DIR = obj/
-EE_LIB_DIR = lib/
-EE_SRC_DIR = src/
-EE_INC_DIR = include/
-
-EE_LIB = $(EE_LIB_DIR)libfileio.a
-
 FILEIO_OBJS = __fio_internals.o fio_init.o _fio_intr.o fio_sync.o fio_setblockmode.o \
 	fio_exit.o fio_open.o fio_close.o fio_read.o \
 	fio_write.o fio_lseek.o fio_mkdir.o _fio_read_intr.o fio_getc.o fio_putc.o \
 	fio_ioctl.o fio_dopen.o fio_dclose.o fio_dread.o fio_getstat.o fio_chstat.o \
 	fio_remove.o fio_format.o fio_rmdir.o fio_gets.o fio_unistd.o
-FILEIO_OBJS := $(FILEIO_OBJS:%=$(EE_OBJS_DIR)%)
 
-EE_OBJS = $(FILEIO_OBJS) $(EE_OBJS_DIR)erl-support.o
-
-all: $(EE_OBJS_DIR) $(EE_LIB_DIR) $(EE_LIB)
-
-$(FILEIO_OBJS): $(EE_SRC_DIR)fileio.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
-
-clean:
-	rm -f -r $(EE_OBJS_DIR) $(EE_LIB_DIR)
+EE_OBJS = $(FILEIO_OBJS) erl-support.o
 
 include $(PS2SDKSRC)/Defs.make
+include $(PS2SDKSRC)/ee/Rules.lib.make
 include $(PS2SDKSRC)/ee/Rules.make
 include $(PS2SDKSRC)/ee/Rules.release
+
+$(FILEIO_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)fileio.c
+	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@

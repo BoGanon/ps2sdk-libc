@@ -5,23 +5,41 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
 
-IOP_OBJS_DIR = obj/
-IOP_BIN_DIR = irx/
-IOP_SRC_DIR = src/
-IOP_INC_DIR = include/
+#Enable to perform the SCE HDD check at the end of ATA device initialization.
+ATA_SCE_AUTH_HDD ?= 0
 
-IOP_BIN  = $(IOP_BIN_DIR)ps2atad.irx
-IOP_OBJS = $(IOP_OBJS_DIR)ps2atad.o $(IOP_OBJS_DIR)exports.o $(IOP_OBJS_DIR)imports.o
+#Enable to enable support for Multi-Word DMA (MWDMA) modes, as in early ATAD modules.
+ATA_MWDMA_MODES ?= 0
+
+#Enable to enable support for PIO modes 0-4 (as in early ATAD modules), instead of just PIO mode 0.
+ATA_ALL_PIO_MODES ?= 0
+
+#Disable to disable the workaround for bad GameStar compatible adaptors.
+ATA_GAMESTAR_WORKAROUND ?= 1
+
+IOP_BIN ?= ps2atad.irx
 
 IOP_INCS += -I$(PS2SDKSRC)/iop/dev9/dev9/include
+IOP_OBJS = ps2atad.o imports.o exports.o
 
-all: $(IOP_OBJS_DIR) $(IOP_BIN_DIR) $(IOP_BIN)
+ifeq ($(ATA_SCE_AUTH_HDD),1)
+IOP_CFLAGS += -DATA_SCE_AUTH_HDD=1
+endif
 
-clean:
-	rm -f -r $(IOP_OBJS_DIR) $(IOP_BIN_DIR)
+ifeq ($(ATA_MWDMA_MODES),1)
+IOP_CFLAGS += -DATA_MWDMA_MODES=1
+endif
+
+ifeq ($(ATA_ALL_PIO_MODES),1)
+IOP_CFLAGS += -DATA_ALL_PIO_MODES=1
+endif
+
+ifeq ($(ATA_GAMESTAR_WORKAROUND),1)
+IOP_CFLAGS += -DATA_GAMESTAR_WORKAROUND=1
+endif
 
 include $(PS2SDKSRC)/Defs.make
+include $(PS2SDKSRC)/iop/Rules.bin.make
 include $(PS2SDKSRC)/iop/Rules.make
 include $(PS2SDKSRC)/iop/Rules.release

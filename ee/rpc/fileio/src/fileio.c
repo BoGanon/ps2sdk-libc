@@ -7,10 +7,12 @@
 # (c) 2003 Marcus R. Brown (mrbrown@0xd6.org)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# EE FILE IO handling
 */
+
+/**
+ * @file
+ * EE FILE IO handling
+ */
 
 #include <stdarg.h>
 #include <sys/fcntl.h>
@@ -45,7 +47,7 @@ enum _fio_functions {
 	FIO_F_DELDRV
 };
 
-/* Shared between _fio_read_intr and fio_read.  The updated modules shipped
+/** Shared between _fio_read_intr and fio_read.  The updated modules shipped
    with licensed games changed the size of the buffers from 16 to 64.  */
 struct _fio_read_data {
 	u32	size1;
@@ -212,7 +214,8 @@ int fioOpen(const char *name, int mode)
 		result=(_fio_block_mode == FIO_NOWAIT)?0:_fio_recv_data[0];
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -240,7 +243,8 @@ int fioClose(int fd)
 		result=arg.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -297,7 +301,8 @@ int fioRead(int fd, void *ptr, int size)
 		result=(_fio_block_mode == FIO_NOWAIT)?0:_fio_recv_data[0];
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -349,7 +354,8 @@ int fioWrite(int fd, const void *ptr, int size)
 		result=(_fio_block_mode == FIO_NOWAIT)?0:_fio_recv_data[0];
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -387,7 +393,8 @@ int fioLseek(int fd, int offset, int whence)
 		result=arg.p.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -417,7 +424,9 @@ int fioIoctl(int fd, int request, void *data)
 
 	arg.p.fd = fd;
 	arg.request = request;
-	memcpy(arg.data, data, 1024);
+
+	if(data != NULL)
+		memcpy(arg.data, data, 1024);
 
 	if ((res = SifCallRpc(&_fio_cd, FIO_F_IOCTL, 0, &arg, sizeof arg,
 					&arg, 4, (void *)_fio_intr, NULL)) >= 0)
@@ -425,7 +434,8 @@ int fioIoctl(int fd, int request, void *data)
 		result=arg.p.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -456,7 +466,8 @@ int fioRemove(const char *name)
 		result=arg.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -487,7 +498,8 @@ int fioMkdir(const char* path)
 		result=arg.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -518,7 +530,8 @@ int fioRmdir(const char* dirname)
 		result=arg.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -595,7 +608,8 @@ int fioDopen(const char *name)
 		result=arg.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -625,7 +639,8 @@ int fioDclose(int fd)
 		result=arg.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -664,7 +679,8 @@ int fioDread(int fd, fio_dirent_t *buf)
 		result=arg.p.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -704,7 +720,8 @@ int fioGetstat(const char *name, fio_stat_t *buf)
 		result=arg.p.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -743,7 +760,8 @@ int fioChstat(const char *name, fio_stat_t *buf, u32 cbit)
 		result=arg.p.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -774,7 +792,8 @@ int fioFormat(const char *name)
 		result=arg.result;
 	}
 	else
-	{
+	{	//Signal semaphore to avoid a deadlock if SifCallRpc fails.
+		SignalSema(_fio_completion_sema);
 		result=res;
 	}
 
@@ -915,7 +934,7 @@ void rewinddir(DIR *d)
     d->d_fd = -1;
     return;
   }
-  
+
   d->d_fd = fioDopen(d->d_dir);
 
   return;

@@ -1,11 +1,16 @@
-#ifndef _PS2_SBUS_H
-#define _PS2_SBUS_H
+/**
+ * @file
+ * SBUS definitions.
+ */
+
+#ifndef __PS2_SBUS_H__
+#define __PS2_SBUS_H__
 
 #include <tamtypes.h>
 #include <ps2_reg_defs.h>
 
-#ifndef _EE
-#include "irx.h"
+#ifdef _IOP
+#include <irx.h>
 
 #define sbus_IMPORTS_start DECLARE_IMPORT_TABLE(sbus, 1, 1)
 #define sbus_IMPORTS_end END_IMPORT_TABLE
@@ -21,10 +26,14 @@ typedef struct st_SBUS_IrqHandler
 
 typedef struct st_SIF2_CmdPkt
 {
-    u32 cid; // 32-bit command id
-    u32 size; // 32-bit size of command packet.
-    u32 extra; // 32-bit remote address of parameters
-    u32 extra_size; // 32-bit size of remote parameters
+	/** 32-bit command id */
+    u32 cid;
+    /** 32-bit size of command packet. */
+    u32 size;
+    /** 32-bit remote address of parameters */
+    u32 extra;
+    /** 32-bit size of remote parameters */
+    u32 extra_size;
 } SIF2_CmdPkt;
 
 typedef void (*SIF2_CmdHandlerFunc)(SIF2_CmdPkt *pkt, void *param);
@@ -79,4 +88,4 @@ void SBUS_check_intr(void);
 #define I_SIF2_rem_cmd_handler DECLARE_IMPORT(18, SIF2_rem_cmd_handler)
 #define I_SIF2_send_cmd DECLARE_IMPORT(19, SIF2_send_cmd)
 
-#endif // #ifndef _PS2_SBUS_H
+#endif /* __PS2_SBUS_H__ */

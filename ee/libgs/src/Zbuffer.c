@@ -6,7 +6,6 @@
 # (c) 2009 Lion
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
 */
 
 #include <errno.h>
@@ -18,7 +17,7 @@
 
 extern QWORD GsPrimWorkArea[];
 
-void GsSetDefaultZBufferEnv(GS_ZENV *zenv, unsigned char update_mask)
+void GsSetDefaultZBufferEnv(GS_ZENV *zenv, u8 update_mask)
 {
 	zenv->update_mask = update_mask;
 }

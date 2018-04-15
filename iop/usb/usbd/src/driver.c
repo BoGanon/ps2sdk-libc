@@ -6,10 +6,13 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# USB Driver function prototypes and constants.
 */
+
+/**
+ * @file
+ * USB Driver function prototypes and constants.
+ */
+
 #include "usbdpriv.h"
 #include "driver.h"
 #include "mem.h"
@@ -21,7 +24,7 @@
 #include "thevent.h"
 #include "intrman.h"
 
-UsbDriver *drvListStart = NULL, *drvListEnd = NULL;
+sceUsbdLddOps *drvListStart = NULL, *drvListEnd = NULL;
 IoRequest *cbListStart = NULL, *cbListEnd = NULL;
 
 int callbackEvent;
@@ -39,7 +42,7 @@ int callUsbDriverFunc(int (*func)(int devId), int devId, void *gp) {
 		return 0;
 }
 
-void probeDeviceTree(Device *tree, UsbDriver *drv) {
+void probeDeviceTree(Device *tree, sceUsbdLddOps *drv) {
 	Device *curDevice;
 	for (curDevice = tree->childListStart; curDevice != NULL; curDevice = curDevice->next)
 		if (curDevice->deviceStatus == DEVICE_READY) {
@@ -53,7 +56,7 @@ void probeDeviceTree(Device *tree, UsbDriver *drv) {
 		}
 }
 
-void probeDeviceConnectList(UsbDriver *drv) {
+void probeDeviceConnectList(sceUsbdLddOps *drv) {
 	Device *curDevice;
 	for (curDevice = memPool.deviceConnectedListStart; curDevice != NULL; curDevice = curDevice->nextConnected)
 		if (curDevice->deviceStatus == DEVICE_READY) {
@@ -66,7 +69,7 @@ void probeDeviceConnectList(UsbDriver *drv) {
 		}
 }
 
-int doRegisterDriver(UsbDriver *drv, void *drvGpSeg) {
+int doRegisterDriver(sceUsbdLddOps *drv, void *drvGpSeg) {
 	if (drv->next || drv->prev)
 		return USB_RC_BUSY;
 	if (drvListStart == drv)
@@ -92,7 +95,7 @@ int doRegisterDriver(UsbDriver *drv, void *drvGpSeg) {
 	return 0;
 }
 
-void disconnectDriver(Device *tree, UsbDriver *drv) {
+void disconnectDriver(Device *tree, sceUsbdLddOps *drv) {
 	Endpoint *ep, *nextEp;
 	if (tree->devDriver == drv) {
 		if (tree->endpointListStart) {
@@ -112,8 +115,8 @@ void disconnectDriver(Device *tree, UsbDriver *drv) {
 		disconnectDriver(tree, drv);
 }
 
-int doUnregisterDriver(UsbDriver *drv) {
-	UsbDriver *pos;
+int doUnregisterDriver(sceUsbdLddOps *drv) {
+	sceUsbdLddOps *pos;
 	for (pos = drvListStart; pos != NULL; pos = pos->next)
 		if (pos == drv) {
 			if (drv->next)
@@ -133,7 +136,7 @@ int doUnregisterDriver(UsbDriver *drv) {
 }
 
 void connectNewDevice(Device *dev) {
-	UsbDriver *drv;
+	sceUsbdLddOps *drv;
 	dbg_printf("searching driver for dev %d, FA %02X\n", dev->id, dev->functionAddress);
 	for (drv = drvListStart; drv != NULL; drv = drv->next)
 		if (callUsbDriverFunc(drv->probe, dev->id, drv->gp) != 0) {

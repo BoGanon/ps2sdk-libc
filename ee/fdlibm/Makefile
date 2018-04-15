@@ -20,14 +20,9 @@
 # NOTE: Define FENV_SOFTFLOAT in CFLAGS to use an emulated
 #       floating point environment.
 
-EE_OBJS_DIR = obj/
-EE_LIB_DIR = lib/
-EE_SRC_DIR = src/
-EE_INC_DIR = include/
+EE_LIB = libm.a
 
-EE_LIB = $(EE_LIB_DIR)libm.a
-
-#SOFTFLOAT_FLAGS = -msoft-float -DFENV_SOFTFLOAT 
+#SOFTFLOAT_FLAGS = -msoft-float -DFENV_SOFTFLOAT
 EE_CFLAGS = -std=c99 -fno-builtin -D__LITTLE_ENDIAN -O3
 
 EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
@@ -66,13 +61,7 @@ EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
 	s_lrintf.o       s_llrintf.o      s_lroundf.o      s_llroundf.o   \
 	fenv.o
 
-EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)
-
-all: $(EE_OBJS_DIR) $(EE_LIB_DIR) $(EE_LIB)
-
-clean:
-	rm -f -r $(EE_OBJS_DIR) $(EE_LIB_DIR)
-
 include $(PS2SDKSRC)/Defs.make
+include $(PS2SDKSRC)/ee/Rules.lib.make
 include $(PS2SDKSRC)/ee/Rules.make
 include $(PS2SDKSRC)/ee/Rules.release

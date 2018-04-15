@@ -6,13 +6,14 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Pad library functions
-# Quite easy rev engineered from util demos..
-# Find any bugs? Mail me: pukko@home.se
 */
 
+/**
+ * @file
+ * Pad library functions
+ * Quite easy rev engineered from util demos..
+ * Find any bugs? Mail me: pukko@home.se
+ */
 
 #include <tamtypes.h>
 #include <kernel.h>
@@ -24,6 +25,25 @@
 /*
  * Defines
  */
+
+#ifdef _XPAD
+#define PAD_BIND_RPC_ID1 0x80000100
+#define PAD_BIND_RPC_ID2 0x80000101
+
+#define PAD_RPCCMD_OPEN         0x01
+#define PAD_RPCCMD_SET_MMODE    0x06
+#define PAD_RPCCMD_SET_ACTDIR   0x07
+#define PAD_RPCCMD_SET_ACTALIGN 0x08
+#define PAD_RPCCMD_GET_BTNMASK  0x09
+#define PAD_RPCCMD_SET_BTNINFO  0x0A
+#define PAD_RPCCMD_SET_VREF     0x0B
+#define PAD_RPCCMD_GET_PORTMAX  0x0C
+#define PAD_RPCCMD_GET_SLOTMAX  0x0D
+#define PAD_RPCCMD_CLOSE        0x0E
+#define PAD_RPCCMD_END          0x0F
+#define PAD_RPCCMD_INIT         0x10
+#define PAD_RPCCMD_GET_MODVER   0x12
+#else
 #define PAD_BIND_RPC_ID1 0x8000010f
 #define PAD_BIND_RPC_ID2 0x8000011f
 
@@ -41,6 +61,7 @@
 #define PAD_RPCCMD_GET_SLOTMAX  0x8000010c
 #define PAD_RPCCMD_CLOSE        0x8000010d
 #define PAD_RPCCMD_END          0x8000010e
+#endif
 
 /*
  * Types
@@ -55,6 +76,44 @@ struct pad_state
     unsigned char *padBuf;
 };
 
+#ifdef _XPAD
+struct pad_data
+{
+    u8 data[32];
+    u32 actDirData[2];
+    u32 actAlignData[2];
+    u8 actData[32];
+    u16 modeTable[4];
+    u32 frame;
+    u32 findPadRetries;
+    u32 length;
+    u8 modeConfig;
+    u8 modeCurId;
+    u8 model;
+    u8 buttonDataReady;
+    u8 nrOfModes;
+    u8 modeCurOffs;
+    u8 nrOfActuators;
+    u8 numActComb;
+    u8 val_c6;
+    u8 mode;
+    u8 lock;
+    u8 actDirSize;
+    u8 state;
+    u8 reqState;
+    u8 currentTask;
+    u8 runTask;
+    u8 stat70bit;
+    u8 padding[11];
+};
+
+struct open_slot
+{
+    u32 frame;
+    u32 openSlots[2];
+    u8 padding[116];
+};
+#else
 // rom0:padman has only 64 byte of pad data
 struct pad_data
 {
@@ -66,12 +125,16 @@ struct pad_data
     unsigned char data[32];
     unsigned int length;
     unsigned char request;
-    unsigned char CTP;       //CTP=1/no config; CTP=2/config, acts...
-    unsigned char model;    //1, 2 or 3
-    unsigned char correction;  //the data in the buffer is already corrected
+    /** CTP=1/no config; CTP=2/config, acts... */
+    unsigned char CTP;
+    /** 1, 2 or 3 */
+    unsigned char model;
+    /** the data in the buffer is already corrected */
+    unsigned char correction;
     unsigned char errorCount;
     unsigned char unk49[15];
 };
+#endif
 
 extern int _iop_reboot_count;
 /*
@@ -87,9 +150,95 @@ static int padInitialised = 0;
 
 // pad rpc call
 static SifRpcClientData_t padsif[2] __attribute__((aligned(64)));
-static char buffer[128] __attribute__((aligned(16)));
+static union {
+	s32 command;
+#ifdef _XPAD
+    struct {
+        s32 command;
+        s32 unused[3];
+        void *statBuf;
+    } padInitArgs;
+#endif
+	struct {
+		s32 unknown[3];
+		s32 result;
+		s32 unknown2;
+		void *padBuf;
+	} padOpenResult;
+	struct {
+		s32 unknown[3];
+		s32 result;
+	} padResult;
+	struct {
+		s32 command;
+		s32 port, slot;
+		s32 unknown;
+		void *padArea;
+	} padOpenArgs;
+	struct {
+		s32 command;
+		s32 port, slot;
+		s32 unknown;
+		s32 mode;
+	} padCloseArgs;
+	struct {
+		s32 command;
+		s32 port;
+	} padSlotMaxArgs;
+	struct {
+		s32 command;
+		s32 port, slot;
+		s32 infoMode;
+		s32 index;
+	} padInfoModeArgs;
+	struct {
+		s32 command;
+		s32 port, slot;
+		s32 mode;
+		s32 lock;
+	} padSetMainModeArgs;
+	struct {
+		s32 unknown[5];
+		s32 result;
+	} padModeResult;
+	struct {
+		s32 command;
+		s32 port, slot;
+	} padGetButtonMaskArgs;
+	struct {
+		s32 command;
+		s32 port, slot;
+		s32 buttonInfo;
+	} padSetButtonInfoArgs;
+	struct {
+		s32 unknown[4];
+		s32 result;
+	} padSetButtonInfoResult;
+	struct {
+		s32 command;
+		s32 port, slot;
+#ifndef _XPAD
+		s32 actuator;
+		s32 act_cmd;
+	} padInfoActArgs;
+	struct {
+		s32 command;
+		s32 port, slot;
+#endif
+		s8 align[6];
+	} padActDirAlignArgs;
+	char buffer[128];
+}
+#ifdef _XPAD
+buffer __attribute__((aligned(64)));
+#else
+buffer __attribute__((aligned(16)));
+#endif
 
-/* Port state data */
+/** Port state data */
+#ifdef _XPAD
+static struct open_slot openSlot[2] __attribute__((aligned(64)));
+#endif
 static struct pad_state PadState[2][8];
 
 
@@ -97,9 +246,7 @@ static struct pad_state PadState[2][8];
  * Local functions
  */
 
-/*
- * Common helper
- */
+/** Common helper */
 static struct pad_data*
 padGetDmaStr(int port, int slot)
 {
@@ -116,6 +263,22 @@ padGetDmaStr(int port, int slot)
     }
 }
 
+#ifdef _XPAD
+/**
+ * Returns the data for pad (opened) status.
+ * This seems to have been removed from the official SDKs, very early during the PS2's lifetime.
+ */
+static struct open_slot*
+padGetConnDmaStr(void)
+{
+   SyncDCache(openSlot, (u8*)openSlot + sizeof(openSlot));
+
+   if(openSlot[0].frame < openSlot[1].frame)
+       return &openSlot[1];
+   else
+       return &openSlot[0];
+}
+#endif
 
 /*
  * Global functions
@@ -128,11 +291,6 @@ padGetDmaStr(int port, int slot)
  * padSetVrefParam() <- dunno
  */
 
-/*
- * Since padEnd() further below doesn't work right, a pseudo function is needed
- * to allow recovery after IOP reset. This function has nothing to do with the
- * functions of the IOP modules. It merely resets variables for the EE routines.
- */
 int
 padReset()
 {
@@ -142,11 +300,6 @@ padReset()
     return 0;
 }
 
-
-/*
- * Initialise padman
- * a = 0 should work..
- */
 int
 padInit(int a)
 {
@@ -194,15 +347,18 @@ padInit(int a)
         PadState[1][i].slot = 0;
     }
 
+#ifdef _XPAD
+    buffer.padInitArgs.command = PAD_RPCCMD_INIT;
+    buffer.padInitArgs.statBuf = openSlot;
+    if (SifCallRpc( &padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
+        return -1;
+#endif
+ 
     padInitialised = 1;
     return 0;
 
 }
 
-
-/*
- * Ends all pad communication
- */
 int
 padEnd()
 {
@@ -210,12 +366,12 @@ padEnd()
     int ret;
 
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_END;
+    buffer.command=PAD_RPCCMD_END;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return -1;
 
-    ret = *(int *)(&buffer[12]);
+    ret = buffer.padResult.result;
     if (ret == 1) {
         padInitialised = 0;
     }
@@ -223,13 +379,6 @@ padEnd()
     return ret;
 }
 
-
-/*
- * The user should provide a pointer to a 256 byte (2xsizeof(struct pad_data))
- * 64 byte aligned pad data area for each pad port opened
- *
- * return != 0 => OK
- */
 int
 padPortOpen(int port, int slot, void *padArea)
 {
@@ -249,26 +398,34 @@ padPortOpen(int port, int slot, void *padArea)
         dma_buf[i].length = 0;
         dma_buf[i].state = PAD_STATE_EXECCMD;
         dma_buf[i].reqState = PAD_RSTAT_BUSY;
+#ifndef _XPAD
         dma_buf[i].ok = 0;
+#endif
+#ifdef _XPAD
+        dma_buf[i].currentTask = 0;
+#endif
         dma_buf[i].length = 0;
+#ifdef _XPAD
+        dma_buf[i].buttonDataReady = 0; // Should be cleared in newer padman
+#endif
     }
 
 
-    *(u32 *)(&buffer[0]) = PAD_RPCCMD_OPEN;
-    *(u32 *)(&buffer[4]) = port;
-    *(u32 *)(&buffer[8]) = slot;
-    *(u32 *)(&buffer[16]) = (u32)padArea;
+	buffer.padOpenArgs.command = PAD_RPCCMD_OPEN;
+	buffer.padOpenArgs.port = port;
+    buffer.padOpenArgs.slot = slot;
+    buffer.padOpenArgs.padArea = padArea;
 
-    if(SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if(SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
     {
         return 0;
     }
 
     PadState[port][slot].open = 1;
     PadState[port][slot].padData = padArea;
-    PadState[port][slot].padBuf = *(char **)(&buffer[20]);
+    PadState[port][slot].padBuf = buffer.padOpenResult.padBuf;
 
-    return *(u32 *)(&buffer[12]);
+    return buffer.padOpenResult.result;
 }
 
 int
@@ -277,26 +434,21 @@ padPortClose(int port, int slot)
 
     int ret;
 
-    *(u32 *)(&buffer[0]) = PAD_RPCCMD_CLOSE;
-    *(u32 *)(&buffer[4]) = port;
-    *(u32 *)(&buffer[8]) = slot;
-    *(u32 *)(&buffer[16]) = 1;
+	buffer.padCloseArgs.command = PAD_RPCCMD_CLOSE;
+	buffer.padCloseArgs.port = port;
+	buffer.padCloseArgs.slot = slot;
+	buffer.padCloseArgs.mode = 1;
 
-    ret = SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL);
+    ret = SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL);
 
     if(ret < 0)
         return ret;
     else {
         PadState[port][slot].open = 0;
-        return *(int *)(&buffer[12]);
+        return buffer.padResult.result;
     }
 }
 
-
-/*
- * Read pad data
- * Result is stored in 'data' which should point to a 32 byte array
- */
 unsigned char
 padRead(int port, int slot, struct padButtonStatus *data)
 {
@@ -309,11 +461,6 @@ padRead(int port, int slot, struct padButtonStatus *data)
     return pdata->length;
 }
 
-
-/*
- * Get current pad state
- * Wait until state == 6 (Ready) before trying to access the pad
- */
 int
 padGetState(int port, int slot)
 {
@@ -325,6 +472,16 @@ padGetState(int port, int slot)
 
     state = pdata->state;
 
+#ifdef _XPAD
+    if (state == PAD_STATE_ERROR)
+    {
+        if (pdata->findPadRetries)
+        {
+            return PAD_STATE_FINDPAD;
+        }
+    }
+#endif
+
     if (state == PAD_STATE_STABLE) { // Ok
         if (padGetReqState(port, slot) == PAD_RSTAT_BUSY) {
             return PAD_STATE_EXECCMD;
@@ -333,10 +490,6 @@ padGetState(int port, int slot)
     return state;
 }
 
-
-/*
- * Get pad request state
- */
 unsigned char
 padGetReqState(int port, int slot)
 {
@@ -347,10 +500,6 @@ padGetReqState(int port, int slot)
     return pdata->reqState;
 }
 
-
-/*
- * Set pad request state (after a param setting)
- */
 int
 padSetReqState(int port, int slot, int state)
 {
@@ -362,10 +511,6 @@ padSetReqState(int port, int slot, int state)
     return 1;
 }
 
-
-/*
- * Debug print functions
- */
 void
 padStateInt2String(int state, char buf[16])
 {
@@ -382,105 +527,133 @@ padReqStateInt2String(int state, char buf[16])
         strcpy(buf, padReqStateString[state]);
 }
 
-
-/*
- * Returns # slots on the PS2 (usally 2)
- */
 int
 padGetPortMax(void)
 {
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_GET_PORTMAX;
+	buffer.command = PAD_RPCCMD_GET_PORTMAX;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return -1;
 
-    return *(int *)(&buffer[12]);
+    return buffer.padResult.result;
 }
 
-
-/*
- * Returns # slots the port has (usually 1)
- * probably 4 if using a multi tap (not tested)
- */
 int
 padGetSlotMax(int port)
 {
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_GET_SLOTMAX;
-    *(u32 *)(&buffer[4])=port;
+    buffer.padSlotMaxArgs.command = PAD_RPCCMD_GET_SLOTMAX;
+    buffer.padSlotMaxArgs.port = port;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return -1;
 
-    return *(int *)(&buffer[12]);
+    return buffer.padResult.result;
 }
 
-
-/*
- * Returns the padman version
- * NOT SUPPORTED on module rom0:padman
- */
 int
 padGetModVersion()
 {
+#ifdef _XPAD
+    buffer.command = PAD_RPCCMD_GET_MODVER;
+
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
+        return -1;
+
+    return buffer.padResult.result;
+#else
     return 1; // Well.. return a low version #
+#endif
 }
 
-/*
- * Get pad info (digital (4), dualshock (7), etc..)
- * ID: 3 - KONAMI GUN
- *     4 - DIGITAL PAD
- *     5 - JOYSTICK
- *     6 - NAMCO GUN
- *     7 - DUAL SHOCK
- */
 int
 padInfoMode(int port, int slot, int infoMode, int index)
 {
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_INFO_MODE;
-    *(u32 *)(&buffer[4])=port;
-    *(u32 *)(&buffer[8])=slot;
-    *(u32 *)(&buffer[12])=infoMode;
-    *(u32 *)(&buffer[16])=index;
+#ifdef _XPAD
+    struct pad_data *pdata;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    pdata = padGetDmaStr(port, slot);
+
+    if (pdata->currentTask != 1)
+        return 0;
+    if (pdata->reqState == PAD_RSTAT_BUSY)
         return 0;
 
-    if (*(int *)(&buffer[20]) == 1) {
+    switch(infoMode) {
+    case PAD_MODECURID:
+        if (pdata->modeCurId == 0xF3)
+            return 0;
+        else
+            return (pdata->modeCurId >> 4);
+        break;
+
+    case PAD_MODECUREXID:
+        if (pdata->modeConfig == pdata->currentTask)
+            return 0;
+        return pdata->modeTable[pdata->modeCurOffs];
+        break;
+
+    case PAD_MODECUROFFS:
+        if (pdata->modeConfig != 0)
+            return pdata->modeCurOffs;
+        else
+            return 0;
+        break;
+
+    case PAD_MODETABLE:
+        if (pdata->modeConfig != 0) {
+            if(index == -1) {
+                return pdata->nrOfModes;
+            }
+            else if (index < pdata->nrOfModes) {
+                return pdata->modeTable[index];
+            }
+            else {
+                return 0;
+            }
+        }
+        else
+            return 0;
+        break;
+    }
+    return 0;
+#else
+	buffer.padInfoModeArgs.command = PAD_RPCCMD_INFO_MODE;
+	buffer.padInfoModeArgs.port = port;
+	buffer.padInfoModeArgs.slot = slot;
+	buffer.padInfoModeArgs.infoMode = infoMode;
+	buffer.padInfoModeArgs.index = index;
+
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
+        return 0;
+
+    if (buffer.padModeResult.result == 1) {
         padSetReqState(port, slot, PAD_RSTAT_BUSY);
     }
-    return *(int *)(&buffer[20]);
+    return buffer.padModeResult.result;
+#endif
 }
 
-
-/*
- * mode = 1, -> Analog/dual shock enabled; mode = 0 -> Digital
- * lock = 3 -> Mode not changeable by user
- */
 int
 padSetMainMode(int port, int slot, int mode, int lock)
 {
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_SET_MMODE;
-    *(u32 *)(&buffer[4])=port;
-    *(u32 *)(&buffer[8])=slot;
-    *(u32 *)(&buffer[12])=mode;
-    *(u32 *)(&buffer[16])=lock;
+	buffer.padSetMainModeArgs.command = PAD_RPCCMD_SET_MMODE;
+	buffer.padSetMainModeArgs.port = port;
+	buffer.padSetMainModeArgs.slot = slot;
+	buffer.padSetMainModeArgs.mode = mode;
+	buffer.padSetMainModeArgs.lock = lock;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return 0;
 
-    if (*(int *)(&buffer[20]) == 1) {
+    if (buffer.padModeResult.result == 1) {
         padSetReqState(port, slot, PAD_RSTAT_BUSY);
     }
-    return *(int *)(&buffer[20]);
+    return buffer.padModeResult.result;
 }
 
-
-/*
- * Check if the pad has pressure sensitive buttons
- */
 int
 padInfoPressMode(int port, int slot)
 {
@@ -496,21 +669,12 @@ padInfoPressMode(int port, int slot)
     }
 }
 
-
-/*
- * Pressure sensitive mode ON
- */
 int
 padEnterPressMode(int port, int slot)
 {
     return padSetButtonInfo(port, slot, 0xFFF);
 }
 
-
-/*
- * Check for newer version
- * Pressure sensitive mode OFF
- */
 int
 padExitPressMode(int port, int slot)
 {
@@ -518,139 +682,136 @@ padExitPressMode(int port, int slot)
 
 }
 
-
-/*
- *
- */
 int
 padGetButtonMask(int port, int slot)
 {
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_GET_BTNMASK;
-    *(u32 *)(&buffer[4])=port;
-    *(u32 *)(&buffer[8])=slot;
+	buffer.padGetButtonMaskArgs.command = PAD_RPCCMD_GET_BTNMASK;
+	buffer.padGetButtonMaskArgs.port = port;
+	buffer.padGetButtonMaskArgs.slot = slot;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return 0;
 
-    return *(int *)(&buffer[12]);
+    return buffer.padResult.result;
 }
 
-
-/*
- *
- */
 int
 padSetButtonInfo(int port, int slot, int buttonInfo)
 {
     int val;
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_SET_BTNINFO;
-    *(u32 *)(&buffer[4])=port;
-    *(u32 *)(&buffer[8])=slot;
-    *(u32 *)(&buffer[12])=buttonInfo;
+	buffer.padSetButtonInfoArgs.command = PAD_RPCCMD_SET_BTNINFO;
+	buffer.padSetButtonInfoArgs.port = port;
+	buffer.padSetButtonInfoArgs.slot = slot;
+	buffer.padSetButtonInfoArgs.buttonInfo = buttonInfo;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return 0;
 
-    val = *(int *)(&buffer[16]);
+    val = buffer.padSetButtonInfoResult.result;
 
     if (val == 1) {
         padSetReqState(port, slot, PAD_RSTAT_BUSY);
     }
-    return *(int *)(&buffer[16]);
+    return buffer.padSetButtonInfoResult.result;
 }
 
-
-/*
- * Get actuator status for this controller
- * If padInfoAct(port, slot, -1, 0) != 0, the controller has actuators
- * (i think ;) )
- */
 unsigned char
 padInfoAct(int port, int slot, int actuator, int cmd)
 {
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_INFO_ACT;
-    *(u32 *)(&buffer[4])=port;
-    *(u32 *)(&buffer[8])=slot;
-    *(u32 *)(&buffer[12])=actuator;
-    *(u32 *)(&buffer[16])=cmd;
+#ifdef _XPAD
+    struct pad_data *pdata;
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    pdata = padGetDmaStr(port, slot);
+
+    if (pdata->currentTask != 1)
+        return 0;
+    if (pdata->modeConfig < 2)
+        return 0;
+    if (actuator >= pdata->nrOfActuators)
         return 0;
 
-    if (*(int *)(&buffer[20]) == 1) {
+    if (actuator == -1)
+        return pdata->nrOfActuators;   // # of acutators?
+
+    if (cmd >= 4)
+        return 0;
+
+    return pdata->actData[actuator*4+cmd];
+#else
+	buffer.padInfoActArgs.command = PAD_RPCCMD_INFO_ACT;
+	buffer.padInfoActArgs.port = port;
+	buffer.padInfoActArgs.slot = slot;
+	buffer.padInfoActArgs.actuator = actuator;
+	buffer.padInfoActArgs.act_cmd = cmd;
+
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
+        return 0;
+
+    if (buffer.padModeResult.result == 1) {
         padSetReqState(port, slot, PAD_RSTAT_BUSY);
     }
-    return *(int *)(&buffer[20]);
+    return buffer.padModeResult.result;
+#endif
 }
 
-
-/*
- * Initalise actuators. On dual shock controller:
- * actAlign[0] = 0 enables 'small' engine
- * actAlign[1] = 1 enables 'big' engine
- * set actAlign[2-5] to 0xff (disable)
- */
 int
 padSetActAlign(int port, int slot, char actAlign[6])
 {
     int i;
-    char *ptr;
+    s8 *ptr;
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_SET_ACTALIGN;
-    *(u32 *)(&buffer[4])=port;
-    *(u32 *)(&buffer[8])=slot;
+	buffer.padActDirAlignArgs.command = PAD_RPCCMD_SET_ACTALIGN;
+	buffer.padActDirAlignArgs.port = port;
+	buffer.padActDirAlignArgs.slot = slot;
 
-    ptr = (char *)(&buffer[12]);
+	ptr = buffer.padActDirAlignArgs.align;
     for (i=0; i<6; i++)
         ptr[i]=actAlign[i];
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return 0;
 
-    if (*(int *)(&buffer[20]) == 1) {
+    if (buffer.padModeResult.result == 1) {
         padSetReqState(port, slot, PAD_RSTAT_BUSY);
     }
-    return *(int *)(&buffer[20]);
+    return buffer.padModeResult.result;
 }
 
-
-/*
- * Set actuator status
- * On dual shock controller,
- * actAlign[0] = 0/1 turns off/on 'small' engine
- * actAlign[1] = 0-255 sets 'big' engine speed
- */
 int
 padSetActDirect(int port, int slot, char actAlign[6])
 {
     int i;
-    char *ptr;
+    s8 *ptr;
 
-    *(u32 *)(&buffer[0])=PAD_RPCCMD_SET_ACTDIR;
-    *(u32 *)(&buffer[4])=port;
-    *(u32 *)(&buffer[8])=slot;
+	buffer.padActDirAlignArgs.command = PAD_RPCCMD_SET_ACTDIR;
+	buffer.padActDirAlignArgs.port = port;
+	buffer.padActDirAlignArgs.slot = slot;
 
-    ptr = (char *)(&buffer[12]);
+    ptr = buffer.padActDirAlignArgs.align;
     for (i=0; i<6; i++)
         ptr[i]=actAlign[i];
 
-    if (SifCallRpc(&padsif[0], 1, 0, buffer, 128, buffer, 128, NULL, NULL) < 0)
+    if (SifCallRpc(&padsif[0], 1, 0, &buffer, 128, &buffer, 128, NULL, NULL) < 0)
         return 0;
 
-    return *(int *)(&buffer[20]);
+    return buffer.padModeResult.result;
 }
 
-
 /*
- * Dunno about this one.. always returns 1?
- * I guess it should've returned if the pad was connected..
- *
- * NOT SUPPORTED with module rom0:padman
+ * This seems to have been removed from the official SDKs, very early during the PS2's lifetime.
  */
 int
 padGetConnection(int port, int slot)
 {
+#ifdef _XPAD
+    struct open_slot *oslot;
+
+    oslot = padGetConnDmaStr();
+
+    return ((oslot->openSlots[port] >> slot) & 0x1);
+#else
     return 1;
+#endif
 }

@@ -6,10 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# EE UGLY DEBUG ON SCREEN
 */
+
+/**
+ * @file
+ * EE UGLY DEBUG ON SCREEN
+ */
 
 #include <stdio.h>
 #include <tamtypes.h>
@@ -18,8 +20,6 @@
 #include <osd_config.h>
 #include <stdarg.h>
 #include <debug.h>
-
-/* baseado nas libs do Duke... */
 
 static short int X = 0, Y = 0;
 static short int MX=80, MY=40;
@@ -153,11 +153,9 @@ static void DmaReset(void)
                 : "=&r" (dma_addr), "=&r" (temp) );
 }
 
-/*
- * addr is the address of the data to be transfered.  addr must be 16
- * byte aligned.
- *
- * size is the size (in 16 byte quads) of the data to be transfered.
+/**
+ * @param addr The address of the data to be transfered, which must be 16 byte aligned.
+ * @param size The size (in 16 byte quads) of the data to be transfered.
  */
 
 static inline void progdma( void *addr, int size)
@@ -207,7 +205,7 @@ void init_scr(void)
 extern u8 msx[];
 
 void
-_putchar( int x, int y, u32 color, u8 ch)
+scr_putchar( int x, int y, u32 color, int ch)
 {
    static struct t_setupchar setupchar __attribute__((aligned(16))) = {
 	{ 0x1000000000000004, 0xE, 0xA000000000000, 0x50 },
@@ -228,7 +226,7 @@ _putchar( int x, int y, u32 color, u8 ch)
 
    progdma(&setupchar, 6);
 
-   font = &msx[ (int)ch * 8];
+   font = &msx[ ch * 8];
    for (i=l=0; i < 8; i++, l+= 8, font++)
       for (j=0; j < 8; j++)
           {
@@ -249,18 +247,18 @@ static void  clear_line( int Y)
 {
    int i;
    for (i=0; i < MX; i++)
-    _putchar( i*8 , Y * 8, bgcolor, ' ');
+    scr_putchar( i*8 , Y * 8, bgcolor, ' ');
 }
 
 void scr_printf(const char *format, ...)
 {
    va_list	opt;
-   u8		buff[2048], c;
+   char		buff[2048], c;
    int		i, bufsz, j;
 
 
    va_start(opt, format);
-   bufsz = vsnprintf( buff, sizeof(buff), format, opt);
+   bufsz = vsnprintf(buff, sizeof(buff), format, opt);
 
    for (i = 0; i < bufsz; i++)
        {
@@ -276,12 +274,12 @@ void scr_printf(const char *format, ...)
                              break;
           case      '\t':
                              for (j = 0; j < 5; j++) {
-                             	_putchar( X*7 , Y * 8, 0xffffff, ' ');
+                                scr_putchar( X*7 , Y * 8, 0xffffff, ' ');
                              	X++;
                              }
                              break;
           default:
-             		     _putchar( X*7 , Y * 8, 0xffffff, c);
+                             scr_putchar( X*7 , Y * 8, 0xffffff, c);
                              X++;
                              if (X == MX)
                                 {
@@ -293,7 +291,7 @@ void scr_printf(const char *format, ...)
                                 }
           }
        }
-    _putchar( X*7 , Y * 8, 0xffffff, 219);
+    scr_putchar( X*7 , Y * 8, 0xffffff, 219);
     va_end(opt);
 }
 

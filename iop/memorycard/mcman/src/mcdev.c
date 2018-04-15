@@ -6,11 +6,10 @@
 # Copyright (c) 2009 jimmikaelkael
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id: mcdev.c 1410 2009-01-18 15:24:54Z jimmikaelkael $
 */
 
-#include "mcman.h"
+#include <mcman.h>
+#include "mcman-internal.h"
 
 // mc driver vars
 static int mcman_mc_port = 0;
@@ -454,12 +453,12 @@ int mc_chstat(iop_file_t *f, char *filename, io_stat_t *stat, u32 statmask)
 
 		if (statmask & SCE_CST_CT) {
 			flags |= 0x001;
-			mctbl._Create = *((sceMcStDateTime*)&stat->ctime[0]);
+			memcpy(&mctbl._Create, stat->ctime, sizeof(sceMcStDateTime));
 		}
 
 		if (statmask & SCE_CST_MT) {
 			flags |= 0x002;
-			mctbl._Modify = *((sceMcStDateTime*)&stat->mtime[0]);
+			memcpy(&mctbl._Modify, stat->mtime, sizeof(sceMcStDateTime));
 		}
 
 		r = McSetFileInfo(mcman_mc_port, mcman_mc_slot, filename, &mctbl, flags);

@@ -6,17 +6,20 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# USB Driver function prototypes and constants.
 */
+
+/**
+ * @file
+ * USB Driver function prototypes and constants.
+ */
+
 #include "usbdpriv.h"
 #include "driver.h"
 #include "mem.h"
 #include "hcd.h"
 #include "usbio.h"
 
-int UsbRegisterDriver(UsbDriver *driver) {
+int sceUsbdRegisterLdd(sceUsbdLddOps *driver) {
 	int res;
 
 	if (usbdLock() != 0)
@@ -28,7 +31,7 @@ int UsbRegisterDriver(UsbDriver *driver) {
 	return res;
 }
 
-int UsbUnregisterDriver(UsbDriver *driver) {
+int sceUsbdUnregisterLdd(sceUsbdLddOps *driver) {
 	int res;
 
 	if (usbdLock() != 0)
@@ -40,7 +43,7 @@ int UsbUnregisterDriver(UsbDriver *driver) {
 	return res;
 }
 
-void *UsbGetDeviceStaticDescriptor(int devId, void *data, uint8 type) {
+void *sceUsbdScanStaticDescriptor(int devId, void *data, u8 type) {
 	void *res;
 
 	if (usbdLock() != 0)
@@ -52,7 +55,7 @@ void *UsbGetDeviceStaticDescriptor(int devId, void *data, uint8 type) {
 	return res;
 }
 
-int UsbGetDeviceLocation(int devId, uint8 *path) {
+int sceUsbdGetDeviceLocation(int devId, u8 *path) {
 	Device *dev;
 	int res;
 
@@ -101,7 +104,7 @@ void *UsbGetPrivateData(int devId) {
 	return res;
 }
 
-int UsbOpenEndpoint(int devId, UsbEndpointDescriptor *desc) {
+int sceUsbdOpenPipe(int devId, UsbEndpointDescriptor *desc) {
 	Device *dev;
 	Endpoint *ep;
 	int res = -1;
@@ -120,7 +123,7 @@ int UsbOpenEndpoint(int devId, UsbEndpointDescriptor *desc) {
 	return res;
 }
 
-int UsbCloseEndpoint(int id) {
+int sceUsbdClosePipe(int id) {
 	Endpoint *ep;
 	int res;
 
@@ -137,7 +140,7 @@ int UsbCloseEndpoint(int id) {
 	return res;
 }
 
-int UsbTransfer(int id, void *data, uint32 len, void *option, UsbCallbackProc callback, void *cbArg) {
+int sceUsbdTransferPipe(int id, void *data, u32 len, void *option, sceUsbdDoneCallback callback, void *cbArg) {
 	UsbDeviceRequest *ctrlPkt = (UsbDeviceRequest *)option;
 	IoRequest *req;
 	Endpoint *ep;
@@ -148,14 +151,14 @@ int UsbTransfer(int id, void *data, uint32 len, void *option, UsbCallbackProc ca
 
 	ep = fetchEndpointById(id);
 	if (!ep) {
-		dbg_printf("UsbTransfer: Endpoint %d not found\n", id);
+		dbg_printf("sceUsbdTransferPipe: Endpoint %d not found\n", id);
 		res = USB_RC_BADPIPE;
 	}
 
 	if ((res == 0) && data && len) {
-		if ((((uint32)(data + len - 1) >> 12) - ((uint32)data >> 12)) > 1)
+		if ((((u32)(data + len - 1) >> 12) - ((u32)data >> 12)) > 1)
 			res = USB_RC_BADLENGTH;
-		else if (ep->alignFlag && ((uint32)data & 3))
+		else if (ep->alignFlag && ((u32)data & 3))
 			res = USB_RC_BADALIGN;
 		else if ((ep->endpointType == TYPE_ISOCHRON) && ((ep->hcEd.maxPacketSize & 0x7FF) < len))
 			res = USB_RC_BADLENGTH;
@@ -185,7 +188,7 @@ int UsbTransfer(int id, void *data, uint32 len, void *option, UsbCallbackProc ca
 			}
 		} else {
 			if (ep->endpointType == TYPE_ISOCHRON)
-				req->waitFrames = (uint32)option;
+				req->waitFrames = (u32)option;
 			res = attachIoReqToEndpoint(ep, req, data, len, signalCallbackThreadFunc);
 		}
 	}
@@ -194,7 +197,7 @@ int UsbTransfer(int id, void *data, uint32 len, void *option, UsbCallbackProc ca
 	return res;
 }
 
-int UsbOpenEndpointAligned(int devId, UsbEndpointDescriptor *desc) {
+int sceUsbdOpenPipeAligned(int devId, UsbEndpointDescriptor *desc) {
 	Device *dev;
 	Endpoint *ep;
 	int res = -1;
@@ -213,18 +216,18 @@ int UsbOpenEndpointAligned(int devId, UsbEndpointDescriptor *desc) {
 	return res;
 }
 
-int UsbRegisterAutoloader(UsbDriver *drv) {
+int UsbRegisterAutoloader(sceUsbdLddOps *drv) {
 	dbg_printf("UsbRegisterAutoloader stub\n");
 	return 0;
 }
 
-int UsbUnregisterAutoloader(UsbDriver *drv) {
+int UsbUnregisterAutoloader(sceUsbdLddOps *drv) {
 	dbg_printf("UsbUnregisterAutoloader stub\n");
 	return 0;
 }
 
-int UsbChangeThreadPriority(void) {
-	dbg_printf("UsbChangeThreadPriority stub\n");
+int sceUsbdChangeThreadPriority(int prio1, int prio2) {
+	dbg_printf("sceUsbdChangeThreadPriority stub\n");
 	return 0;
 }
 

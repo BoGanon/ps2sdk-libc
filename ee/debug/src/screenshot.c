@@ -6,10 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Screenshot
 */
+
+/**
+ * @file
+ * Screenshot
+ */
 
 #include <fcntl.h>
 
@@ -18,21 +20,18 @@
 #include <kernel.h>
 #include <fileio.h>
 
-///////////////////////////////////////////////////////////////////////////////
-//
 // These macros are kept local so the screenshot funcion can work without
 // interfering with other macros
-//
 
 #define PS2SS_GIF_AD    0x0e
 
 #define PS2SS_GIFTAG(NLOOP,EOP,PRE,PRIM,FLG,NREG) \
-    ((unsigned long)(NLOOP) << 0)   | \
-    ((unsigned long)(EOP)   << 15)  | \
-    ((unsigned long)(PRE)   << 46)  | \
-    ((unsigned long)(PRIM)  << 47)  | \
-    ((unsigned long)(FLG)   << 58)  | \
-    ((unsigned long)(NREG)  << 60)
+    ((u64)(NLOOP) << 0)   | \
+    ((u64)(EOP)   << 15)  | \
+    ((u64)(PRE)   << 46)  | \
+    ((u64)(PRIM)  << 47)  | \
+    ((u64)(FLG)   << 58)  | \
+    ((u64)(NREG)  << 60)
 
 #define PS2SS_GSBITBLTBUF_SET(sbp, sbw, spsm, dbp, dbw, dpsm) \
   ((u64)(sbp)         | ((u64)(sbw) << 16) | \
@@ -78,14 +77,10 @@
 #define PS2SS_VIF1_DIRECT(count)  ((u32)(count) | ((u32)(0x50) << 24))
 #define PS2SS_VIF1_FIFO           ((volatile u128 *)(0x10005000))
 
-////////////////////////////////////////////////////////////////////////////////
 // Internal convfunctions
 
 void ps2_screenshot_16to32_buffer(void *pTemp, u32 w, u32 h);
 void ps2_screenshot_16to32_line(void *pTemp, u32 w);
-
-///////////////////////////////////////////////////////////////////////////////
-// ps2_screenshot_file
 
 int ps2_screenshot_file( const char* pFilename,unsigned int VramAdress,
                          unsigned int Width, unsigned int Height, unsigned int Psm )
@@ -112,7 +107,6 @@ int ps2_screenshot_file( const char* pFilename,unsigned int VramAdress,
   if (file_handle < 0)
     return 0;
 
-  /////////////////////////////////////////////////////////////////////////////
   // setup tga header
 
   p_header[6] = (s16) Width;
@@ -120,7 +114,6 @@ int ps2_screenshot_file( const char* pFilename,unsigned int VramAdress,
 
   fioWrite (file_handle, (void *)&header, 18);
 
-  /////////////////////////////////////////////////////////////////////////////
   // Check if we have a tempbuffer, if we do we use it
 
   for (y = 0; y < Height; y++)
@@ -178,26 +171,23 @@ int ps2_screenshot_file( const char* pFilename,unsigned int VramAdress,
   return 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// ps2_screenshot
-//
-// NOTE: This code was based on work by sparky
-// Downloads vram back to host
-//
-// pDest      - Temporary storeage for the screen (allocated by user)
-// VramAdress - pointer to where in vram to transfer from (wordaddress/64)
-// Width      - Width of Screen
-// Height     - Width of Screen
-// Psm        - Pixelformat of screen
-//
+/** Downloads vram back to host
+ * @param pDest Temporary storeage for the screen (allocated by user)
+ * @param VramAdress  pointer to where in vram to transfer from (wordaddress/64)
+ * @param Width Width of Screen
+ * @param Height Width of Screen
+ * @param Psm Pixelformat of screen
+ */
 
 int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
                     unsigned int y, unsigned int Width, unsigned int Height,
                     unsigned int Psm )
 {
-  static u32 enable_path3[4] ALIGNED(16) =
-  {
-    PS2SS_VIF1_MSKPATH3(0), PS2SS_VIF1_NOP, PS2SS_VIF1_NOP, PS2SS_VIF1_NOP,
+  static union {
+	u32 value_u32[4];
+	u128 value;
+  } enable_path3 ALIGNED(16) = {
+    {PS2SS_VIF1_MSKPATH3(0), PS2SS_VIF1_NOP, PS2SS_VIF1_NOP, PS2SS_VIF1_NOP}
   };
 
   u32  dma_chain[20*2] ALIGNED(16);
@@ -207,7 +197,6 @@ int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
   u32  prev_imr;
   u32  prev_chcr;
 
-  /////////////////////////////////////////////////////////////////////////////
   // Calc size depending on Psm
 
   if( Psm == PS2SS_GSPSMCT16 )
@@ -217,7 +206,6 @@ int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
   else
     uQSize = (Width*Height*4)/16;
 
-  /////////////////////////////////////////////////////////////////////////////
   // Setup transfer texture back to memory
 
   p_dma32[0] = PS2SS_VIF1_NOP;
@@ -225,7 +213,6 @@ int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
   p_dma32[2] = PS2SS_VIF1_FLUSHA;
   p_dma32[3] = PS2SS_VIF1_DIRECT(6);
 
-  ////////////////////////////////////////////////////////////////////////////
   // Setup the blit
 
   p_dma64[0]  = PS2SS_GIFTAG(5, 1, 0, 0, 0, 1); // GIFTAG(NLOOP, EOP, PRE, PRIM, FLG, NREG)
@@ -252,12 +239,10 @@ int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
   if( (*PS2SS_D1_CHCR & 0x0100) != 0 )
     return 0;
 
-  /////////////////////////////////////////////////////////////////////////////
   // set the FINISH event
 
   *PS2SS_GS_CSR = PS2SS_CSR_FINISH;
 
-  /////////////////////////////////////////////////////////////////////////////
   // DMA from memory and start DMA transfer
 
   FlushCache(0);
@@ -268,18 +253,15 @@ int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
 
   asm __volatile__("sync.l\n");
 
-  /////////////////////////////////////////////////////////////////////////////
   // check if DMA is complete (STR=0)
 
   while( *PS2SS_D1_CHCR & 0x0100 );
   while( ( *PS2SS_GS_CSR & PS2SS_CSR_FINISH ) == 0 );
 
-  /////////////////////////////////////////////////////////////////////////////
   // Wait for viffifo to become empty
 
   while( (*PS2SS_VIF1_STAT & (0x1f000000) ) );
 
-  /////////////////////////////////////////////////////////////////////////////
   // Reverse busdir and transfer image to host
 
   *PS2SS_VIF1_STAT = PS2SS_VIF1_STAT_FDR;
@@ -293,7 +275,6 @@ int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
 
   asm __volatile__(" sync.l\n");
 
-  /////////////////////////////////////////////////////////////////////////////
   // check if DMA is complete (STR=0)
 
   while ( *PS2SS_D1_CHCR & 0x0100 );
@@ -302,30 +283,26 @@ int ps2_screenshot( void *pDest, unsigned int VramAdress, unsigned int x,
   *PS2SS_VIF1_STAT = 0;
   *PS2SS_GS_BUSDIR = (u64)0;
 
-  /////////////////////////////////////////////////////////////////////////////
   // Put back prew imr and set finish event
 
   GsPutIMR( prev_imr );
   *PS2SS_GS_CSR = PS2SS_CSR_FINISH;
 
-  /////////////////////////////////////////////////////////////////////////////
   // Enable path3 again
 
 
-  *PS2SS_VIF1_FIFO = *(u128*) enable_path3;
+  *PS2SS_VIF1_FIFO = enable_path3.value;
 
   return 1;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Converts to a buffer that fits tga
+/** Converts to a buffer that fits tga */
 
 void ps2_screenshot_16to32_line(void *pTemp, u32 w)
 {
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Converts to a buffer that fits tga
+/** Converts to a buffer that fits tga */
 
 void ps2_screenshot_16to32_buffer(void *pTemp, u32 w, u32 h)
 {

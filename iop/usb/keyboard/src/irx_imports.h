@@ -7,7 +7,6 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # Defines all IRX imports.
 */
 
@@ -20,8 +19,6 @@
 #include "dmacman.h"
 #include "intrman.h"
 #include "ioman.h"
-#include "libsd.h"
-#include "loadcore.h"
 #include "stdio.h"
 #include "sysclib.h"
 #include "sysmem.h"
@@ -30,6 +27,5 @@
 #include "thmsgbx.h"
 #include "thsemap.h"
 #include "usbd.h"
-#include "vblank.h"
 
 #endif /* IOP_IRX_IMPORTS_H */

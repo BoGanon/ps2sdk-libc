@@ -6,7 +6,6 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # Standard startup file.
 
    .weak  _init
@@ -31,9 +30,9 @@
    .globl   _ps2sdk_libc_deinit_weak
    .type    _ps2sdk_libc_deinit_weak, @function
 
-   .extern InitKernel
-   .extern InitTLBFunctions
-   .extern InitTLB
+   .extern _InitSys
+   .extern Exit
+   .extern FlushCache
 
    .set   noat
    .set   noreorder
@@ -82,10 +81,8 @@ setupthread:
    syscall         # SetupHeap(_end, _heap_size)
 
    # writeback data cache
-
+   jal FlushCache  # FlushCache(0)
    move   $4, $0
-   addiu   $3, $0, 100
-   syscall         # FlushCache(0)
 
 parseargs:
    # call ps2sdk argument parsing (weak)
@@ -119,11 +116,7 @@ ctors:
    nop
 1:
    # Initialize the kernel (Apply necessary patches).
-   jal InitKernel
-   nop
-
-   # Initialize TLB functions.
-   jal InitTLBFunctions
+   jal _InitSys
    nop
 
    # call main
@@ -166,13 +159,8 @@ libc_uninit:
    nop
 1:
 
-   #Re-initialize the TLB
-   jal InitTLB
-   nop
-
-   move    $4, $16
-   addiu   $3, $0, 4
-   syscall         # Exit(retval) (noreturn)
+   j Exit         # Exit(retval) (noreturn)
+   move   $4, $16
 
    .end   _exit
 

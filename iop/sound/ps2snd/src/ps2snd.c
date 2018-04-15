@@ -6,8 +6,6 @@
 # Copyright 2005, James Lee (jbit<at>jbit<dot>net)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
 */
 
 
@@ -20,7 +18,6 @@
 #include <thbase.h>
 #include <intrman.h>
 #include <sysmem.h>
-#include <iomanX.h>
 #include <thsemap.h>
 #include <ps2snd.h>
 #include "mod.h"
@@ -40,7 +37,7 @@ static u32 rpc_buffer[2][32] ALIGNED(16); /* XXX: how big should this be? */
 void *rpc_server(u32 func, void *data, u32 size)
 {
 	u32 *ru = rpc_buffer[1];
-	s32  *rs = rpc_buffer[1];
+	s32 *rs = (s32*)rpc_buffer[1];
 
 	switch(func)
 	{
@@ -55,16 +52,16 @@ void *rpc_server(u32 func, void *data, u32 size)
 	case PS2SND_GetCoreAttr:      *ru = sceSdGetCoreAttr(DU[0]); break;
 	case PS2SND_Note2Pitch:       *ru = sceSdNote2Pitch (DU[0], DU[1], DU[2], DS[3]); break;
 	case PS2SND_Pitch2Note:       *ru = sceSdPitch2Note (DU[0], DU[1], DU[2]); break;
-	case PS2SND_ProcBatch:        *rs = sceSdProcBatch  ((SdBatch *)&DU[1], &ru[1], DU[0]); break;
-	case PS2SND_ProcBatchEx:      *rs = sceSdProcBatchEx((SdBatch *)&DU[2], &ru[1], DU[0], DU[1]); break;
-	case PS2SND_VoiceTrans:       *rs = sceSdVoiceTrans(DS[0], DU[1], (u8 *)DU[2], (u8 *)DU[3], DU[4]); break;
-	case PS2SND_BlockTrans:       *rs = sceSdBlockTrans(DS[0], DU[1], (u8 *)DU[2], DU[3], DU[4]); break;
+	case PS2SND_ProcBatch:        *rs = sceSdProcBatch  ((sceSdBatch *)&DU[1], &ru[1], DU[0]); break;
+	case PS2SND_ProcBatchEx:      *rs = sceSdProcBatchEx((sceSdBatch *)&DU[2], &ru[1], DU[0], DU[1]); break;
+	case PS2SND_VoiceTrans:       *rs = sceSdVoiceTrans(DS[0], DU[1], (u8 *)DU[2], (u32 *)DU[3], DU[4]); break;
+	case PS2SND_BlockTrans:       *rs = sceSdBlockTrans(DS[0], DU[1], (u8 *)DU[2], DU[3], (u8 *)DU[4]); break;
 	case PS2SND_VoiceTransStatus: *ru = sceSdVoiceTransStatus (DS[0], DS[1]); break;
 	case PS2SND_BlockTransStatus: *ru = sceSdBlockTransStatus (DS[0], DS[1]); break;
 //	case PS2SND_SetTransCallback: void* sceSdSetTransCallback (u16 channel, void SD_TRANS_CBProc(void *) );
 //	case PS2SND_SetIRQCallback:   void* sceSdSetIRQCallback ( void SD_IRQ_CBProc(void *) );
-	case PS2SND_SetEffectAttr:    *rs = sceSdSetEffectAttr (DU[0], (SdEffectAttr *)&DU[1]); break;
-	case PS2SND_GetEffectAttr:          sceSdGetEffectAttr (DU[0], (SdEffectAttr *)rpc_buffer[1]); break;
+	case PS2SND_SetEffectAttr:    *rs = sceSdSetEffectAttr (DU[0], (sceSdEffectAttr *)&DU[1]); break;
+	case PS2SND_GetEffectAttr:          sceSdGetEffectAttr (DU[0], (sceSdEffectAttr *)rpc_buffer[1]); break;
 	case PS2SND_ClearEffectWorkArea: *rs = sceSdClearEffectWorkArea (DS[0], DS[1], DS[2]); break;
 //	case PS2SND_SetTransIntrHandler: SdIntrHandler sceSdSetTransIntrHandler(int channel, SdIntrHandler func, void *arg);
 //	case PS2SND_SetSpu2IntrHandler:  SdIntrHandler sceSdSetSpu2IntrHandler(SdIntrHandler func, void *arg);

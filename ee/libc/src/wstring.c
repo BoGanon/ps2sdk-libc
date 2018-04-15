@@ -6,10 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Standard wide-character string functions.
 */
+
+/**
+ * @file
+ * Standard wide-character string functions.
+ */
 
 #include <limits.h>
 #include <stdlib.h>
@@ -201,7 +203,7 @@ wchar_t* wcslwr(wchar_t* wcs)
 #endif
 
 #ifdef F_towlower
-int towlower(wint_t wc)
+wint_t towlower(wint_t wc)
 {
 	if (iswupper(wc)) wc+=32;
 
@@ -210,7 +212,7 @@ int towlower(wint_t wc)
 #endif
 
 #ifdef F_towupper
-int towupper(wint_t wc)
+wint_t towupper(wint_t wc)
 {
 	if (iswlower(wc)) wc-=32;
 

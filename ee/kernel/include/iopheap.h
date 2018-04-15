@@ -6,13 +6,15 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# IOP heap handling prototypes
 */
 
-#ifndef _IOP_HEAP_H_
-#define _IOP_HEAP_H_
+/**
+ * @file
+ * IOP heap handling prototypes
+ */
+
+#ifndef __IOPHEAP_H__
+#define __IOPHEAP_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,4 +32,4 @@ int SifLoadIopHeap(const char *path, void *addr);
 }
 #endif
 
-#endif
+#endif /* __IOPHEAP_H__ */

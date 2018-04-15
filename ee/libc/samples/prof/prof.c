@@ -7,19 +7,16 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # -pg example
 */
 
 #include <stdio.h>
-#include <tamtypes.h>
+
+#include <kernel.h>
+#include <sifrpc.h>
 
 static int dummy = 0;
 static int dummy2 = 0;
-
-/* defined by kernel */
-void SifInitRpc(int);
-s32  SetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *arg2), void *arg2);
 
 void nested()
 {
@@ -41,6 +38,7 @@ volatile int locked = 1;
 void wakeup(s32 id, u16 time, void *arg)
 {
 	locked = 0;
+	ExitHandler();
 }
 
 void sleeping_beauty()

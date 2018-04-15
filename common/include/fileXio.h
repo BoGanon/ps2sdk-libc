@@ -6,19 +6,21 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# fileXio RPC client/server shared includes
 */
 
-#ifndef _FILEXIO_H
-#define _FILEXIO_H
+/**
+ * @file
+ * fileXio RPC client/server shared includes
+ * This header contains the common definitions for fileXio
+ * that are used by both IOP and EE sides. This header
+ * conflicts with ps2ip_rpc.h
+ */
 
-#include <errno.h>
+#ifndef __FILEXIO_H__
+#define __FILEXIO_H__
+
+#include <tamtypes.h>
 #include <sys/stat.h>
-
-// This header contains the common definitions for fileXio
-// that are used by both IOP and EE sides
 
 #define FILEXIO_IRX	0xb0b0b00
 enum FILEXIO_CMDS{
@@ -56,7 +58,7 @@ enum FILEXIO_CMDS{
 	FILEXIO_SETRWBUFFSIZE
 };
 
-//Used for buffer alignment correction when reading data.
+/** Used for buffer alignment correction when reading data. */
 typedef struct {
 	int  ssize;
 	int  esize;
@@ -83,20 +85,22 @@ typedef struct {
 #define FILEXIO_DT_BLOCK	0x04
 #define FILEXIO_DT_RAW	0x08
 #define FILEXIO_DT_FS	0x10
-#define FILEXIO_DT_FSEXT	0x10000000	/* Supports calls after chstat().  */
+/** Supports calls after chstat().  */
+#define FILEXIO_DT_FSEXT	0x10000000
 
 struct fileXioDirEntry
 {
 	u32   fileSize;
 	u8	fileProperties;
-	u8	filename[128+1];
+	char	filename[128+1];
 } __attribute__((aligned(64)));
 
 struct fileXioDevice
 {
-	char name[15];
+	char name[16];
 	unsigned int type;
-	unsigned int version;	/* Not so sure about this one.  */
+	/** Not so sure about this one.  */
+	unsigned int version;
 	char desc[128];
 } __attribute__((aligned(64)));
 
@@ -132,11 +136,13 @@ struct fxio_mkdir_packet {
 	int mode;
 };
 
-struct fxio_pathsel_packet {	//Also used for rmdir, chdir and dopen.
+/** Also used for rmdir, chdir and dopen. */
+struct fxio_pathsel_packet {
 	char pathname[512];
 };
 
-struct fxio_rename_packet {	//Also used for symlink.
+/** Also used for symlink. */
+struct fxio_rename_packet {
 	char source[512];
 	char dest[512];
 };
@@ -152,7 +158,8 @@ struct fxio_open_packet {
 	int flags, mode;
 };
 
-struct fxio_close_packet {	//Also used by dclose.
+/** Also used by dclose. */
+struct fxio_close_packet {
 	int fd;
 };
 
@@ -253,4 +260,4 @@ struct fxio_rwbuff{
 	int size;
 };
 
-#endif // _FILEXIO_H
+#endif /* __FILEXIO_H__ */

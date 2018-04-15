@@ -6,13 +6,15 @@
 # Copyright (c) 2003 Marcus R. Brown <mrbrown@0xd6.org>
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# DEV9 register definitions.
 */
 
-#ifndef DEV9REGS_H
-#define DEV9REGS_H
+/**
+ * @file
+ * DEV9 register definitions.
+ */
+
+#ifndef __DEV9REGS_H__
+#define __DEV9REGS_H__
 
 #include <tamtypes.h>
 
@@ -41,4 +43,4 @@ typedef struct _dev9_regs {
 #define DEV9_DEV9C_9566		0x20
 #define DEV9_DEV9C_9611		0x30
 
-#endif /* DEV9REGS_H */
+#endif /* __DEV9REGS_H__ */

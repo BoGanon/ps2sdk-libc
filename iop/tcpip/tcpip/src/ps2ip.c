@@ -6,10 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id: ps2ip.c 1680 2010-05-17 22:47:17Z jim $
-# PS2 TCP/IP STACK FOR IOP
 */
+
+/**
+ * @file
+ * PS2 TCP/IP STACK FOR IOP
+ */
 
 #include <types.h>
 #include <stdio.h>
@@ -24,20 +26,20 @@
 #include "lwip/sys.h"
 #include "lwip/tcp.h"
 #include "lwip/tcpip.h"
+#include "lwip/prot/dhcp.h"
 #include "lwip/netif.h"
 #include "lwip/dhcp.h"
 #include "lwip/inet.h"
-#include "lwip/tcp_impl.h"
 #include "netif/etharp.h"
 
 #include "ps2ip_internal.h"
 
 typedef struct pbuf	PBuf;
 typedef struct netif	NetIF;
-typedef struct ip_addr	IPAddr;
+typedef struct ip4_addr	IPAddr;
 
 #define MODNAME	"TCP/IP Stack"
-IRX_ID(MODNAME, 2, 1);
+IRX_ID(MODNAME, 2, 3);
 
 extern struct irx_export_table	_exp_ps2ip;
 
@@ -70,16 +72,17 @@ ps2ip_getconfig(char* pszName,t_ip_info* pInfo)
 	memcpy(pInfo->hw_addr,pNetIF->hwaddr,sizeof(pInfo->hw_addr));
 
 #if		LWIP_DHCP
+	struct dhcp *dhcp = netif_dhcp_data(pNetIF);
 
-	if (pNetIF->dhcp)
+	if ((dhcp != NULL) && (dhcp->state != DHCP_STATE_OFF))
 	{
 		pInfo->dhcp_enabled=1;
-		pInfo->dhcp_status=pNetIF->dhcp->state;
+		pInfo->dhcp_status=dhcp->state;
 	}
 	else
 	{
 		pInfo->dhcp_enabled=0;
-		pInfo->dhcp_status=0;
+		pInfo->dhcp_status=DHCP_STATE_OFF;
 	}
 
 #else
@@ -93,7 +96,7 @@ ps2ip_getconfig(char* pszName,t_ip_info* pInfo)
 
 
 int
-ps2ip_setconfig(t_ip_info* pInfo)
+ps2ip_setconfig(const t_ip_info* pInfo)
 {
 	NetIF*	pNetIF=netif_find(pInfo->netif_name);
 
@@ -101,31 +104,31 @@ ps2ip_setconfig(t_ip_info* pInfo)
 	{
 		return	0;
 	}
-	netif_set_ipaddr(pNetIF,(IPAddr*)&pInfo->ipaddr);
-	netif_set_netmask(pNetIF,(IPAddr*)&pInfo->netmask);
-	netif_set_gw(pNetIF,(IPAddr*)&pInfo->gw);
+	netif_set_ipaddr(pNetIF,(const IPAddr*)&pInfo->ipaddr);
+	netif_set_netmask(pNetIF,(const IPAddr*)&pInfo->netmask);
+	netif_set_gw(pNetIF,(const IPAddr*)&pInfo->gw);
 
 #if	LWIP_DHCP
+	struct dhcp *dhcp = netif_dhcp_data(pNetIF);
 
 	//Enable dhcp here
 
 	if (pInfo->dhcp_enabled)
 	{
-		if (!pNetIF->dhcp)
+		if ((dhcp == NULL) || (dhcp->state == DHCP_STATE_OFF))
 		{
-
 			//Start dhcp client
-
 			dhcp_start(pNetIF);
 		}
 	}
 	else
 	{
-		if (pNetIF->dhcp)
+		if ((dhcp != NULL) && (dhcp->state != DHCP_STATE_OFF))
 		{
+			//Release DHCP lease
+			dhcp_release(pNetIF);
 
 			//Stop dhcp client
-
 			dhcp_stop(pNetIF);
 		}
 	}
@@ -134,7 +137,6 @@ ps2ip_setconfig(t_ip_info* pInfo)
 
 	return	1;
 }
-
 
 static void InitDone(void* pvArg)
 {
@@ -175,13 +177,13 @@ static void TimerThread(void* pvArg)
 		}
 #endif
 
-		DelayThread(TCP_TMR_INTERVAL*250);	/* Note: The IOP's DelayThread() function isn't accurate, and the actual timming accuracy is about 25% of the specified value. */
+		DelayThread(TCP_TMR_INTERVAL*250);
 	}
 }
 
 static inline void InitTimer(void)
 {
-	iop_thread_t	Thread={TH_C, 0, TimerThread, 0x300, 0x16};
+	iop_thread_t	Thread={TH_C, (u32)"PS2IP-timer", TimerThread, 0x300, 0x16};
 	int		iTimerThreadID=CreateThread(&Thread);
 
 	if (iTimerThreadID<0)
@@ -197,48 +199,29 @@ static inline void InitTimer(void)
 err_t
 ps2ip_input(PBuf* pInput,NetIF* pNetIF)
 {
-	switch	(htons(((struct eth_hdr*)(pInput->payload))->type))
-	{
-	case	ETHTYPE_IP:
-	case	ETHTYPE_ARP:
-		//IP-packet. Update ARP table, obtain first queued packet.
-		//ARP-packet. Pass pInput to ARP module, get ARP reply or ARP queued packet.
-		//Pass to network layer.
+	err_t result;
 
-		if(pNetIF->input(pInput, pNetIF)!=ERR_OK)
-		{
-			dbgprintf("PS2IP: IP input error\n");
-			goto error;
-		}
-		break;
-	default:
-error:
-		//Unsupported ethernet packet-type. Free pInput.
+	if((result = pNetIF->input(pInput, pNetIF)) != ERR_OK)
 		pbuf_free(pInput);
-	}
 
-	return	ERR_OK;
-}
-
-void ps2ip_Stub(void)
-{
+	return result;
 }
 
 int _exit(int argc, char** argv)
 {
-//	printf("ps2ip_ShutDown: Shutting down ps2ip-module\n");
 	return MODULE_NO_RESIDENT_END; // return "not resident"!
 }
 
-static inline int InitLWIPStack(struct ip_addr *IP, struct ip_addr *NM, struct ip_addr *GW){
+int _start(int argc, char *argv[]){
 	sys_sem_t	Sema;
-	int		iRet;
+	int		result;
 
 	dbgprintf("PS2IP: Module Loaded.\n");
 
-	if ((iRet=RegisterLibraryEntries(&_exp_ps2ip))!=0)
+	if ((result = RegisterLibraryEntries(&_exp_ps2ip)) != 0)
 	{
-		printf("PS2IP: RegisterLibraryEntries returned: %d\n", iRet);
+		printf("PS2IP: RegisterLibraryEntries returned: %d\n", result);
+		return MODULE_NO_RESIDENT_END;
 	} else {
 		sys_sem_new(&Sema, 0);
 		dbgprintf("PS2IP: Calling tcpip_init\n");
@@ -255,27 +238,5 @@ static inline int InitLWIPStack(struct ip_addr *IP, struct ip_addr *NM, struct i
 		dbgprintf("PS2IP: System Initialised\n");
 	}
 
-	return iRet;
-}
-
-int _start(int argc, char *argv[]){
-	struct ip_addr IP, NM, GW;
-
-	//Parse IP address arguments.
-	if(argc>=4)
-	{
-		dbgprintf("SMAP: %s %s %s\n", argv[1],argv[2],argv[3]);
-		IP.addr=inet_addr(argv[1]);
-		NM.addr=inet_addr(argv[2]);
-		GW.addr=inet_addr(argv[3]);
-	}
-	else
-	{
-		//Set some defaults.
-		IP4_ADDR(&IP,192,168,0,80);
-		IP4_ADDR(&NM,255,255,255,0);
-		IP4_ADDR(&GW,192,168,0,1);
-	}
-
-	return InitLWIPStack(&IP, &NM, &GW)==0?MODULE_RESIDENT_END:MODULE_NO_RESIDENT_END;
+	return MODULE_RESIDENT_END;
 }

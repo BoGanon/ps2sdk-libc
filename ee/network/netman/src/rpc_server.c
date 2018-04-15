@@ -12,7 +12,7 @@
 #include "rpc_server.h"
 
 static int NETMAN_RpcSvr_threadID=-1;
-static unsigned char NETMAN_RpcSvr_ThreadStack[0x1000] ALIGNED(128);
+static unsigned char NETMAN_RpcSvr_ThreadStack[0x1000] ALIGNED(16);
 static unsigned char IsInitialized=0;
 
 static u8 *FrameBuffer;
@@ -24,9 +24,9 @@ extern void *_gp;
 static void *NETMAN_EE_RPC_Handler(int fnum, void *buffer, int NumBytes)
 {
 	unsigned int PacketNum;
-	void *data, *result;
-	unsigned short int PacketLength;
-	struct NetManPacketBuffer *pbuf;
+	void *data, *result, *payload;
+	u16 PacketLength;
+	void *packet;
 
 	switch(fnum)
 	{
@@ -59,20 +59,15 @@ static void *NETMAN_EE_RPC_Handler(int fnum, void *buffer, int NumBytes)
 					data=UNCACHED_SEG(&FrameBuffer[RxBufferRdPtr * NETMAN_MAX_FRAME_SIZE]);
 					PacketLength=((struct PacketReqs*)buffer)->length[RxBufferRdPtr];
 
-					// Need to be careful here. With some packets in the waiting queue (Occupying packet buffers), packet buffer exhaustion can occur.
-					if((pbuf=NetManNetProtStackAllocRxPacket(PacketLength))==NULL)
+					if((packet = NetManNetProtStackAllocRxPacket(PacketLength, &payload)) != NULL)
 					{
-						NetManNetProtStackFlushInputQueue();
-						if((pbuf=NetManNetProtStackAllocRxPacket(PacketLength))==NULL) break;	// Can't continue.
+						memcpy(payload, data, PacketLength);
+						NetManNetProtStackEnQRxPacket(packet);
 					}
-
-					memcpy(pbuf->payload, data, PacketLength);
-					NetManNetProtStackEnQRxPacket(pbuf);
 
 					//Increment read pointer by one place.
 					RxBufferRdPtr = (RxBufferRdPtr + 1) % NETMAN_RPC_BLOCK_SIZE;
 				}
-				NetManNetProtStackFlushInputQueue();
 
 				*(u32 *)buffer=PacketNum;
 			}else *(u32 *)buffer=0;
@@ -115,7 +110,7 @@ int NetManInitRPCServer(void)
 		ThreadData.stack=NETMAN_RpcSvr_ThreadStack;
 		ThreadData.stack_size=sizeof(NETMAN_RpcSvr_ThreadStack);
 		ThreadData.gp_reg=&_gp;
-		ThreadData.initial_priority=0x59;	/* The RPC server thread should be given lower priority than the protocol stack, as frame transmission should be given priority. */
+		ThreadData.initial_priority=0x57;	/* The RPC server thread should be given a higher priority than the protocol stack, so that it can dump frames in the EE and return. */
 		ThreadData.attr=ThreadData.option=0;
 
 		if((NETMAN_RpcSvr_threadID=CreateThread(&ThreadData))>=0)

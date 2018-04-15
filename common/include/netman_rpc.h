@@ -1,3 +1,14 @@
+/**
+ * @file
+ * Netman RPC common definitions
+ */
+
+#ifndef __NETMAN_RPC_H__
+#define __NETMAN_RPC_H__
+
+#include <tamtypes.h>
+#include <netman.h>
+
 #define NETMAN_RPC_NUMBER	0x00004239
 #define NETMAN_RPC_BUFF_SIZE	128
 
@@ -32,7 +43,7 @@ struct NetManRegNetworkStackResult{
 
 struct NetManQueryMainNetIFResult{
 	s32 result;
-	s8 name[NETMAN_NETIF_NAME_MAX_LEN];
+	char name[NETMAN_NETIF_NAME_MAX_LEN];
 };
 
 #define NETMAN_MAX_FRAME_SIZE	1520
@@ -55,3 +66,5 @@ struct NetManIoctlResult{
 	s32 result;
 	u8 output[64];
 };
+
+#endif /* __NETMAN_RPC_H__ */

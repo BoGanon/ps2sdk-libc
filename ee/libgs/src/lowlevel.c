@@ -6,7 +6,6 @@
 # (c) 2009 Lion
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
 */
 
 #include <errno.h>
@@ -18,14 +17,11 @@
 
 extern QWORD GsPrimWorkArea[];
 
-/*****************************************************************
-*** Miscellaneous
-***
-*****************************************************************/
+/* Miscellaneous */
 
-static char twh(short int val)
+static s8 twh(s16 val)
 {
-	char res;
+	s8 res;
 
 	asm volatile ("plzcw   %0, %1\n": "=r" (res) : "r" (val));
 	res = 31 - (res + 1);
@@ -35,13 +31,9 @@ static char twh(short int val)
 	return res;
 }
 
-/*-------------------------------------------
--											-
-- LOW LEVEL FUNTIONS						-
--											-
--------------------------------------------*/
+/* LOW LEVEL FUNCTIONS */
 
-int GsSetXYOffset1(unsigned short x, unsigned short y)
+int GsSetXYOffset1(u16 x, u16 y)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -54,7 +46,7 @@ int GsSetXYOffset1(unsigned short x, unsigned short y)
 	return 0;
 }
 
-int GsSetXYOffset2(unsigned short x, unsigned short y)
+int GsSetXYOffset2(u16 x, u16 y)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -67,7 +59,7 @@ int GsSetXYOffset2(unsigned short x, unsigned short y)
 	return 0;
 }
 
-int GsSetScissor1(unsigned short upper_x, unsigned short upper_y, unsigned short lower_x, unsigned short lower_y)
+int GsSetScissor1(u16 upper_x, u16 upper_y, u16 lower_x, u16 lower_y)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -80,7 +72,7 @@ int GsSetScissor1(unsigned short upper_x, unsigned short upper_y, unsigned short
 	return 0;
 }
 
-int GsSetScissor2(unsigned short upper_x, unsigned short upper_y, unsigned short lower_x, unsigned short lower_y)
+int GsSetScissor2(u16 upper_x, u16 upper_y, u16 lower_x, u16 lower_y)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -93,7 +85,7 @@ int GsSetScissor2(unsigned short upper_x, unsigned short upper_y, unsigned short
 	return 0;
 }
 
-int GsSetFrame1(unsigned short framebuffer_addr, unsigned char framebuffer_width, unsigned char psm, unsigned int draw_mask)
+int GsSetFrame1(u16 framebuffer_addr, u8 framebuffer_width, u8 psm, u32 draw_mask)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -106,7 +98,7 @@ int GsSetFrame1(unsigned short framebuffer_addr, unsigned char framebuffer_width
 	return 0;
 }
 
-int GsSetFrame2(unsigned short framebuffer_addr, unsigned char framebuffer_width, unsigned char psm, unsigned int draw_mask)
+int GsSetFrame2(u16 framebuffer_addr, u8 framebuffer_width, u8 psm, u32 draw_mask)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -132,7 +124,7 @@ int GsTextureFlush(void)
 	return 0;
 }
 
-int GsSetPixelTest1(unsigned char enable_alpha_test, unsigned char alpha_test_method, unsigned char alpha_reference, unsigned char alpha_fail_method, unsigned char enable_dest_alpha_test, unsigned char dest_alpha_test_mode, unsigned char enable_zbuff_test, unsigned char alpha_zbuff_method)
+int GsSetPixelTest1(u8 enable_alpha_test, u8 alpha_test_method, u8 alpha_reference, u8 alpha_fail_method, u8 enable_dest_alpha_test, u8 dest_alpha_test_mode, u8 enable_zbuff_test, u8 alpha_zbuff_method)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -145,7 +137,7 @@ int GsSetPixelTest1(unsigned char enable_alpha_test, unsigned char alpha_test_me
 	return 0;
 }
 
-int GsSetPixelTest2(unsigned char enable_alpha_test, unsigned char alpha_test_method, unsigned char alpha_reference, unsigned char alpha_fail_method, unsigned char enable_dest_alpha_test, unsigned char dest_alpha_test_mode, unsigned char enable_zbuff_test, unsigned char alpha_zbuff_method)
+int GsSetPixelTest2(u8 enable_alpha_test, u8 alpha_test_method, u8 alpha_reference, u8 alpha_fail_method, u8 enable_dest_alpha_test, u8 dest_alpha_test_mode, u8 enable_zbuff_test, u8 alpha_zbuff_method)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -158,7 +150,7 @@ int GsSetPixelTest2(unsigned char enable_alpha_test, unsigned char alpha_test_me
 	return 0;
 }
 
-int GsSelectTexure1(unsigned short tex_addr, unsigned char addr_width, unsigned char tex_pixmode, unsigned short tex_width, unsigned short tex_height, unsigned short clut_addr, unsigned char clut_pixmode, unsigned char clut_storagemode,unsigned char clut_offset)
+int GsSelectTexure1(u16 tex_addr, u8 addr_width, u8 tex_pixmode, u16 tex_width, u16 tex_height, u16 clut_addr, u8 clut_pixmode, u8 clut_storagemode,u8 clut_offset)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -171,7 +163,7 @@ int GsSelectTexure1(unsigned short tex_addr, unsigned char addr_width, unsigned 
 	return 0;
 }
 
-int GsSelectTexure2(unsigned short tex_addr, unsigned char addr_width, unsigned char tex_pixmode, unsigned short tex_width, unsigned short tex_height, unsigned short clut_addr, unsigned char clut_pixmode, unsigned char clut_storagemode,unsigned char clut_offset)
+int GsSelectTexure2(u16 tex_addr, u8 addr_width, u8 tex_pixmode, u16 tex_width, u16 tex_height, u16 clut_addr, u8 clut_pixmode, u8 clut_storagemode,u8 clut_offset)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -184,7 +176,7 @@ int GsSelectTexure2(unsigned short tex_addr, unsigned char addr_width, unsigned 
 	return 0;
 }
 
-void GsSetFogColor(unsigned char r, unsigned char g, unsigned char b)
+void GsSetFogColor(u8 r, u8 g, u8 b)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);
@@ -195,7 +187,7 @@ void GsSetFogColor(unsigned char r, unsigned char g, unsigned char b)
 	GsDmaWait();
 }
 
-void GsEnableColorClamp(unsigned short enable)
+void GsEnableColorClamp(u16 enable)
 {
 	QWORD *p;
 	p=UNCACHED_SEG(GsPrimWorkArea);

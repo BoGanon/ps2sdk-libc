@@ -1,3 +1,8 @@
+/**
+ * @file
+ * VIF registers.
+ */
+
 #ifndef __VIF_REGISTERS_H__
 #define __VIF_REGISTERS_H__
 
@@ -161,4 +166,4 @@ typedef struct {
 	u32 column;
 } VIFC;
 
-#endif /*__VIF_REGISTERS_H__*/
+#endif /* __VIF_REGISTERS_H__ */

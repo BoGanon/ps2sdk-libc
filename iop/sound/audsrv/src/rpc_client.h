@@ -5,10 +5,12 @@
 #-----------------------------------------------------------------------
 # Copyright 2005, ps2dev - http://www.ps2dev.org
 # Licenced under GNU Library General Public License version 2
-#
-# $Id$
-# audsrv iop rpc client.
 */
+
+/**
+ * @file
+ * audsrv iop rpc client.
+ */
 
 #ifndef __RPC_CLIENT_H__
 #define __RPC_CLIENT_H__

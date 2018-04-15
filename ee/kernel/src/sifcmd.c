@@ -7,12 +7,14 @@
 # (c) 2003 Marcus R. Brown (mrbrown@0xd6.org)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# EE SIF commands
-# MRB: This file now contains the SIF routines included
-# with libpsware.  Bug reports welcome.
 */
+
+/**
+ * @file
+ * EE SIF commands
+ * MRB: This file now contains the SIF routines included
+ * with libpsware.  Bug reports welcome.
+ */
 
 #include <tamtypes.h>
 #include <kernel.h>
@@ -28,16 +30,18 @@
 #define   CHCR_STR		0x100
 #define   STAT_SIF0		0x20
 
-/* Even though I'm reluctant to do this, I've made this structure binary
+/** Even though I'm reluctant to do this, I've made this structure binary
    compatible with the SCE libs and ps2lib.  In all implementations, a pointer
    to this data is stored in SIF register 0x80000001.  Each routine that
    relies on this data can then use the data referenced from that register, so
    that even if a SIF library is initialized after this one, we should still
    work exactly as expected.  */
 struct cmd_data {
-	void	*pktbuf;	/* Command packet received from the IOP */
+	/** Command packet received from the IOP */
+	void	*pktbuf;
 	void	*unused;
-	void	*iopbuf;	/* Address of IOP SIF DMA receive address */
+	/** Address of IOP SIF DMA receive address */
+	void	*iopbuf;
 	SifCmdHandlerData_t *sys_cmd_handlers;
 	u32	nr_sys_handlers;
 	SifCmdHandlerData_t *usr_cmd_handlers;
@@ -64,11 +68,11 @@ static unsigned int _SifSendCmd(int cid, int mode, void *pkt, int pktsize, void 
 
 	header = (SifCmdHeader_t *)pkt;
 	header->cid  = cid;
-	header->size = pktsize;
+	header->psize = pktsize;
 	header->dest = NULL;
 
 	if (size > 0) {
-		header->size = pktsize | (size << 8);
+		header->dsize = size;
 		header->dest = dest;
 
 		if (mode & SIF_CMD_M_WBDC)	/* if mode is & 4, flush reference cache */
@@ -126,11 +130,11 @@ int _SifCmdIntHandler(int channel)
 
 	header = (SifCmdHeader_t *)cmd_data->pktbuf;
 
-	if (!(size = (header->size & 0xff)))
+	if (!(size = header->psize))
 		goto out;
 
 	pktquads = (size + 30) >> 4;
-	header->size = 0;
+	header->psize = 0;
 	if (pktquads) {
 		pktbuf = (u128 *)cmd_data->pktbuf;
 		while (pktquads--) {
@@ -210,7 +214,7 @@ static void set_sreg(void *packet, void *harg)
 
 void SifInitCmd(void)
 {
-	u32 packet[5];	/* Implicitly aligned to 16 bytes */
+	static struct ca_pkt packet __attribute((aligned(64)));
 	int i;
 	static int _rb_count = 0;
 	if(_rb_count != _iop_reboot_count)
@@ -269,8 +273,8 @@ void SifInitCmd(void)
 	if (_sif_cmd_data.iopbuf) {
 		/* IOP SIF CMD is already initialized, so give it our new
 		   receive address.  */
-		((struct ca_pkt *)(packet))->buf = _sif_cmd_data.pktbuf;
-		SifSendCmd(SIF_CMD_CHANGE_SADDR, packet, sizeof packet, NULL, NULL, 0);
+		packet.buf = _sif_cmd_data.pktbuf;
+		SifSendCmd(SIF_CMD_CHANGE_SADDR, &packet, sizeof packet, NULL, NULL, 0);
 	} else {
 		/* Sync with the IOP side's SIFCMD implementation. */
 		while (!(SifGetReg(SIF_REG_SMFLAG) & SIF_STAT_CMDINIT)) ;
@@ -280,9 +284,9 @@ void SifInitCmd(void)
 		/* See the note above about struct cmd_data, and the use of
 		   this register.  */
 		SifSetReg(SIF_SYSREG_MAINADDR, (u32)&_sif_cmd_data);
-		packet[3] = 0;
-		packet[4] = (u32)_sif_cmd_data.pktbuf;
-		SifSendCmd(SIF_CMD_INIT_CMD, packet, sizeof packet, NULL, NULL, 0);
+		packet.header.opt = 0;	//SIFCMD initialization on the IOP (opt = 0)
+		packet.buf = _sif_cmd_data.pktbuf;
+		SifSendCmd(SIF_CMD_INIT_CMD, &packet, sizeof packet, NULL, NULL, 0);
 	}
 }
 

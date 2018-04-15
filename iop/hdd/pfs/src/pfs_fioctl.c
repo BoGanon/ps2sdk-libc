@@ -7,12 +7,15 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # PFS ioctl and devctl related routines
 */
 
 #include <stdio.h>
+#ifdef _IOP
 #include <sysclib.h>
+#else
+#include <string.h>
+#endif
 #include <errno.h>
 #include <iomanX.h>
 #include <thsemap.h>
@@ -28,11 +31,18 @@ extern pfs_config_t pfsConfig;
 extern int pfsFioSema;
 extern pfs_file_slot_t *pfsFileSlots;
 
+#ifdef PFS_IOCTL2_INC_CHECKSUM
+extern u32 pfsBlockSize;
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 //	Function declarations
 
 static int devctlFsckStat(pfs_mount_t *pfsMount, int mode);
 
+#ifdef PFS_IOCTL2_INC_CHECKSUM
+static int ioctl2InvalidateInode(pfs_cache_t *clink);
+#endif
 static int ioctl2Attr(pfs_cache_t *clink, int cmd, void *arg, void *outbuf, u32 *offset);
 static pfs_aentry_t *getAentry(pfs_cache_t *clink, char *key, char *value, int mode);
 static int ioctl2AttrAdd(pfs_cache_t *clink, pfs_ioctl2attr_t *attr);
@@ -40,7 +50,7 @@ static int ioctl2AttrDelete(pfs_cache_t *clink, void *arg);
 static int ioctl2AttrLoopUp(pfs_cache_t *clink, char *key, char *value);
 static int ioctl2AttrRead(pfs_cache_t *clink, pfs_ioctl2attr_t *attr, u32 *unkbuf);
 
-int pfsFioIoctl(iop_file_t *f, unsigned long arg, void *param)
+int pfsFioIoctl(iop_file_t *f, int cmd, void *param)
 {
 	return -1;
 }
@@ -97,6 +107,14 @@ int pfsFioDevctl(iop_file_t *f, const char *name, int cmd, void *arg, size_t arg
 	return rv;
 }
 
+#ifdef PFS_IOCTL2_INC_CHECKSUM
+static int ioctl2InvalidateInode(pfs_cache_t *clink)
+{
+	clink->u.inode->checksum++;
+	return clink->pfsMount->blockDev->transfer(clink->pfsMount->fd, clink->u.inode, clink->sub, clink->block << pfsBlockSize, 1 << pfsBlockSize, PFS_IO_MODE_WRITE);
+}
+#endif
+
 int pfsFioIoctl2(iop_file_t *f, int cmd, void *arg, size_t arglen,	void *buf, size_t buflen)
 {
 	int rv;
@@ -107,10 +125,17 @@ int pfsFioIoctl2(iop_file_t *f, int cmd, void *arg, size_t arglen,	void *buf, si
 		if(cmd==PIOCATTRREAD)
 			return -EISDIR;
 
-	if(!(f->mode & O_WRONLY)) {
-		if(cmd!=PIOCATTRLOOKUP)
-			if(cmd!=PIOCATTRREAD)
+	if(!(f->mode & O_WRONLY))
+	{
+		switch(cmd)
+		{
+			case PIOCATTRLOOKUP:
+			case PIOCATTRREAD:
+			case PIOCINVINODE:
+				break;
+			default:
 				return -EACCES;
+		}
 	}
 	if((rv=pfsFioCheckFileSlot(fileSlot))<0)
 		return rv;
@@ -133,6 +158,12 @@ int pfsFioIoctl2(iop_file_t *f, int cmd, void *arg, size_t arglen,	void *buf, si
 		rv=ioctl2Attr(fileSlot->clink, cmd, arg, buf, &fileSlot->aentryOffset);
 		break;
 
+#ifdef PFS_IOCTL2_INC_CHECKSUM
+	case PIOCINVINODE:
+		rv=ioctl2InvalidateInode(fileSlot->clink);
+		break;
+#endif
+
 	default:
 		rv=-EINVAL;
 		break;
@@ -151,7 +182,7 @@ static int ioctl2Attr(pfs_cache_t *clink, int cmd, void *arg, void *outbuf, u32 
 	int rv;
 	pfs_cache_t *flink;
 
-	if((flink=pfsCacheGetData(clink->pfsMount, clink->sub, clink->sector+1
+	if((flink=pfsCacheGetData(clink->pfsMount, clink->sub, clink->block+1
 		,PFS_CACHE_FLAG_NOTHING, &rv))==NULL)
 		return rv;
 
@@ -181,7 +212,7 @@ static int ioctl2Attr(pfs_cache_t *clink, int cmd, void *arg, void *outbuf, u32 
 
 void pfsFioDevctlCloseAll(void)
 {
-	u32 i;
+	s32 i;
 
 	for(i=0;i < pfsConfig.maxOpen;i++)
 	{
@@ -214,11 +245,11 @@ static pfs_aentry_t *getAentry(pfs_cache_t *clink, char *key, char *value, int m
 	int kLen, fullsize;
 	pfs_aentry_t *aentry=clink->u.aentry;
 	pfs_aentry_t *aentryLast=NULL;
-	u32 end;
+	pfs_aentry_t *end;
 
 	kLen=strlen(key);
 	fullsize=(kLen+strlen(value)+7) & ~3;
-	for(end=(u32)aentry+1024;(u32)end < (u32)(aentry); (char *)aentry+=aentry->aLen)
+	for(end=(pfs_aentry_t *)((u8*)aentry+1024);end < aentry; aentry=(pfs_aentry_t *)((u8*)aentry+aentry->aLen))
 	{
 		if(aentry->aLen & 3)
 			PFS_PRINTF(PFS_DRV_NAME" Error: attrib-entry allocated length/4 != 0\n");
@@ -227,8 +258,8 @@ static pfs_aentry_t *getAentry(pfs_cache_t *clink, char *key, char *value, int m
 			PFS_PRINTF(PFS_DRV_NAME" Panic: attrib-entry is too small\n");
 			return NULL;
 		}
-		if((u32)end < (u32)aentry+aentry->aLen)
-			PFS_PRINTF(PFS_DRV_NAME" Error: attrib-emtru too big\n");
+		if(end < (pfs_aentry_t*)((u8*)aentry+aentry->aLen))
+			PFS_PRINTF(PFS_DRV_NAME" Error: attrib-entry too big\n");
 
 		switch(mode)
 		{
@@ -338,7 +369,7 @@ static int ioctl2AttrRead(pfs_cache_t *clink, pfs_ioctl2attr_t *attr, u32 *offse
 	if(*offset >= 1024)
 		return 0;
 	do {
-		aentry=(pfs_aentry_t *)((u32)(clink->u.inode)+*offset);
+		aentry=(pfs_aentry_t *)((u8*)clink->u.inode+*offset);
 		memcpy(attr->key, &aentry->str[0], aentry->kLen);
 		attr->key[aentry->kLen]=0;
 		memcpy(attr->value, &aentry->str[aentry->kLen], aentry->vLen);

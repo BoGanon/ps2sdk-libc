@@ -39,7 +39,7 @@ static int SmapDmaTransfer(volatile u8 *smap_regbase, void *buffer, unsigned int
 	return result;
 }
 
-static inline void CopyFromFIFO(volatile u8 *smap_regbase, void *buffer, unsigned int length, unsigned short int RxBdPtr){
+static inline void CopyFromFIFO(volatile u8 *smap_regbase, void *buffer, unsigned int length, u16 RxBdPtr){
 	int i, result;
 
 	SMAP_REG16(SMAP_R_RXFIFO_RD_PTR)=RxBdPtr;
@@ -50,18 +50,18 @@ static inline void CopyFromFIFO(volatile u8 *smap_regbase, void *buffer, unsigne
 
 	if(result<length){
 		for(i=result; i<length; i+=4){
-			((unsigned int *)buffer)[i/4]=SMAP_REG32(SMAP_R_RXFIFO_DATA);
+			((u32*)buffer)[i/4]=SMAP_REG32(SMAP_R_RXFIFO_DATA);
 		}
 	}
 }
 
-inline int HandleRxIntr(struct SmapDriverData *SmapDrivPrivData){
+int HandleRxIntr(struct SmapDriverData *SmapDrivPrivData){
 	USE_SMAP_RX_BD;
-	int NumPacketsReceived;
+	int NumPacketsReceived, i;
 	volatile smap_bd_t *PktBdPtr;
 	volatile u8 *smap_regbase;
-	struct NetManPacketBuffer *pbuf;
-	unsigned short int ctrl_stat;
+	void *pbuf, *payload;
+	u16 ctrl_stat, length;
 
 	smap_regbase=SmapDrivPrivData->smap_regbase;
 
@@ -70,7 +70,10 @@ inline int HandleRxIntr(struct SmapDriverData *SmapDrivPrivData){
 	while(1){
 		PktBdPtr=&rx_bd[SmapDrivPrivData->RxBDIndex&(SMAP_BD_MAX_ENTRY-1)];
 		if(!((ctrl_stat=PktBdPtr->ctrl_stat)&SMAP_BD_RX_EMPTY)){
-			if(ctrl_stat&(SMAP_BD_RX_INRANGE|SMAP_BD_RX_OUTRANGE|SMAP_BD_RX_FRMTOOLONG|SMAP_BD_RX_BADFCS|SMAP_BD_RX_ALIGNERR|SMAP_BD_RX_SHORTEVNT|SMAP_BD_RX_RUNTFRM|SMAP_BD_RX_OVERRUN) || PktBdPtr->length>MAX_FRAME_SIZE){
+			if(ctrl_stat&(SMAP_BD_RX_INRANGE|SMAP_BD_RX_OUTRANGE|SMAP_BD_RX_FRMTOOLONG|SMAP_BD_RX_BADFCS|SMAP_BD_RX_ALIGNERR|SMAP_BD_RX_SHORTEVNT|SMAP_BD_RX_RUNTFRM|SMAP_BD_RX_OVERRUN)){
+				for(i=0; i < 16; i++)
+					if((ctrl_stat>>i) & 1) SmapDrivPrivData->RuntimeStats.RxErrorCount++;
+
 				SmapDrivPrivData->RuntimeStats.RxDroppedFrameCount++;
 
 				if(ctrl_stat&SMAP_BD_RX_OVERRUN) SmapDrivPrivData->RuntimeStats.RxFrameOverrunCount++;
@@ -79,14 +82,14 @@ inline int HandleRxIntr(struct SmapDriverData *SmapDrivPrivData){
 				if(ctrl_stat&SMAP_BD_RX_ALIGNERR) SmapDrivPrivData->RuntimeStats.RxFrameBadAlignmentCount++;
 			}
 			else{
-				if((pbuf=NetManNetProtStackAllocRxPacket(PktBdPtr->length))==NULL){
-					NetManNetProtStackFlushInputQueue();
-					if((pbuf=NetManNetProtStackAllocRxPacket(PktBdPtr->length))==NULL) break;	// Cannot continue. Stop.
-				}
+				length = PktBdPtr->length;
 
-				CopyFromFIFO(SmapDrivPrivData->smap_regbase, pbuf->payload, pbuf->length, PktBdPtr->pointer);
-				NetManNetProtStackEnQRxPacket(pbuf);
-				NumPacketsReceived++;
+				if((pbuf=NetManNetProtStackAllocRxPacket(length, &payload))!=NULL){
+					CopyFromFIFO(SmapDrivPrivData->smap_regbase, payload, length, PktBdPtr->pointer);
+					NetManNetProtStackEnQRxPacket(pbuf);
+					NumPacketsReceived++;
+				} else
+					SmapDrivPrivData->RuntimeStats.RxAllocFail++;
 			}
 
 			SMAP_REG8(SMAP_R_RXFIFO_FRAME_DEC)=0;
@@ -95,8 +98,6 @@ inline int HandleRxIntr(struct SmapDriverData *SmapDrivPrivData){
 		}
 		else break;
 	}
-
-	NetManNetProtStackFlushInputQueue();
 
 	return NumPacketsReceived;
 }
@@ -112,13 +113,12 @@ int SMAPSendPacket(const void *data, unsigned int length){
 	SaveGP();
 
 	if(SmapDriverData.SmapIsInitialized){
-		ClearEventFlag(SmapDriverData.TxEndEventFlag, ~1);
-
 		SizeRounded=(length+3)&~3;
 		/*	Unlike the SONY implementation, LWIP expects packet transmission to either
 			always succeed or to fail due to an unrecoverable error. This means that the driver
 			should wait for transmissions to complete, if the Tx buffer is full. */
 		while((SmapDriverData.NumPacketsInTx>=SMAP_BD_MAX_ENTRY) || (SmapDriverData.TxBufferSpaceAvailable<SizeRounded)){
+			SetEventFlag(SmapDriverData.Dev9IntrEventFlag, SMAP_EVENT_XMIT);
 			WaitEventFlag(SmapDriverData.TxEndEventFlag, 1, WEF_AND|WEF_CLEAR, NULL);
 		}
 
@@ -131,7 +131,7 @@ int SMAPSendPacket(const void *data, unsigned int length){
 		}
 
 		for(; i<length; i+=4){
-			SMAP_REG32(SMAP_R_TXFIFO_DATA)=((unsigned int *)data)[i/4];
+			SMAP_REG32(SMAP_R_TXFIFO_DATA)=((u32*)data)[i/4];
 		}
 
 		BD_ptr->length=length;

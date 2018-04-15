@@ -7,22 +7,19 @@
 # (c) 2003 Marcus R. Brown <mrbrown@0xd6.org>
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# EE Kernel prototypes
 */
 
-#ifndef _KERNEL_H
-#define _KERNEL_H
+/**
+ * @file
+ * EE Kernel prototypes
+ */
+
+#ifndef __KERNEL_H__
+#define __KERNEL_H__
 
 #include <stddef.h>
 #include <stdarg.h>
-
-#include "sifdma.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <sifdma.h>
 
 #define DI	DIntr
 #define EI	EIntr
@@ -48,13 +45,20 @@ extern "C" {
 
 #define ALIGNED(x) __attribute__((aligned((x))))
 
-//Modes for FlushCache
+/** Limits */
+#define MAX_THREADS	256	//A few will be used for the kernel patches.
+#define MAX_SEMAPHORES	256	//A few will be used for the kernel patches.
+#define MAX_PRIORITY	128
+#define MAX_HANDLERS	128
+#define MAX_ALARMS	64
+
+/** Modes for FlushCache */
 #define WRITEBACK_DCACHE	0
 #define INVALIDATE_DCACHE	1
 #define INVALIDATE_ICACHE	2
 #define INVALIDATE_CACHE	(INVALIDATE_DCACHE|INVALIDATE_ICACHE)
 
-// EE Interrupt Controller (INTC) interrupt numebrs
+/** EE Interrupt Controller (INTC) interrupt numbers */
 enum
 {
 	INTC_GS,
@@ -68,6 +72,10 @@ enum
 	INTC_IPU,
 	INTC_TIM0,
 	INTC_TIM1,
+	INTC_TIM2,
+//	INTC_TIM3,		//Reserved by the EE kernel for alarms (do not use)
+	INTC_SFIFO = 13,	//Error encountered during SFIFO transfer
+	INTC_VU0WD		//VU0 WatchDog; ForceBreak is sent to VU0 if left in RUN state for extended periods of time.
 };
 
 //For backward-compatibility
@@ -83,7 +91,7 @@ enum
 #define kINTC_TIMER0		INTC_TIM0
 #define kINTC_TIMER1		INTC_TIM1
 
-//EE Direct Memory Access Controller (DMAC) interrupt numbers
+/** EE Direct Memory Access Controller (DMAC) interrupt numbers */
 enum
 {
 	DMAC_VIF0,
@@ -102,7 +110,7 @@ enum
 	DMAC_BEIS,		//Bus error interrupt
 };
 
-//ResetEE argument bits
+/** ResetEE argument bits */
 #define INIT_DMAC               0x01
 #define INIT_VU1                0x02
 #define INIT_VIF1               0x04
@@ -204,11 +212,11 @@ typedef struct t_ee_thread
     int initial_priority; // 0x14
     int current_priority; // 0x18
     u32 attr; // 0x1C
-    u32 option; // 0x20
+    u32 option; // 0x20 Do not use - officially documented to not work.
 
 } ee_thread_t;
 
-// Thread status
+/** Thread status */
 #define THS_RUN		0x01
 #define THS_READY	0x02
 #define THS_WAIT	0x04
@@ -233,6 +241,40 @@ typedef struct t_ee_thread_status
     u32 wakeupCount; // 0x2C
 } ee_thread_status_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Initialization/deinitialization routines.  */
+void _InitSys(void);		//Run by crt0
+
+void TerminateLibrary(void);	//Run by crt0
+
+/* Thread update functions */
+int InitThread(void);		//Run by _InitSys
+
+s32 iWakeupThread(s32 thread_id);
+s32 iRotateThreadReadyQueue(s32 priority);
+s32 iSuspendThread(s32 thread_id);
+
+/* TLB update functions */
+void InitTLBFunctions(void);	//Run by _InitSys
+
+void InitTLB(void);
+void Exit(s32 exit_code) __attribute__((noreturn));
+s32  ExecPS2(void *entry, void *gp, int num_args, char *args[]);
+void LoadExecPS2(const char *filename, s32 num_args, char *args[]) __attribute__((noreturn));
+void ExecOSD(int num_args, char *args[]) __attribute__((noreturn));
+
+/* Alarm update functions */
+void InitAlarm(void);		//Run by _InitSys
+
+/* libosd update functions */
+void InitExecPS2(void);		//ExecPS2 patch only. Run by _InitSys, Exit, LoadExecPS2, ExecPS2 and ExecOSD
+void InitOsd(void);		//ExecPS2 + System Configuration patches. Please refer to the comments within libosd_full.c
+
+int PatchIsNeeded(void);	//Indicates whether the patch is required.
+
 /* Glue routines.  */
 int DIntr(void);
 int EIntr(void);
@@ -255,9 +297,9 @@ void iInvalidDCache(void *start, void *end);
 /* System call prototypes */
 void ResetEE(u32 init_bitfield);
 void SetGsCrt(s16 interlace, s16 pal_ntsc, s16 field);
-void Exit(s32 exit_code) __attribute__((noreturn));
-void LoadExecPS2(const char *filename, s32 num_args, char *args[]);
-s32  ExecPS2(void *entry, void *gp, int num_args, char *args[]);
+void _Exit(s32 exit_code) __attribute__((noreturn));
+void _LoadExecPS2(const char *filename, s32 num_args, char *args[]) __attribute__((noreturn));
+s32  _ExecPS2(void *entry, void *gp, int num_args, char *args[]);
 void RFU009(u32 arg0, u32 arg1);
 s32  AddSbusIntcHandler(s32 cause, void (*handler)(int call));
 s32  RemoveSbusIntcHandler(s32 cause);
@@ -269,6 +311,7 @@ s32  AddIntcHandler(s32 cause, s32(*handler_func)(s32 cause), s32 next);
 s32  AddIntcHandler2(s32 cause, s32(*handler_func)(s32 cause, void* arg, void* addr), s32 next, void* arg);
 s32  RemoveIntcHandler(s32 cause, s32 handler_id);
 s32	 AddDmacHandler(s32 channel, s32 (*handler)(s32 channel), s32 next);
+s32	 AddDmacHandler2(s32 channel, s32 (*handler)(s32 channel, void *arg, void *addr), s32 next, void* arg);
 s32	 RemoveDmacHandler(s32 channel, s32 handler_id);
 s32  _EnableIntc(s32 cause);
 s32  _DisableIntc(s32 cause);
@@ -277,14 +320,18 @@ s32  _DisableDmac(s32 channel);
 
 //Alarm value is in H-SYNC ticks.
 s32  SetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common);
+s32  _SetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common);
 s32  ReleaseAlarm(s32 alarm_id);
+s32  _ReleaseAlarm(s32 alarm_id);
 
 s32  _iEnableIntc(s32 cause);
 s32  _iDisableIntc(s32 cause);
 s32  _iEnableDmac(s32 channel);
 s32  _iDisableDmac(s32 channel);
 s32  iSetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common);
+s32  _iSetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common);
 s32  iReleaseAlarm(s32 alarm_id);
+s32  _iReleaseAlarm(s32 alarm_id);
 s32	 CreateThread(ee_thread_t *thread);
 s32	 DeleteThread(s32 thread_id);
 s32	 StartThread(s32 thread_id, void *args);
@@ -297,19 +344,20 @@ s32  iTerminateThread(s32 thread_id);
 s32  ChangeThreadPriority(s32 thread_id, s32 priority);
 s32  iChangeThreadPriority(s32 thread_id, s32 priority);
 s32  RotateThreadReadyQueue(s32 priority);
-s32  iRotateThreadReadyQueue(s32 priority);
+s32  _iRotateThreadReadyQueue(s32 priority);
 s32  ReleaseWaitThread(s32 thread_id);
 s32  iReleaseWaitThread(s32 thread_id);
 s32	 GetThreadId(void);
+s32  _iGetThreadId(void);		//This is used for a hack by SCE, to work around the iWakeupThread design flaw
 s32  ReferThreadStatus(s32 thread_id, ee_thread_status_t *info);
 s32  iReferThreadStatus(s32 thread_id, ee_thread_status_t *info);
 s32  SleepThread(void);
 s32	 WakeupThread(s32 thread_id);
-s32	 iWakeupThread(s32 thread_id);
+s32	 _iWakeupThread(s32 thread_id);
 s32	 CancelWakeupThread(s32 thread_id);
 s32	 iCancelWakeupThread(s32 thread_id);
 s32	 SuspendThread(s32 thread_id);
-s32	 iSuspendThread(s32 thread_id);
+s32	 _iSuspendThread(s32 thread_id);
 s32	 ResumeThread(s32 thread_id);
 s32	 iResumeThread(s32 thread_id);
 
@@ -395,7 +443,7 @@ void iSifSetDChain(void);
 int  SifSetReg(u32 register_num, int register_value);
 int  SifGetReg(u32 register_num);
 
-void ExecOSD(int num_args, char *args[]);
+void _ExecOSD(int num_args, char *args[]) __attribute__((noreturn));
 s32  Deci2Call(s32 , u32 *);
 void PSMode(void);
 s32  MachineType(void);
@@ -425,9 +473,15 @@ void *GetSyscallHandler(int syscall_no);
 void *GetExceptionHandler(int except_no);
 void *GetInterruptHandler(int intr_no);
 
+/* Helper functions for kernel patching */
+int kCopy(void *dest, const void *src, int size);
+int kCopyBytes(void *dest, const void *src, int size);
+int Copy(void *dest, const void *src, int size);
+void setup(int syscall_num, void* handler);	//alias of "SetSyscall"
+void *GetEntryAddress(int syscall);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif	// _KERNEL_H
-
+#endif /* __KERNEL_H__ */

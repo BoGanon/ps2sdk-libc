@@ -6,10 +6,13 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# USB Driver function prototypes and constants.
 */
+
+/**
+ * @file
+ * USB Driver function prototypes and constants.
+ */
+
 #ifndef __MEM_H__
 #define __MEM_H__
 
@@ -23,15 +26,15 @@ void freeIsoTd(HcIsoTD *argTd);
 HcTD *allocTd(void);
 void freeTd(HcTD *argTd);
 
-Device *attachChildDevice(Device *parent, uint32 portNum);
+Device *attachChildDevice(Device *parent, u32 portNum);
 void freeDevice(Device *dev);
 
 Device *fetchPortElemByNumber(Device *hub, int port);
 
-void addToHcEndpointList(uint8 type, HcED *ed);
+void addToHcEndpointList(u8 type, HcED *ed);
 void removeHcEdFromList(int type, HcED *hcEd);
 
-Endpoint *allocEndpointForDevice(Device *dev, uint32 align);
+Endpoint *allocEndpointForDevice(Device *dev, u32 align);
 
 Device *fetchDeviceById(int devId);
 Endpoint *fetchEndpointById(int id);

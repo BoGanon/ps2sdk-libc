@@ -6,13 +6,15 @@
 # Copyright 2001-2005, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# POSIX declarations for time
 */
 
-#ifndef SYS_TIME_H
-#define SYS_TIME_H
+/**
+ * @file
+ * POSIX declarations for time
+ */
+
+#ifndef __SYS_TIME_H__
+#define __SYS_TIME_H__
 
 #ifndef __clock_t_defined
 typedef unsigned long long clock_t;
@@ -24,11 +26,14 @@ typedef unsigned long time_t;
 #define __time_t_defined
 #endif
 
+/* Quick fix for ee/network/tcpip compile error. */
+#ifndef __TCPIP_SRC__
 #if defined(_EE) || defined(_R5900)
 struct timeval {
 	time_t tv_sec;
 	time_t tv_usec;
 };
 #endif
+#endif
 
-#endif //SYS_TIME_H
+#endif /* __SYS_TIME_H__ */

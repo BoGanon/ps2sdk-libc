@@ -6,14 +6,13 @@
 # Copyright 2001-2009, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-#
-# IOPDEBUG - IOP debugging library.
-#
-# iop_exceptions.S - low-level IOP exception-handler code.
-#
 */
+
+/**
+ * @file
+ * IOPDEBUG - IOP debugging library.
+ * low-level IOP exception-handler code.
+ */
 
 #include <iop_cop0_defs.h>
 #include "iopdebug_defs.h"

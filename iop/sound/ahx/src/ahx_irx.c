@@ -6,12 +6,10 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
 */
 
 #include "irx_imports.h"
-#include "freesd.h"
+#include "libsd.h"
 #include "ahx.h"
 
 // if this is defined the irx will be compiled without PRINTF output
@@ -26,7 +24,7 @@
 #define SD_CORE_1			1
 #define SD_INIT_COLD		0
 
-char *spubuf = NULL; // buffer for storing data, SPU2 grabs it from here
+u8 *spubuf = NULL; // buffer for storing data, SPU2 grabs it from here
 char *pcmbuf = NULL; // ahx data is mixed to PCM straight into this buffer
 int transfer_sema = 0; // semaphore to indicate when a transfer has completed
 int play_tid = 0; // play_thread ID
@@ -78,13 +76,12 @@ void*      AHX_SetBoost(unsigned int* sbuff);
 void*      AHX_ToggleOversampling(unsigned int* sbuff);
 void*      AHX_Quit(unsigned int* sbuff);
 
-//***************************************************************
-//	AHX Entry Point
-//	-------------
-//		This function is called automatically when the IRX module
-//      is loaded. We simply set up the AHX Setup thread and
-//		exit...
-//***************************************************************
+/** AHX Entry Point
+ *
+ * 	This function is called automatically when the IRX module
+ *     is loaded. We simply set up the AHX Setup thread and
+ * 	exit...
+ */
 int _start ()
 {
   iop_thread_t param;
@@ -106,15 +103,14 @@ int _start ()
   }
 }
 
-//***************************************************************
-//	AHX Setup Thread
-//	-------------
-//		This inits the AHX output system (AHX->PCM decoder), sets
-//		up our semaphore so the SPU can flag when it wants more
-//		data. We also init the RPC server in here, as well as
-//		creating buffers for the SPU to transfer PCM data from
-//		and also a buffer to decode AHX to PCM.
-//***************************************************************
+/** AHX Setup Thread
+ *
+ * 	This inits the AHX output system (AHX->PCM decoder), sets
+ * 	up our semaphore so the SPU can flag when it wants more
+ * 	data. We also init the RPC server in here, as well as
+ * 	creating buffers for the SPU to transfer PCM data from
+ * 	and also a buffer to decode AHX to PCM.
+ */
 void AHX_Thread(void* param)
 {
 	// int i;
@@ -162,14 +158,13 @@ void AHX_Thread(void* param)
 	SifRpcLoop(&qd);
 }
 
-//***************************************************************
-//	Playing Thread
-//	--------------
-//		This code is called repeatedly, in here we mix our AHX
-//		data into PCM format and store it in a buffer. We then
-//		move it to another buffer so the SPU can grab it and
-//		play it.
-//***************************************************************
+/** Playing Thread
+ *
+ * 	This code is called repeatedly, in here we mix our AHX
+ * 	data into PCM format and store it in a buffer. We then
+ * 	move it to another buffer so the SPU can grab it and
+ * 	play it.
+ */
 void AHX_PlayThread(void* param)
 {
 	int i;
@@ -211,7 +206,7 @@ void AHX_PlayThread(void* param)
 		if (playing)
 		{
 			// get SPU transfer status to determine which area of SPU buffer to write PCM data to
-			chunk = 1 - (SdBlockTransStatus(1, 0 )>>24);
+			chunk = 1 - (sceSdBlockTransStatus(1, 0 )>>24);
 
 			wmemcpy(spubuf+(1024*chunk),pcmbuf+readpos,512);		// left channel
 			wmemcpy(spubuf+(1024*chunk)+512,pcmbuf+readpos,512);	// right channel (same cos we're mono)
@@ -237,11 +232,10 @@ void AHX_PlayThread(void* param)
 	}
 }
 
-//***************************************************************
-//	AHX Callback
-//	--------
-//		Called by SPU2 when it wants more sound data
-//***************************************************************
+/** AHX Callback
+ *
+ * 	Called by SPU2 when it wants more sound data
+ */
 static int AHX_TransCallback(void* param)
 {
 	// signal our semaphore to indicate that SPU2 has finished
@@ -251,23 +245,21 @@ static int AHX_TransCallback(void* param)
 	return 1;
 }
 
-//***************************************************************
-//	AHX Set Volume
-//	--------
-//		Sets the output SPU volume for both channels (left/right)
-//***************************************************************
+/** AHX Set Volume
+ *
+ * 	Sets the output SPU volume for both channels (left/right)
+ */
 
 void AHX_SetVol(u16 vol)
 {
-	SdSetParam(SD_CORE_1|SD_PARAM_BVOLL,vol);
-	SdSetParam(SD_CORE_1|SD_PARAM_BVOLR,vol);
+	sceSdSetParam(SD_CORE_1|SD_PARAM_BVOLL,vol);
+	sceSdSetParam(SD_CORE_1|SD_PARAM_BVOLR,vol);
 }
 
-//***************************************************************
-//	AHX Reset Play Thread
-//	---------------------
-//		Resets the play thread properties
-//***************************************************************
+/** AHX Reset Play Thread
+ *
+ * 	Resets the play thread properties
+ */
 void AHX_ResetPlayThread()
 {
 	int i;
@@ -282,11 +274,10 @@ void AHX_ResetPlayThread()
 	readpos = 0;
 }
 
-//***************************************************************
-//	AHX Clear Sound Buffers
-//	---------------------
-//		Clears the pcm and spu buffers
-//***************************************************************
+/** AHX Clear Sound Buffers
+ *
+ * 	Clears the pcm and spu buffers
+ */
 void AHX_ClearSoundBuffers()
 {
 	// clear sound buffer
@@ -294,13 +285,12 @@ void AHX_ClearSoundBuffers()
 	memset(pcmbuf, 0, 0xF00*8);
 }
 
-//***************************************************************
-//	AHX RPC Server
-//	-------------
-//		This catches messages sent across from the EE interface
-//		and calls the appropriate function (according to the
-//      function code 'funcno'.
-//***************************************************************
+/** AHX RPC Server
+ *
+ * 	This catches messages sent across from the EE interface
+ * 	and calls the appropriate function (according to the
+ *     function code 'funcno'.
+ */
 void* AHX_rpc_server(unsigned int funcno, void *data, int size)
 {
 	switch(funcno) {
@@ -326,12 +316,11 @@ void* AHX_rpc_server(unsigned int funcno, void *data, int size)
 	return NULL;
 }
 
-//***************************************************************
-//	AHX Main Init
-//	-------------
-//		Called via RPC interface. This inits the player, SPU and
-//		sets up the playing thread.
-//***************************************************************
+/** AHX Main Init
+ *
+ * 	Called via RPC interface. This inits the player, SPU and
+ * 	sets up the playing thread.
+ */
 void* AHX_Init(unsigned int* sbuff)
 {
 	iop_thread_t play_thread; // play thread
@@ -344,17 +333,17 @@ void* AHX_Init(unsigned int* sbuff)
 	#endif
 
 	// Initialise SPU
-	SdInit(SD_INIT_COLD);
+	sceSdInit(SD_INIT_COLD);
 
 	// set left and right channel volumes
-	SdSetParam(SD_CORE_1|SD_PARAM_MVOLL,0x3fff);
-	SdSetParam(SD_CORE_1|SD_PARAM_MVOLR,0x3fff);
+	sceSdSetParam(SD_CORE_1|SD_PARAM_MVOLL,0x3fff);
+	sceSdSetParam(SD_CORE_1|SD_PARAM_MVOLR,0x3fff);
 
 	// Start audio streaming
-	SdBlockTrans(1,SD_BLOCK_TRANS_LOOP,spubuf, 0x800, 0);
+	sceSdBlockTrans(1,SD_TRANS_LOOP,spubuf, 0x800, 0);
 
 	// set SPU2 callback function pointer
-	SdSetTransCallback(1, (void *)AHX_TransCallback);
+	sceSdSetTransCallback(1, (void *)AHX_TransCallback);
 
 	// Start playing thread
 	play_thread.attr         = TH_C;
@@ -380,11 +369,10 @@ void* AHX_Init(unsigned int* sbuff)
 	return sbuff;
 }
 
-//***************************************************************
-//	AHX Load Song
-//	-------------
-//		Loads a song via RPC
-//***************************************************************
+/** AHX Load Song
+ *
+ * 	Loads a song via RPC
+ */
 void* AHX_LoadSong(unsigned int* sbuff)
 {
 	// if we're playing, stop
@@ -420,11 +408,10 @@ void* AHX_LoadSong(unsigned int* sbuff)
 	return sbuff; // return number of subsongs
 }
 
-//***************************************************************
-//	AHX Play
-//	-------------
-//		Plays the currently loaded/paused song
-//***************************************************************
+/** AHX Play
+ *
+ * 	Plays the currently loaded/paused song
+ */
 void* AHX_Play(unsigned int* sbuff)
 {
 	AHX_SetVol(SPU2_Volume);
@@ -432,11 +419,10 @@ void* AHX_Play(unsigned int* sbuff)
 	return sbuff;
 }
 
-//***************************************************************
-//	AHX Pause
-//	-------------
-//		Pauses the currently playing song
-//***************************************************************
+/** AHX Pause
+ *
+ * 	Pauses the currently playing song
+ */
 void* AHX_Pause(unsigned int* sbuff)
 {
 	AHX_SetVol(0);
@@ -444,11 +430,10 @@ void* AHX_Pause(unsigned int* sbuff)
 	return sbuff;
 }
 
-//***************************************************************
-//	AHX Set Volume
-//	-------------
-//		Sets SPU2 Volume to %
-//***************************************************************
+/** AHX Set Volume
+ *
+ * 	Sets SPU2 Volume to %
+ */
 void* AHX_SetVolume(unsigned int* sbuff)
 {
 	SPU2_Volume = (u16)(0x3fff*(u16)sbuff[1])/100;
@@ -456,13 +441,12 @@ void* AHX_SetVolume(unsigned int* sbuff)
 	return sbuff;
 }
 
-//***************************************************************
-//	AHX Set Boost
-//	-------------
-//		Sets the AHX Output Boost value. Each increment increases
-//		output volume by 100%. Large numbers can cause
-//		distortion. It's advisable not to boost above 1 or 2.
-//***************************************************************
+/** AHX Set Boost
+ *
+ * 	Sets the AHX Output Boost value. Each increment increases
+ * 	output volume by 100%. Large numbers can cause
+ * 	distortion. It's advisable not to boost above 1 or 2.
+ */
 void* AHX_SetBoost(unsigned int* sbuff)
 {
 	boost_val = (int)sbuff[0];
@@ -470,13 +454,12 @@ void* AHX_SetBoost(unsigned int* sbuff)
 	return sbuff;
 }
 
-//***************************************************************
-//	AHX Set Oversample
-//	-------------
-//		Enables oversampling. This gives a smoother sound but
-//		requires more CPU power. It can result in slowdown of
-//		playback with certain songs or produce an awful din...
-//***************************************************************
+/** AHX Set Oversample
+ *
+ * 	Enables oversampling. This gives a smoother sound but
+ * 	requires more CPU power. It can result in slowdown of
+ * 	playback with certain songs or produce an awful din...
+ */
 void* AHX_ToggleOversampling(unsigned int* sbuff)
 {
 	oversample_enabled = oversample_enabled ? 0 : 1;
@@ -484,28 +467,26 @@ void* AHX_ToggleOversampling(unsigned int* sbuff)
 	return sbuff;
 }
 
-//***************************************************************
-//	AHX Play Subsong
-//	-------------
-//		Plays the requested subsong. Number of subsongs is
-//		returned by LoadSong(). A lot of AHX files report the
-//		wrong number of subsongs - please check your AHX files...
-//***************************************************************
+/** AHX Play Subsong
+ *
+ * 	Plays the requested subsong. Number of subsongs is
+ * 	returned by LoadSong(). A lot of AHX files report the
+ * 	wrong number of subsongs - please check your AHX files...
+ */
 void* AHX_SubSong(unsigned int* sbuff)
 {
 	AHXPlayer_InitSubsong((int)sbuff[0]);
 	return sbuff;
 }
 
-//***************************************************************
-//	AHX Quit
-//	-------------
-//		 Cleans up and quits
-//***************************************************************
+/** AHX Quit
+ *
+ * 	 Cleans up and quits
+ */
 void* AHX_Quit(unsigned int* sbuff)
 {
-	SdSetTransCallback(1,NULL);
-	SdBlockTrans(1,SD_BLOCK_TRANS_STOP,0,0,0);
+	sceSdSetTransCallback(1,NULL);
+	sceSdBlockTrans(1,SD_TRANS_STOP,0,0,0);
 
 	TerminateThread(play_tid);
 	DeleteThread(play_tid);

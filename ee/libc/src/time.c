@@ -6,13 +6,16 @@
 # Copyright 2001-2005, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Standard libc time functions
 */
+
+/**
+ * @file
+ * Standard libc time functions
+ */
 
 #include <errno.h>
 #include <sys/times.h>
+
 #include <time.h>
 #include <kernel.h>
 #include <timer.h>
@@ -41,6 +44,7 @@ static int intrOverflow(int ca)
    // ---------------------------------------------------------
    *T_MODE |= (1 << 11);
 
+   ExitHandler();
    return -1;
 }
 
@@ -108,7 +112,7 @@ clock_t times(struct tms *buf)
 #endif
 
 #ifdef F_mktime
-static unsigned char month_days[12] = 
+static unsigned char month_days[12] =
 {
   31,28,31,30,31,30,31,31,30,31,30,31
 };
@@ -179,7 +183,7 @@ time_t mktime(struct tm *t)
   while (temp_tm.tm_mday <= 0) {
     temp_tm.tm_year -= 1;
     temp_tm.tm_mday += DAYS_PER_YEAR;
-  
+
     if (is_leapyear(temp_tm.tm_year + EPOCH_BASE))
       temp_tm.tm_mday += LEAPDAY;
   }
@@ -189,7 +193,7 @@ time_t mktime(struct tm *t)
 
   /* Now to figure out days > month_days[tm_mon]. */
   while (1) {
-    if (is_leapyear(temp_tm.tm_year + EPOCH_BASE)) 
+    if (is_leapyear(temp_tm.tm_year + EPOCH_BASE))
       month_days[1] = 28 + LEAPDAY;
     else
       month_days[1] = 28;

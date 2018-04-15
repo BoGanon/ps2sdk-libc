@@ -6,13 +6,15 @@
 # Copyright 2001-2005, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Struct and function declarations for dealing with time
 */
 
-#ifndef _TIME_H
-#define _TIME_H
+/**
+ * @file
+ * Struct and function declarations for dealing with time
+ */
+
+#ifndef __TIME_H__
+#define __TIME_H__
 
 #include <stddef.h>
 #include <sys/time.h>
@@ -52,4 +54,4 @@ size_t strftime(char *s, size_t max, const char *format, const struct tm *tm);
 }
 #endif
 
-#endif  // TIME_H
+#endif /* __TIME_H__ */

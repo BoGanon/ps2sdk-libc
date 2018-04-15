@@ -6,10 +6,12 @@
 # (c) 2003 Marcus R. Brown (mrbrown@0xd6.org)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# EE kernel glue and utility routines.
 */
+
+/**
+ * @file
+ * EE kernel glue and utility routines.
+ */
 
 #include "kernel.h"
 
@@ -134,6 +136,48 @@ int DisableDmac(int dmac)
 }
 #endif
 
+#ifdef F_SetAlarm
+int SetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common)
+{
+	int eie, res;
+
+	asm volatile ("mfc0\t%0, $12" : "=r" (eie));
+	eie &= 0x10000;
+
+	if (eie)
+		DI();
+
+	res = _SetAlarm(time, callback, common);
+	EE_SYNC();
+
+	if (eie)
+		EI();
+
+	return res;
+}
+#endif
+
+#ifdef F_ReleaseAlarm
+int ReleaseAlarm(int alarm_id)
+{
+	int eie, res;
+
+	asm volatile ("mfc0\t%0, $12" : "=r" (eie));
+	eie &= 0x10000;
+
+	if (eie)
+		DI();
+
+	res = _ReleaseAlarm(alarm_id);
+	EE_SYNC();
+
+	if (eie)
+		EI();
+
+	return res;
+}
+#endif
+
 #ifdef F_iEnableIntc
 int iEnableIntc(int intc)
 {
@@ -168,6 +212,26 @@ int iEnableDmac(int dmac)
 int iDisableDmac(int dmac)
 {
 	int res = _iDisableDmac(dmac);
+	EE_SYNC();
+
+	return res;
+}
+#endif
+
+#ifdef F_iSetAlarm
+int iSetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common)
+{
+	int res = _iSetAlarm(time, callback, common);
+	EE_SYNC();
+
+	return res;
+}
+#endif
+
+#ifdef F_iReleaseAlarm
+int iReleaseAlarm(int alarm_id)
+{
+	int res = _iReleaseAlarm(alarm_id);
 	EE_SYNC();
 
 	return res;

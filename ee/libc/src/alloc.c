@@ -6,10 +6,12 @@
 # (c) 2003 Marcus R. Brown (mrbrown@0xd6.org)
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Standard C library heap allocation routines.
 */
+
+/**
+ * @file
+ * Standard C library heap allocation routines.
+ */
 
 /* This code is based on code contributed by Philip Joaqiun (jenova0). */
 
@@ -21,7 +23,7 @@
 #include <stdio.h>
 #endif
 
-/* Use this to set the default malloc() alignment. */
+/** Use this to set the default malloc() alignment. */
 #define DEFAULT_ALIGNMENT	16
 
 #ifndef ALIGN
@@ -92,7 +94,7 @@ void * __alloc_heap_base = NULL;
 heap_mem_header_t *__alloc_heap_head = NULL;
 heap_mem_header_t *__alloc_heap_tail = NULL;
 
-/* Find a the lowest block that we can allocate AFTER, returning NULL if there
+/** Find a the lowest block that we can allocate AFTER, returning NULL if there
    are none.  */
 heap_mem_header_t * _heap_mem_fit(heap_mem_header_t *head, size_t size)
 {
@@ -132,7 +134,7 @@ void * malloc(size_t size)
 	if (__alloc_heap_head == NULL) {
 		/* Align the bottom of the heap to our default alignment.  */
 		if (__alloc_heap_base == NULL) {
-			heap_align_bytes = (u32)ps2_sbrk(0) & (DEFAULT_ALIGNMENT - 1);
+			heap_align_bytes = DEFAULT_ALIGNMENT - ((u32)ps2_sbrk(0) & (DEFAULT_ALIGNMENT - 1));
 			ps2_sbrk(heap_align_bytes);
 			__alloc_heap_base = ps2_sbrk(0);
 		}
@@ -224,8 +226,7 @@ void * malloc(size_t size)
 #endif
 
 #ifdef F_realloc
-__attribute__((weak))
-void * realloc(void *ptr, size_t size)
+static void * do_realloc(void *ptr, size_t size, size_t align )
 {
 	heap_mem_header_t *prev_mem;
 	void *new_ptr = NULL;
@@ -236,10 +237,10 @@ void * realloc(void *ptr, size_t size)
 	}
 
 	if (ptr == NULL)
-		return malloc(size);
+		return memalign(align, size);
 
-	if ((size & (DEFAULT_ALIGNMENT - 1)) != 0)
-		size = ALIGN(size, DEFAULT_ALIGNMENT);
+	if ((size & (align - 1)) != 0)
+		size = ALIGN(size, align);
 
 	_ps2sdk_alloc_lock();
 	prev_mem = (heap_mem_header_t *)((u32)ptr - sizeof(heap_mem_header_t));
@@ -290,7 +291,7 @@ void * realloc(void *ptr, size_t size)
 	_ps2sdk_alloc_unlock();
 
 	/* We got out of luck, let's allocate a new block of memory. */
-	if ((new_ptr = malloc(size)) == NULL)
+	if ((new_ptr = memalign(align, size)) == NULL)
 		return new_ptr;
 
         /* New block is larger, we only copy the old data. */
@@ -298,6 +299,18 @@ void * realloc(void *ptr, size_t size)
 
 	free(ptr);
 	return new_ptr;
+}
+
+__attribute__((weak))
+void *realloc(void *ptr, size_t size)
+{
+	return do_realloc(ptr, size, DEFAULT_ALIGNMENT);
+}
+
+__attribute__((weak))
+void *realloc64(void *ptr, size_t size)
+{
+	return do_realloc(ptr, size, 64);
 }
 #endif
 
@@ -311,6 +324,7 @@ void * calloc(size_t n, size_t size)
 	if ((ptr = malloc(sz)) == NULL)
 		return ptr;
 
+	asm ("":"+r"(ptr));	//SP193: FIXME: temporary workaround for the GCC calloc optimization bug (results in recursive call to calloc)
 	memset(ptr, 0, sz);
 	return ptr;
 }

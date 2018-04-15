@@ -6,10 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# Standard ANSI string functions to complement the ASM funcs
 */
+
+/**
+ * @file
+ * Standard ANSI string functions to complement the ASM funcs
+ */
 
 #include <limits.h>
 #include <string.h>
@@ -25,7 +27,7 @@ int strcoll(const char *s1, const char *s2)
 #ifdef F_strxfrm
 size_t strxfrm(char *dest, const char *src, size_t n)
 {
-	strncpy(dest, src, n); 
+	strncpy(dest, src, n);
 	return n;
 }
 #endif

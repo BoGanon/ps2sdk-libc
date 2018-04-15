@@ -6,16 +6,19 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
 */
 
-#ifndef _LIBHDD_H
-#define _LIBHDD_H
+/**
+ * @file
+ * HDD library functions
+ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef __LIBHDD_H__
+#define __LIBHDD_H__
+
+#include <tamtypes.h>
+#include <hdd-ioctl.h>
+#include <libpwroff.h>
 
 #define PFS_MT_ROBUST			0x02
 
@@ -33,23 +36,33 @@ extern "C" {
 #define ATTR_MAIN_PARTITION		0x0000
 #define ATTR_SUB_PARTITION		0x0001
 
-#include <hdd-ioctl.h>
-#include <tamtypes.h>
-
 typedef struct {
-	char name[32];			// Filesystem name
-	char filename[40];		// Filename which can be used with fXioMount
-	u32 size;				// Total filesystem size, in mega-bytes
-	int formatted;			// 1 if filesystem is formatted, 0 otherwise
-	u32 freeSpace;			// Reported free space, in mega-bytes
-	int fileSystemGroup;	// Filesystem group (either system, common or application)
+	/** Filesystem name */
+	char name[32];
+	/** Filename which can be used with fXioMount */
+	char filename[40];
+	/** Total filesystem size, in mega-bytes */
+	u32 size;
+	/** 1 if filesystem is formatted, 0 otherwise */
+	int formatted;
+	/** Reported free space, in mega-bytes */
+	u32 freeSpace;
+	/** Filesystem group (either system, common or application) */
+	int fileSystemGroup;
 } t_hddFilesystem;
 
 typedef struct {
-	u32 hddSize;			// Total size of the HDD in mega-bytes
-	u32 hddFree;			// Free space on the HDD in mega-bytes
-	u32 hddMaxPartitionSize;// The maximum size allowed for a single partition, in mega-bytes
+	/** Total size of the HDD in mega-bytes */
+	u32 hddSize;
+	/** Free space on the HDD in mega-bytes */
+	u32 hddFree;
+	/** The maximum size allowed for a single partition, in mega-bytes */
+	u32 hddMaxPartitionSize;
 } t_hddInfo;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int hddCheckPresent();
 int hddCheckFormatted();
@@ -60,15 +73,15 @@ int hddMakeFilesystem(int fsSizeMB, char *name, int type);
 int hddRemoveFilesystem(t_hddFilesystem *fs);
 int hddExpandFilesystem(t_hddFilesystem *fs, int extraMB);
 
-// These hdd* functions are deprecated
-// Use the poweroff* version instead
-#include "libpwroff.h"
-#define hddPreparePoweroff poweroffInit
-#define hddSetUserPoweroffCallback poweroffSetCallback
-#define hddPowerOff poweroffShutdown
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _LIBHDD_H */
+// These hdd* functions are deprecated
+// Use the poweroff* version instead
+
+#define hddPreparePoweroff poweroffInit
+#define hddSetUserPoweroffCallback poweroffSetCallback
+#define hddPowerOff poweroffShutdown
+
+#endif /* __LIBHDD_H__ */

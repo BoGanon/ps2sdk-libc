@@ -6,15 +6,17 @@
 # Copyright (c) 2003 Marcus R. Brown <mrbrown@0xd6.org>
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# $Id$
-# IOPkit standard definitions.
 */
 
-#ifndef IOP_DEFS_H
-#define IOP_DEFS_H
+/**
+ * @file
+ * IOPkit standard definitions.
+ */
 
-#include "types.h"
+#ifndef __DEFS_H__
+#define __DEFS_H__
+
+#include <types.h>
 
 #ifndef NULL
 #define NULL	((void *)0)
@@ -36,4 +38,4 @@ static inline void *iop_memcpy(void *dest, const void *src, int size)
 	return dest;
 }
 
-#endif /* IOP_DEFS_H */
+#endif /* __DEFS_H__ */

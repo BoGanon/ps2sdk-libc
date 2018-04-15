@@ -1,2 +1,0 @@
-void InitKernel(void);
-

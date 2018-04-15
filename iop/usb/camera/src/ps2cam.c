@@ -2,10 +2,12 @@
 - PSX2 OpenSource Project												-
 - (C)2004 lion[PS2Dev]													-
 - (C)2004 PS2Dev.org													-
--------------------------------------------------------------------------
-ps2cam.c:				PS2 Camera driver irx
+-----------------------------------------------------------------------*/
 
-*/
+/**
+ * @file
+ * PS2Camera driver irx
+ */
 
 //(1) Please keep this file neat.
 //(2) This irx must always be backwords compatible.
@@ -39,7 +41,7 @@ static SifRpcServerData_t	rpc_server			__attribute((aligned(64)));
 static int					_rpc_buffer[1024]	__attribute((aligned(64)));
 //static int					threadId;
 static int					maintain_thread;
-UsbDriver					cam_driver = {NULL,
+sceUsbdLddOps					cam_driver = {NULL,
 											 NULL,
 											 "ps2cam",
 											   PS2CamProbe,
@@ -65,9 +67,6 @@ int _start( int argc, char **argv)
 	iop_thread_t	param;
 	int				th;
 
-
-	FlushDcache();
-
 	PS2CamInitDriver();
 
 
@@ -83,12 +82,12 @@ int _start( int argc, char **argv)
 
 	if (th > 0)
 	{
-		StartThread(th,0);
-		return 0;
+		StartThread(th,NULL);
+		return MODULE_RESIDENT_END;
 	}
 	else
 	{
-		return 1;
+		return MODULE_NO_RESIDENT_END;
 	}
 }
 
@@ -99,14 +98,10 @@ int _start( int argc, char **argv)
 
 
 
-/*---------------------------------------*/
-/*-	Regester This driver with usbd.irx	-*/
-/*-	and ......							-*/
-/*---------------------------------------*/
+/** Register This driver with usbd.irx */
 int PS2CamInitDriver(void)
 {
 	int				i;
-	int				ret;
 	iop_sema_t		sema;
 
 	printf("PS2 USB Camera Driver v.%d.%d  ((C) www.ps2dev.org)\n",DRIVER_VERSON_MAJOR,DRIVER_VERSON_MINOR);
@@ -131,18 +126,13 @@ int PS2CamInitDriver(void)
 
 
 	//connect to usb.irx
-
-	ret = UsbRegisterDriver(&cam_driver);
-
-	return 0;
+	return sceUsbdRegisterLdd(&cam_driver);
 }
 
 
 
 
-/*---------------------------------------*/
-/*-	check if the device is pluged in	-*/
-/*---------------------------------------*/
+/** check if the device is pluged in */
 int PS2CamProbe(int devId)
 {
 	static short			count;
@@ -152,8 +142,8 @@ int PS2CamProbe(int devId)
 	UsbInterfaceDescriptor	*intf;
 
 
-	dev  = UsbGetDeviceStaticDescriptor(devId, NULL, USB_DT_DEVICE);
-	conf = UsbGetDeviceStaticDescriptor(devId, dev,  USB_DT_CONFIG);
+	dev  = sceUsbdScanStaticDescriptor(devId, NULL, USB_DT_DEVICE);
+	conf = sceUsbdScanStaticDescriptor(devId, dev,  USB_DT_CONFIG);
 	intf = (UsbInterfaceDescriptor  *) ((char *) conf + conf->bLength);
 
 
@@ -212,16 +202,12 @@ int PS2CamProbe(int devId)
 
 
 
-/*---------------------------------------*/
-/*-	this is executed when a compatible	-*/
-/*-	camera is detected					-*/
-/*---------------------------------------*/
+/** this is executed when a compatible camera is detected */
 int PS2CamConnect(int devId)
 {
 
 	int						i;
 	UsbDeviceDescriptor		*dev;
-	UsbConfigDescriptor		*conf;
 
 	UsbInterfaceDescriptor	*intf0,*intf1;
 	UsbEndpointDescriptor   *endp1;
@@ -233,11 +219,10 @@ int PS2CamConnect(int devId)
 
 
 
-	dev   = UsbGetDeviceStaticDescriptor(devId, NULL, USB_DT_DEVICE);
-	conf  = UsbGetDeviceStaticDescriptor(devId, dev,  USB_DT_CONFIG);
+	dev   = sceUsbdScanStaticDescriptor(devId, NULL, USB_DT_DEVICE);
 
-	intf0 = UsbGetDeviceStaticDescriptor(devId, dev,  USB_DT_INTERFACE);
-	intf1 = UsbGetDeviceStaticDescriptor(devId, intf0,  USB_DT_INTERFACE);
+	intf0 = sceUsbdScanStaticDescriptor(devId, dev,  USB_DT_INTERFACE);
+	intf1 = sceUsbdScanStaticDescriptor(devId, intf0,  USB_DT_INTERFACE);
 
 	endp1= (UsbEndpointDescriptor  *) ((char *) intf1 + intf1->bLength);
 
@@ -260,8 +245,8 @@ int PS2CamConnect(int devId)
 
 	cam->device_id			= devId;
 
-	cam->controll			= UsbOpenEndpoint(devId, NULL);
-	cam->stream				= UsbOpenEndpoint(devId, endp1);
+	cam->controll			= sceUsbdOpenPipe(devId, NULL);
+	cam->stream				= sceUsbdOpenPipe(devId, endp1);
 	cam->stream_pocket_size	= (endp1->wMaxPacketSizeHB * 256 + endp1->wMaxPacketSizeLB);
 
 
@@ -297,10 +282,7 @@ int PS2CamConnect(int devId)
 
 
 
-/*---------------------------------------*/
-/*-	this is executed when a compatible	-*/
-/*-	camera is unplugged					-*/
-/*---------------------------------------*/
+/** this is executed when a compatible camera is unplugged */
 int PS2CamDisconnect(int devId)
 {
 	int						i;
@@ -336,8 +318,8 @@ int PS2CamDisconnect(int devId)
 
 
 	// close endpoints
-	UsbCloseEndpoint(cam->controll);
-	UsbCloseEndpoint(cam->stream  );
+	sceUsbdClosePipe(cam->controll);
+	sceUsbdClosePipe(cam->stream  );
 
 	cam->status	= CAM_STATUS_NOTCONNECTED;
 
@@ -363,12 +345,7 @@ int PS2CamDisconnect(int devId)
 
 
 
-/*=======================================*/
-/*=	SIF RPC SERVER FUNTIONS				=*/
-/*=										=*/
-/*=										=*/
-/*=										=*/
-/*=======================================*/
+/* SIF RPC SERVER FUNCTIONS */
 
 
 void rpcMainThread(void* param)
@@ -383,19 +360,12 @@ void rpcMainThread(void* param)
 	sceSifRpcLoop(&rpc_queue);
 }
 
-/*=======================================*/
-/*=	CAMERA HIGH LEVEL FUNTIONS			=*/
-/*=										=*/
-/*=										=*/
-/*=										=*/
-/*=======================================*/
+/* CAMERA HIGH LEVEL FUNCTIONS */
 
 
 
 
-/*---------------------------------------*/
-/*- called after a camera is accepted	-*/
-/*---------------------------------------*/
+/** called after a camera is accepted */
 void PS2CamInitializeNewDevice(CAMERA_DEVICE *cam)
 {
 	unsigned char			*temp_str;
@@ -423,7 +393,7 @@ void PS2CamInitializeNewDevice(CAMERA_DEVICE *cam)
 
 
 	// connected message (alloc som mem and get device string then print it and free the mem we alloced)
-	d   = UsbGetDeviceStaticDescriptor(cam->device_id, NULL, USB_DT_DEVICE);
+	d   = sceUsbdScanStaticDescriptor(cam->device_id, NULL, USB_DT_DEVICE);
 	temp_str = AllocSysMemory(0, 128, 0);
 	temp_str[0]=0x00;
 	PS2CamGetDeviceSring(cam, d->iProduct,      (char *)temp_str, 128);
@@ -442,9 +412,7 @@ void PS2CamInitializeNewDevice(CAMERA_DEVICE *cam)
 
 
 
-/*-----------------------------------------------*/
-/*-	select the configuration for the device		-*/
-/*-----------------------------------------------*/
+/** select the configuration for the device */
 void PS2CamSetDeviceConfiguration(CAMERA_DEVICE *dev,int id)
 {
 	int				ret;
@@ -452,7 +420,7 @@ void PS2CamSetDeviceConfiguration(CAMERA_DEVICE *dev,int id)
 
 	WaitSema(ps2cam_sema);
 
-	ret = UsbSetDeviceConfiguration(dev->controll, id, PS2CamCallback, (void*)ps2cam_sema);
+	ret = sceUsbdSetConfiguration(dev->controll, id, PS2CamCallback, (void*)ps2cam_sema);
 
 	if(ret != USB_RC_OK)
 	{
@@ -468,9 +436,7 @@ void PS2CamSetDeviceConfiguration(CAMERA_DEVICE *dev,int id)
 
 
 
-/*---------------------------------------*/
-/*- set the defaults for the camera		-*/
-/*---------------------------------------*/
+/** set the defaults for the camera */
 void PS2CamSetDeviceDefaults(CAMERA_DEVICE *dev)
 {
 	//int i;
@@ -584,24 +550,12 @@ void PS2CamSetDeviceDefaults(CAMERA_DEVICE *dev)
 
 
 
-/*=======================================*/
-/*=	CAMERA LOW LEVEL FUNTIONS			=*/
-/*=										=*/
-/*=										=*/
-/*=										=*/
-/*=======================================*/
+/* CAMERA LOW LEVEL FUNCTIONS */
 
 
-/*-----------------------------------------------*/
-/*-	call back for most lowlevel usb funtions	-*/
-/*-----------------------------------------------*/
+/** call back for most lowlevel usb funtions */
 void PS2CamCallback(int resultCode, int bytes, void *arg)
 {
-	//unsigned char	*val;
-	int				semh;
-
-	semh = (int)arg;
-
 	if(resultCode !=0)
 		printf("callback: result= %d, bytes= %d, arg= %p \n", resultCode, bytes, arg);
 
@@ -609,20 +563,18 @@ void PS2CamCallback(int resultCode, int bytes, void *arg)
 }
 
 
-/*-------------------------------------------*/
-/*- Set the value in a  8bit register		-*/
-/*-------------------------------------------*/
+/** Set the value in a  8bit register */
 int setReg8(CAMERA_DEVICE *dev, unsigned char reg_id, unsigned char value)
 {
 	int						ret;
 
 	WaitSema(ps2cam_sema);
 
-	ret = UsbControlTransfer(dev->controll, USB_TYPE_VENDOR | USB_RECIP_DEVICE, 1, 0, (unsigned short)reg_id, 1, &value, PS2CamCallback, (void*)ps2cam_sema);
+	ret = sceUsbdControlTransfer(dev->controll, USB_TYPE_VENDOR | USB_RECIP_DEVICE, 1, 0, (unsigned short)reg_id, 1, &value, PS2CamCallback, (void*)ps2cam_sema);
 
 	if(ret != USB_RC_OK)
 	{
-		printf("UsbControlTransfer failed in 'setReg8'.\n");
+		printf("sceUsbdControlTransfer failed in 'setReg8'.\n");
 		ret = -1;
 	}
 	else
@@ -637,20 +589,18 @@ int setReg8(CAMERA_DEVICE *dev, unsigned char reg_id, unsigned char value)
 
 
 
-/*---------------------------------------------------------*/
-/*- Read the camera's 8bit register  and return the value -*/
-/*---------------------------------------------------------*/
+/** Read the camera's 8bit register  and return the value */
 int getReg8(CAMERA_DEVICE *dev, unsigned char reg_id, unsigned char *value)
 {
 	int					ret;
 
 	WaitSema(ps2cam_sema);
 
-	ret = UsbControlTransfer(dev->controll,USB_DIR_IN|USB_TYPE_VENDOR | USB_RECIP_DEVICE, 1, 0,(unsigned short)reg_id, 1, value, PS2CamCallback, (void*)ps2cam_sema);
+	ret = sceUsbdControlTransfer(dev->controll,USB_DIR_IN|USB_TYPE_VENDOR | USB_RECIP_DEVICE, 1, 0,(unsigned short)reg_id, 1, value, PS2CamCallback, (void*)ps2cam_sema);
 
 	if(ret != USB_RC_OK)
 	{
-		printf("UsbControlTransfer failed in 'getRegValue'.\n");
+		printf("sceUsbdControlTransfer failed in 'getRegValue'.\n");
 		ret = -1;
 	}
 	else
@@ -666,9 +616,7 @@ int getReg8(CAMERA_DEVICE *dev, unsigned char reg_id, unsigned char *value)
 
 
 
-/*---------------------------------------------------*/
-/*- Set the value in a 8bit register using a mask	-*/
-/*---------------------------------------------------*/
+/** Set the value in a 8bit register using a mask */
 int setReg8Mask(CAMERA_DEVICE *dev,unsigned char reg_id, unsigned char value, unsigned char mask)
 {
 	int				ret;
@@ -686,20 +634,13 @@ int setReg8Mask(CAMERA_DEVICE *dev,unsigned char reg_id, unsigned char value, un
 	return ret;
 }
 
-
-
-
-
-/*-----------------------------------------------*/
-/*- 	-*/
-/*-----------------------------------------------*/
 int setReg16(CAMERA_DEVICE *dev, unsigned char reg_id, unsigned short value)
 {
 	int			ret;
 
 	WaitSema(ps2cam_sema);
 
-	ret = UsbControlTransfer(dev->controll,USB_TYPE_VENDOR | USB_RECIP_DEVICE, 1, 0, (unsigned short)reg_id, 2, &value, PS2CamCallback, (void*)ps2cam_sema);
+	ret = sceUsbdControlTransfer(dev->controll,USB_TYPE_VENDOR | USB_RECIP_DEVICE, 1, 0, (unsigned short)reg_id, 2, &value, PS2CamCallback, (void*)ps2cam_sema);
 
 
 	if(ret != USB_RC_OK)
@@ -716,9 +657,7 @@ int setReg16(CAMERA_DEVICE *dev, unsigned char reg_id, unsigned short value)
 
 
 
-/*-----------------------------------------------*/
-/*- Get a string descriptor from device			-*/
-/*-----------------------------------------------*/
+/** Get a string descriptor from device */
 void PS2CamGetDeviceSring(CAMERA_DEVICE* dev, int index, char *str, int strmax)
 {
 	int				i;
@@ -730,7 +669,7 @@ void PS2CamGetDeviceSring(CAMERA_DEVICE* dev, int index, char *str, int strmax)
 	WaitSema(ps2cam_sema);
 
 
-	ret = UsbControlTransfer(dev->controll, 0x80, USB_REQ_GET_DESCRIPTOR, (USB_DT_STRING << 8) | index, 0, sizeof(buff), (char *)&buff[0], PS2CamCallback, (void*)ps2cam_sema);
+	ret = sceUsbdControlTransfer(dev->controll, 0x80, USB_REQ_GET_DESCRIPTOR, (USB_DT_STRING << 8) | index, 0, sizeof(buff), (char *)&buff[0], PS2CamCallback, (void*)ps2cam_sema);
 
 	if(ret != USB_RC_OK)
 	{
@@ -756,9 +695,7 @@ void PS2CamGetDeviceSring(CAMERA_DEVICE* dev, int index, char *str, int strmax)
 
 
 
-/*-------------------------------------------------------*/
-/*- Select the interface and alternet settting to use	-*/
-/*-------------------------------------------------------*/
+/** Select the interface and alternet settting to use */
 int PS2CamSelectInterface(CAMERA_DEVICE* dev, int interface, int altSetting)
 {
 	int ret;
@@ -769,7 +706,7 @@ int PS2CamSelectInterface(CAMERA_DEVICE* dev, int interface, int altSetting)
 	WaitSema(ps2cam_sema);
 
 
-	ret = UsbSetInterface(dev->controll, interface, altSetting, PS2CamCallback, (void*)ps2cam_sema);
+	ret = sceUsbdSetInterface(dev->controll, interface, altSetting, PS2CamCallback, (void*)ps2cam_sema);
 
     if(ret != USB_RC_OK)
 	{
@@ -789,9 +726,7 @@ int PS2CamSelectInterface(CAMERA_DEVICE* dev, int interface, int altSetting)
 
 
 
-/*-----------------------------------------------*/
-/*- Reset the eyetoy							-*/
-/*-----------------------------------------------*/
+/** Reset the eyetoy */
 void camResetDevice(CAMERA_DEVICE *dev)
 {
 	setReg8(dev,EYETOY_CREG_RESET1, 0x0f);
@@ -799,36 +734,24 @@ void camResetDevice(CAMERA_DEVICE *dev)
 }
 
 
-/*---------------------------------------------------*/
-/*- dont know if snopshot works with the eyetoy yet	-*/
-/*---------------------------------------------------*/
 void camEnableAutoLaunch(CAMERA_DEVICE *dev)
 {
 	setReg8(dev, EYETOY_CREG_SNAPSHOT, 23);
 }
 
 
-/*---------------------------------------------------*/
-/*- dont know if snopshot works with the eyetoy yet	-*/
-/*---------------------------------------------------*/
 void camDisableAutoLaunch(CAMERA_DEVICE *dev)
 {
 	setReg8(dev, EYETOY_CREG_SNAPSHOT, 23);
 }
 
 
-/*---------------------------------------------------*/
-/*- dont know if snopshot works with the eyetoy yet	-*/
-/*---------------------------------------------------*/
 void camClearSnapButton(CAMERA_DEVICE *dev)
 {
 	setReg8Mask(dev, EYETOY_CREG_SNAPSHOT, 03,02);
 }
 
 
-/*---------------------------------------------------*/
-/*- dont know if snopshot works with the eyetoy yet	-*/
-/*---------------------------------------------------*/
 int  camCheckAutoLaunch(CAMERA_DEVICE *dev)
 {
 	//setReg8Mask(dev, EYETOY_CREG_SNAPSHOT, 10,10);
@@ -836,9 +759,7 @@ int  camCheckAutoLaunch(CAMERA_DEVICE *dev)
 }
 
 
-/*-------------------------------------------------------*/
-/*- Enable the some setting that make the cam capture	-*/
-/*-------------------------------------------------------*/
+/** Enable some setting that make the cam capture */
 void  camEnableSystem(CAMERA_DEVICE *dev)
 {
 	setReg8(dev,0x5a, 0x6d);
@@ -850,18 +771,14 @@ void  camEnableSystem(CAMERA_DEVICE *dev)
 }
 
 
-/*-----------------------------------------------*/
-/*- Disable some stuff(hehe)					-*/
-/*-----------------------------------------------*/
+/** Disable some stuff */
 void camDisableSystem(CAMERA_DEVICE *dev)
 {
 	setReg8Mask(dev, EYETOY_CREG_EN_CLK0, 0x9b,0x9b);
 }
 
 
-/*-----------------------------------------------*/
-/*- This is just a reguler reset to jpeg stuff	-*/
-/*-----------------------------------------------*/
+/** This is just a reguler reset to jpeg stuff */
 void camResetUsb(CAMERA_DEVICE *dev)
 {
 	setReg8(dev,0x51, 0x0f);
@@ -869,9 +786,7 @@ void camResetUsb(CAMERA_DEVICE *dev)
 }
 
 
-/*-----------------------------------------------*/
-/*- reset jpeg and clear the frame reg			-*/
-/*-----------------------------------------------*/
+/** reset jpeg and clear the frame reg */
 void camSetUsbInit(CAMERA_DEVICE *dev)
 {
 	setReg8(dev,0x51, 0x0f);
@@ -880,9 +795,7 @@ void camSetUsbInit(CAMERA_DEVICE *dev)
 }
 
 
-/*-----------------------------------------------*/
-/*- reset jpeg and set the frame default value	-*/
-/*-----------------------------------------------*/
+/** reset jpeg and set the frame default value */
 void camSetUsbWork(CAMERA_DEVICE *dev)
 {
 	setReg8(dev,0x51, 0x0f);
@@ -891,27 +804,21 @@ void camSetUsbWork(CAMERA_DEVICE *dev)
 }
 
 
-/*-----------------------------------------------*/
-/*- turn on the red leg on the GPIO pin			-*/
-/*-----------------------------------------------*/
+/** turn on the red leg on the GPIO pin */
 void camTurnOnRedLed(CAMERA_DEVICE *dev)
 {
 	setReg8Mask(dev, EYETOY_GPIO_DATA_OUT0, 0x01,0x01);
 }
 
 
-/*-----------------------------------------------*/
-/*- turn off the red leg on the GPIO pin		-*/
-/*-----------------------------------------------*/
+/** turn off the red leg on the GPIO pin */
 void camTurnOffRedLed(CAMERA_DEVICE *dev)
 {
 	setReg8Mask(dev, EYETOY_GPIO_DATA_OUT0, 0x00,0x01);
 }
 
 
-/*-----------------------------------------------*/
-/*- restart stream							 	-*/
-/*-----------------------------------------------*/
+/** restart stream */
 void camStartStream(CAMERA_DEVICE *dev)
 {
 
@@ -919,9 +826,6 @@ void camStartStream(CAMERA_DEVICE *dev)
 }
 
 
-/*-----------------------------------------------*/
-/*-  	-*/
-/*-----------------------------------------------*/
 void camStopStream(CAMERA_DEVICE *dev)
 {
 
@@ -954,11 +858,6 @@ int read_byts;
 
 void PS2CamReadDataCallback(int resultCode, int bytes, void *arg)
 {
-	//unsigned char	*val;
-	int				semh;
-
-	semh = (int)arg;
-
 	//printf("read_data_callback: result= %d, bytes= %d, arg= %p \n", resultCode, bytes, arg);
 
 	read_rslt = resultCode;
@@ -975,11 +874,11 @@ int PS2CamReadData(CAMERA_DEVICE* dev, void *addr, int size)
 
 	WaitSema(ps2cam_sema);
 
-	ret = UsbIsochronousTransfer(dev->stream, addr, size, 0, PS2CamReadDataCallback, (void*)ps2cam_sema);
+	ret = sceUsbdIsochronousTransfer(dev->stream, addr, size, 0, PS2CamReadDataCallback, (void*)ps2cam_sema);
 
 	if(ret != USB_RC_OK)
 	{
-		printf("Usb: Error sending UsbIsochronousTransfer\n");
+		printf("Usb: Error sending sceUsbdIsochronousTransfer\n");
 		return -1;
 	}
 	else
@@ -1003,12 +902,7 @@ int PS2CamReadData(CAMERA_DEVICE* dev, void *addr, int size)
 
 
 
-/*=======================================*/
-/*=	CAMERA MISC FUNTIONS				=*/
-/*=										=*/
-/*=										=*/
-/*=										=*/
-/*=======================================*/
+/* CAMERA MISC FUNTIONS */
 
 
 
@@ -1021,17 +915,10 @@ int PS2CamReadData(CAMERA_DEVICE* dev, void *addr, int size)
 
 
 
-/*=======================================*/
-/*=	CAMERA RPC/EXPORTED FUNTIONS		=*/
-/*=										=*/
-/*=										=*/
-/*=										=*/
-/*=======================================*/
+/* CAMERA RPC/EXPORTED FUNTIONS */
 
 
-/*---------------------------------------------------*/
-/*- Return the current version of the 'ps2cam.irx'	-*/
-/*---------------------------------------------------*/
+/** Return the current version of the 'ps2cam.irx' */
 int PS2CamGetIRXVersion(void)
 {
 	static unsigned short	ver[2];
@@ -1046,9 +933,7 @@ int PS2CamGetIRXVersion(void)
 
 
 
-/*---------------------------------------------------*/
-/*- initalize the camera driver. must be called 1st	-*/
-/*---------------------------------------------------*/
+/** initalize the camera driver. must be called 1st */
 int PS2CamInit(int mode)
 {
 	irx_initialized = 1;
@@ -1058,9 +943,7 @@ int PS2CamInit(int mode)
 
 
 
-/*---------------------------------------------------*/
-/*- get the number of compatible camera connected	-*/
-/*---------------------------------------------------*/
+/** get the number of compatible camera connected */
 int PS2CamGetDeviceCount(void)
 {
 	int				i;
@@ -1084,9 +967,7 @@ int PS2CamGetDeviceCount(void)
 
 
 
-/*---------------------------------------------------*/
-/*- open one of the compatible camera for reading	-*/
-/*---------------------------------------------------*/
+/** open one of the compatible camera for reading */
 int PS2CamOpenDevice(int device_index)
 {
 	int						i;
@@ -1151,9 +1032,7 @@ int PS2CamOpenDevice(int device_index)
 
 
 
-/*---------------------------------------------------------------*/
-/*- close the device if it is no longer needed or disconnected	-*/
-/*---------------------------------------------------------------*/
+/** close the device if it is no longer needed or disconnected */
 int PS2CamCloseDevice(int handle)
 {
 	int				i;
@@ -1183,9 +1062,7 @@ int PS2CamCloseDevice(int handle)
 
 
 
-/*---------------------------------------------------*/
-/*- get the status of the compatible camera			-*/
-/*---------------------------------------------------*/
+/** get the status of the compatible camera */
 int PS2CamGetDeviceStatus(int handle)
 {
 	CAMERA_DEVICE	*dev;
@@ -1209,15 +1086,11 @@ int PS2CamGetDeviceStatus(int handle)
 
 
 
-/*---------------------------------------------------*/
-/*- get information	about the compatible device		-*/
-/*---------------------------------------------------*/
+/** get information	about the compatible device */
 int PS2CamGetDeviceInfo(int handle,int *info)
 {
 	static unsigned int		size;
 	UsbDeviceDescriptor		*dev;
-	UsbConfigDescriptor		*conf;
-	UsbInterfaceDescriptor	*intf;
 	PS2CAM_DEVICE_INFO		inf;
 	PS2CAM_DEVICE_INFO		*ptr;
 	CAMERA_DEVICE			*cam;
@@ -1246,9 +1119,7 @@ int PS2CamGetDeviceInfo(int handle,int *info)
 	cam = CamHandle[handle-1].cam;
 
 	//get descripters
-	dev  = UsbGetDeviceStaticDescriptor(cam->device_id, NULL, USB_DT_DEVICE);
-	conf = UsbGetDeviceStaticDescriptor(cam->device_id, dev, USB_DT_CONFIG);
-	intf = (UsbInterfaceDescriptor *) ((char *) conf + conf->bLength);
+	dev  = sceUsbdScanStaticDescriptor(cam->device_id, NULL, USB_DT_DEVICE);
 
 
 	// now collect inf
@@ -1280,9 +1151,7 @@ int PS2CamGetDeviceInfo(int handle,int *info)
 
 
 
-/*-------------------------------------------------------*/
-/*- before reading you must set the camera's bandwidth	-*/
-/*-------------------------------------------------------*/
+/** before reading you must set the camera's bandwidth */
 int PS2CamSetDeviceBandwidth(int handle, char bandwidth)
 {
 	int						i;
@@ -1309,20 +1178,20 @@ int PS2CamSetDeviceBandwidth(int handle, char bandwidth)
 
 
 	//search for enpoint to open
-	dev  = UsbGetDeviceStaticDescriptor(cam->device_id, NULL, USB_DT_DEVICE);
-	intf = UsbGetDeviceStaticDescriptor(cam->device_id, dev,  USB_DT_INTERFACE);
+	dev  = sceUsbdScanStaticDescriptor(cam->device_id, NULL, USB_DT_DEVICE);
+	intf = sceUsbdScanStaticDescriptor(cam->device_id, dev,  USB_DT_INTERFACE);
 
 	for(i=0;i<cam->bandwidth;i++)
 	{
-		intf = UsbGetDeviceStaticDescriptor(cam->device_id, intf,  USB_DT_INTERFACE);
+		intf = sceUsbdScanStaticDescriptor(cam->device_id, intf,  USB_DT_INTERFACE);
 	}
 
 	endp= (UsbEndpointDescriptor  *) ((char *) intf + intf->bLength);
 
 
 	// close old endpoint and open new one
-					UsbCloseEndpoint(cam->stream);
-	cam->stream =	UsbOpenEndpoint(cam->device_id, endp);
+					sceUsbdClosePipe(cam->stream);
+	cam->stream =	sceUsbdOpenPipe(cam->device_id, endp);
 
 	cam->stream_pocket_size	= (endp->wMaxPacketSizeHB * 256 + endp->wMaxPacketSizeLB);
 	printf("bandwidth =%d\n",cam->stream_pocket_size);
@@ -1358,9 +1227,7 @@ int PS2CamSetDeviceBandwidth(int handle, char bandwidth)
 
 
 
-/*-------------------------------------------------------*/
-/*- read some data from the camera based on bandwidth	-*/
-/*-------------------------------------------------------*/
+/** read some data from the camera based on bandwidth */
 int PS2CamReadPacket(int handle)
 {
 
@@ -1414,9 +1281,7 @@ int PS2CamReadPacket(int handle)
 
 
 
-/*---------------------------------------------------*/
-/*- set the mode for the red led					-*/
-/*---------------------------------------------------*/
+/** set the mode for the red led */
 int PS2CamSetLEDMode(int handle, int mode)
 {
 	CAMERA_DEVICE	*cam;
@@ -1461,9 +1326,7 @@ int PS2CamSetLEDMode(int handle, int mode)
 
 
 
-/*---------------------------------------------------*/
-/*- activate setting that is in config struct		-*/
-/*---------------------------------------------------*/
+/** activate setting that is in config struct */
 int PS2CamSetDeviceConfig(int handle, void *config)
 {
 	CAMERA_DEVICE			*cam;

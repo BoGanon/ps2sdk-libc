@@ -7,9 +7,13 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id$
 # fileXio RPC server includes
 */
+
+/**
+ * @file
+ * fileXio RPC server includes
+ */
 
 #ifndef _FILEXIO_IOP_H
 #define _FILEXIO_IOP_H

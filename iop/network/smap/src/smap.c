@@ -7,6 +7,7 @@
 #include <modload.h>
 #include <stdio.h>
 #include <sysclib.h>
+#include <ctype.h>
 #include <thbase.h>
 #include <thevent.h>
 #include <thsemap.h>
@@ -47,14 +48,13 @@
 		7. If there are frames to transmit, write to TX_GNP_0 and enable the TXDNV interrupt */
 
 #define DEV9_SMAP_ALL_INTR_MASK	(SMAP_INTR_EMAC3|SMAP_INTR_RXEND|SMAP_INTR_TXEND|SMAP_INTR_RXDNV|SMAP_INTR_TXDNV)
-//Unlike the SONY original, the EMAC3 and RXDNV interrupts are not handled. They didn't even do anything useful in the SONY original.
-#define DEV9_SMAP_INTR_MASK	(SMAP_INTR_RXEND|SMAP_INTR_TXDNV)
+#define DEV9_SMAP_INTR_MASK	(SMAP_INTR_EMAC3|SMAP_INTR_RXEND|SMAP_INTR_RXDNV|SMAP_INTR_TXDNV)
 //The Tx interrupt events are handled separately
-#define DEV9_SMAP_INTR_MASK2	(SMAP_INTR_RXEND)
+#define DEV9_SMAP_INTR_MASK2	(SMAP_INTR_EMAC3|SMAP_INTR_RXEND|SMAP_INTR_RXDNV)
 
 struct SmapDriverData SmapDriverData;
 
-const char VersionString[]="Version 2.25.0";
+static const char VersionString[]="Version 2.25.0";
 static unsigned int ThreadPriority=0x28;
 static unsigned int ThreadStackSize=0x1000;
 static unsigned int EnableVerboseOutput=0;
@@ -64,16 +64,22 @@ static unsigned int SmapConfiguration=0x5E0;
 
 extern void *_gp;
 
-static void _smap_write_phy(volatile u8 *emac3_regbase, unsigned char address, unsigned short int value){
-	unsigned int i, PHYRegisterValue;
+int DisplayBanner(void){
+	printf("SMAP (%s)\n", VersionString);
+	return MODULE_NO_RESIDENT_END;
+}
+
+static void _smap_write_phy(volatile u8 *emac3_regbase, unsigned int address, u16 value){
+	u32 PHYRegisterValue;
+	unsigned int i;
 
 	PHYRegisterValue=(address&SMAP_E3_PHY_REG_ADDR_MSK)|SMAP_E3_PHY_WRITE|((SMAP_DsPHYTER_ADDRESS&SMAP_E3_PHY_ADDR_MSK)<<SMAP_E3_PHY_ADDR_BITSFT);
-	PHYRegisterValue|=((unsigned int)value)<<SMAP_E3_PHY_DATA_BITSFT;
+	PHYRegisterValue|=((u32)value)<<SMAP_E3_PHY_DATA_BITSFT;
 
 	i=0;
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_STA_CTRL, PHYRegisterValue);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_STA_CTRL, PHYRegisterValue);
 
-	for(; !(SMAP_EMAC3_GET(SMAP_R_EMAC3_STA_CTRL)&SMAP_E3_PHY_OP_COMP); i++){
+	for(; !(SMAP_EMAC3_GET32(SMAP_R_EMAC3_STA_CTRL)&SMAP_E3_PHY_OP_COMP); i++){
 		DelayThread(1000);
 		if(i>=100) break;
 	}
@@ -81,21 +87,22 @@ static void _smap_write_phy(volatile u8 *emac3_regbase, unsigned char address, u
 	if(i>=100) printf("smap: %s: > %d ms\n", "_smap_write_phy", i);
 }
 
-static int _smap_read_phy(volatile u8 *emac3_regbase, unsigned int address){
-	unsigned int i, PHYRegisterValue;
-	int result;
+static u16 _smap_read_phy(volatile u8 *emac3_regbase, unsigned int address){
+	unsigned int i;
+	u32 value, PHYRegisterValue;
+	u16 result;
 
 	PHYRegisterValue=(address&SMAP_E3_PHY_REG_ADDR_MSK)|SMAP_E3_PHY_READ|((SMAP_DsPHYTER_ADDRESS&SMAP_E3_PHY_ADDR_MSK)<<SMAP_E3_PHY_ADDR_BITSFT);
 
 	i=0;
 	result=0;
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_STA_CTRL, PHYRegisterValue);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_STA_CTRL, PHYRegisterValue);
 
 	do{
-		if(SMAP_EMAC3_GET(SMAP_R_EMAC3_STA_CTRL)&SMAP_E3_PHY_OP_COMP){
-			if(SMAP_EMAC3_GET(SMAP_R_EMAC3_STA_CTRL)&SMAP_E3_PHY_OP_COMP){
-				if((result=SMAP_EMAC3_GET(SMAP_R_EMAC3_STA_CTRL))&SMAP_E3_PHY_OP_COMP){
-					result>>=SMAP_E3_PHY_DATA_BITSFT;
+		if(SMAP_EMAC3_GET32(SMAP_R_EMAC3_STA_CTRL)&SMAP_E3_PHY_OP_COMP){
+			if(SMAP_EMAC3_GET32(SMAP_R_EMAC3_STA_CTRL)&SMAP_E3_PHY_OP_COMP){
+				if((value=SMAP_EMAC3_GET32(SMAP_R_EMAC3_STA_CTRL))&SMAP_E3_PHY_OP_COMP){
+					result = (u16)(value >> SMAP_E3_PHY_DATA_BITSFT);
 					break;
 				}
 			}
@@ -111,6 +118,8 @@ static int _smap_read_phy(volatile u8 *emac3_regbase, unsigned int address){
 }
 
 static int DisplayHelpMessage(void){
+	DisplayBanner();
+
 	printf(	"Usage: smap [<option>] [thpri=<prio>] [thstack=<stack>] [<conf>]\n"
 		"  <option>:\n"
 		"    -verbose       display verbose messages\n"
@@ -122,15 +131,16 @@ static int DisplayHelpMessage(void){
 	return 2;
 }
 
-static inline void RestartAutoNegotiation(volatile u8 *emac3_regbase, unsigned short int bmsr){
+static inline void RestartAutoNegotiation(volatile u8 *emac3_regbase, u16 bmsr){
 	if(EnableVerboseOutput) DEBUG_PRINTF("smap: restarting auto nego (BMCR=0x%x, BMSR=0x%x)\n", _smap_read_phy(emac3_regbase, SMAP_DsPHYTER_BMCR), bmsr);
 	_smap_write_phy(emac3_regbase, SMAP_DsPHYTER_BMCR, SMAP_PHY_BMCR_ANEN|SMAP_PHY_BMCR_RSAN);
 }
 
 static int InitPHY(struct SmapDriverData *SmapDrivPrivData){
 	int i, result;
-	unsigned int value, value2, LinkSpeed100M, LinkFDX, FlowControlEnabled, AutoNegoRetries;
-	unsigned short int RegDump[6];
+	unsigned int LinkSpeed100M, LinkFDX, FlowControlEnabled, AutoNegoRetries;
+	u32 emac3_value;
+	u16 RegDump[6], value, value2;
 	volatile u8 *emac3_regbase;
 
 	LinkSpeed100M=0;
@@ -172,7 +182,7 @@ WaitLink:
 	else{
 		if(!EnablePinStrapConfig){
 			_smap_write_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMCR, 0);
-			value=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMSR)&0xFFFF;
+			value=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMSR);
 			if(!(value&0x4000)) SmapConfiguration=SmapConfiguration&0xFFFFFEFF;	/* 100Base-TX FDX */
 			if(!(value&0x2000)) SmapConfiguration=SmapConfiguration&0xFFFFFF7F;	/* 100Base-TX HDX */
 			if(!(value&0x1000)) SmapConfiguration=SmapConfiguration&0xFFFFFFBF;	/* 10Base-TX FDX */
@@ -180,7 +190,7 @@ WaitLink:
 
 			DEBUG_PRINTF("smap: no strap mode (conf=0x%x, bmsr=0x%x)\n", SmapConfiguration, value);
 
-			value=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_ANAR)&0xFFFF;
+			value=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_ANAR);
 			value=(SmapConfiguration&0x5E0)|(value&0x1F);
 			DEBUG_PRINTF("smap: anar=0x%x\n", value);
 			_smap_write_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_ANAR, value);
@@ -192,7 +202,7 @@ WaitLink:
 			}
 		}
 
-		DEBUG_PRINTF("smap: auto mode (BMCR=0x%x ANAR=0x%x)\n", _smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMCR)&0xFFFF, _smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_ANAR)&0xFFFF);
+		DEBUG_PRINTF("smap: auto mode (BMCR=0x%x ANAR=0x%x)\n", _smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMCR), _smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_ANAR));
 
 RepeatAutoNegoProcess:
 		for(AutoNegoRetries=0; AutoNegoRetries<3; AutoNegoRetries++){
@@ -201,7 +211,7 @@ RepeatAutoNegoProcess:
 				if(SmapDrivPrivData->NetDevStopFlag) return 0;
 			}
 
-			value=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMSR)&0xFFFF;
+			value=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMSR);
 			if((value&(SMAP_PHY_BMSR_ANCP|0x10))==SMAP_PHY_BMSR_ANCP){	/* 0x30: SMAP_PHY_BMSR_ANCP and Remote fault. */
 				/* This seems to be checking for the link-up status. */
 				for(i=0; !(_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMSR)&SMAP_PHY_BMSR_LINK); i++){
@@ -265,8 +275,8 @@ RepeatAutoNegoProcess:
 			DelayThread(500000);
 			value=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_FCSCR);
 			value2=_smap_read_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_RECR);
-			if((value2&0xFFFF)!=0 || (value&0xFFFF)>=0x11){
-				if(EnableVerboseOutput) DEBUG_PRINTF("smap: FCSCR=%d RECR=%d\n", value&0xFFFF, value2&0xFFFF);
+			if((value2!=0) || (value>=0x11)){
+				if(EnableVerboseOutput) DEBUG_PRINTF("smap: FCSCR=%d RECR=%d\n", value, value2);
 				_smap_write_phy(SmapDrivPrivData->emac3_regbase, SMAP_DsPHYTER_BMCR, 0);
 				goto WaitLink;
 			}
@@ -317,10 +327,10 @@ RepeatAutoNegoProcess:
 	DEBUG_PRINTF("smap: %s %s Duplex Mode %s Flow Control\n", LinkSpeed100M?"100BaseTX":"10BaseT", LinkFDX?"Full":"Half", FlowControlEnabled?"with":"without");
 
 	emac3_regbase=SmapDrivPrivData->emac3_regbase;
-	value=SMAP_EMAC3_GET(SMAP_R_EMAC3_MODE1)&0x67FFFFFF;
-	if(LinkFDX) value|=SMAP_E3_FDX_ENABLE;
-	if(FlowControlEnabled) value|=SMAP_E3_FLOWCTRL_ENABLE|SMAP_E3_ALLOW_PF;
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_MODE1, value);
+	emac3_value=SMAP_EMAC3_GET32(SMAP_R_EMAC3_MODE1)&0x67FFFFFF;
+	if(LinkFDX) emac3_value|=SMAP_E3_FDX_ENABLE;
+	if(FlowControlEnabled) emac3_value|=SMAP_E3_FLOWCTRL_ENABLE|SMAP_E3_ALLOW_PF;
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_MODE1, emac3_value);
 
 	return 0;
 }
@@ -333,11 +343,9 @@ static unsigned int LinkCheckTimerCB(struct SmapDriverData *SmapDrivPrivData){
 
 static int HandleTxIntr(struct SmapDriverData *SmapDrivPrivData){
 	int result, OldState;
-	volatile u8 *smap_regbase;
 	USE_SMAP_TX_BD;
-	unsigned short int ctrl_stat;
+	u16 ctrl_stat;
 
-	smap_regbase=SmapDrivPrivData->smap_regbase;
 	result=0;
 	if(SmapDrivPrivData->NumPacketsInTx>0){
 		do{
@@ -373,9 +381,11 @@ static void CheckLinkStatus(struct SmapDriverData *SmapDrivPrivData){
 		//Link lost
 		SmapDrivPrivData->LinkStatus=0;
 		NetManToggleNetIFLinkState(SmapDrivPrivData->NetIFID, NETMAN_NETIF_ETH_LINK_STATE_DOWN);
-		if(InitPHY(SmapDrivPrivData)==0){
+		InitPHY(SmapDrivPrivData);
+
+		//Link established
+		if(SmapDrivPrivData->LinkStatus)
 			NetManToggleNetIFLinkState(SmapDrivPrivData->NetIFID, NETMAN_NETIF_ETH_LINK_STATE_UP);
-		}
 	}
 }
 
@@ -395,7 +405,7 @@ static void IntrHandlerThread(struct SmapDriverData *SmapDrivPrivData){
 		if(EFBits&SMAP_EVENT_STOP){
 			if(SmapDrivPrivData->SmapIsInitialized){
 				dev9IntrDisable(DEV9_SMAP_INTR_MASK2);
-				SMAP_EMAC3_SET(SMAP_R_EMAC3_MODE0, 0);
+				SMAP_EMAC3_SET32(SMAP_R_EMAC3_MODE0, 0);
 				SmapDrivPrivData->NetDevStopFlag=0;
 				SmapDrivPrivData->LinkStatus=0;
 				SmapDrivPrivData->SmapIsInitialized=0;
@@ -411,7 +421,7 @@ static void IntrHandlerThread(struct SmapDriverData *SmapDrivPrivData){
 					continue;
 				}
 
-				SMAP_EMAC3_SET(SMAP_R_EMAC3_MODE0, SMAP_E3_TXMAC_ENABLE|SMAP_E3_RXMAC_ENABLE);
+				SMAP_EMAC3_SET32(SMAP_R_EMAC3_MODE0, SMAP_E3_TXMAC_ENABLE|SMAP_E3_RXMAC_ENABLE);
 				DelayThread(10000);
 				SmapDrivPrivData->SmapIsInitialized=1;
 
@@ -429,17 +439,22 @@ static void IntrHandlerThread(struct SmapDriverData *SmapDrivPrivData){
 			ResetCounterFlag=0;
 			if(EFBits&SMAP_EVENT_INTR){
 				while((IntrReg=SPD_REG16(SPD_R_INTR_STAT)&DEV9_SMAP_INTR_MASK)!=0){
-					/*	Other interrupts that were handled in the SONY original:
-							1. EMAC3: nothing useful was done, other than just acknowledging the events.
-							2. RXDNV: nothing useful was done, other than logging the event (same field as the BD_RX_OVERRUN event).
-						Original order/priority:
+					/*	Original order/priority:
 							1. EMAC3
 							2. RXEND
 							3. RXDNV
 							4. TXDNV */
+					if(IntrReg&SMAP_INTR_EMAC3){
+						SMAP_REG16(SMAP_R_INTR_CLR)=SMAP_INTR_EMAC3;
+						SMAP_EMAC3_SET32(SMAP_R_EMAC3_INTR_STAT, SMAP_E3_INTR_TX_ERR_0|SMAP_E3_INTR_SQE_ERR_0|SMAP_E3_INTR_DEAD_0);
+					}
 					if(IntrReg&SMAP_INTR_RXEND){
 						SMAP_REG16(SMAP_R_INTR_CLR)=SMAP_INTR_RXEND;
 						ResetCounterFlag=HandleRxIntr(SmapDrivPrivData);
+					}
+					if(IntrReg&SMAP_INTR_RXDNV){
+						SMAP_REG16(SMAP_R_INTR_CLR)=SMAP_INTR_RXDNV;
+						SmapDrivPrivData->RuntimeStats.RxFrameOverrunCount++;
 					}
 					if(IntrReg&SMAP_INTR_TXDNV){
 						SMAP_REG16(SMAP_R_INTR_CLR)=SMAP_INTR_TXDNV;
@@ -468,7 +483,7 @@ static void IntrHandlerThread(struct SmapDriverData *SmapDrivPrivData){
 
 			//If there are frames to send out, let Tx channel 0 know and enable TXDNV.
 			if(SmapDrivPrivData->NumPacketsInTx>0){
-				SMAP_EMAC3_SET(SMAP_R_EMAC3_TxMODE0, SMAP_E3_TX_GNP_0);
+				SMAP_EMAC3_SET32(SMAP_R_EMAC3_TxMODE0, SMAP_E3_TX_GNP_0);
 				dev9IntrEnable(SMAP_INTR_TXDNV);
 			}
 
@@ -498,7 +513,7 @@ static int Dev9IntrCb(int flag){
 
 static void Dev9PreDmaCbHandler(int bcr, int dir){
 	volatile u8 *smap_regbase;
-	unsigned short int SliceCount;
+	u16 SliceCount;
 
 	smap_regbase=SmapDriverData.smap_regbase;
 	SliceCount=bcr>>16;
@@ -540,7 +555,7 @@ void SMAPStop(void){
 }
 
 static inline int SMAPGetLinkMode(void){
-	unsigned short int value;
+	u16 value;
 	int result;
 
 	result=-1;
@@ -672,7 +687,6 @@ static inline int SetupNetDev(void){
 	int result;
 	iop_event_t EventFlagData;
 	iop_thread_t ThreadData;
-	volatile u8 *emac3_regbase;
 	static struct NetManNetIF device={
 		"SMAP",
 		0,
@@ -682,8 +696,6 @@ static inline int SetupNetDev(void){
 		&SMAPSendPacket,
 		&SMAPIoctl
 	};
-
-	emac3_regbase=SmapDriverData.emac3_regbase;
 
 	EventFlagData.attr=0;
 	EventFlagData.option=0;
@@ -779,8 +791,8 @@ fail_end:
 int smap_init(int argc, char *argv[]){
 	int result, i;
 	const char *CmdString;
-	unsigned short int eeprom_data[4], checksum16;
-	unsigned int mac_address;
+	u16 eeprom_data[4], checksum16;
+	u32 mac_address;
 	USE_SPD_REGS;
 	USE_SMAP_REGS;
 	USE_SMAP_EMAC3_REGS;
@@ -793,6 +805,9 @@ int smap_init(int argc, char *argv[]){
 	while(argc>0){
 		if(strcmp("-help", *argv)==0){
 			return DisplayHelpMessage();
+		}
+		else if(strcmp("-version", *argv)==0){
+			return DisplayBanner();
 		}
 		else if(strcmp("-verbose", *argv)==0){
 			EnableVerboseOutput=1;
@@ -810,15 +825,15 @@ int smap_init(int argc, char *argv[]){
 			EnablePinStrapConfig=0;
 		}
 		else if(strncmp("thpri=", *argv, 6)==0){
-			CmdString=&((unsigned char*)*argv)[6];
-			if(look_ctype_table(CmdString[0])&4){
-				ThreadPriority=strtoul(&((unsigned char*)*argv)[6], NULL, 10);
+			CmdString=&(*argv)[6];
+			if(isdigit(CmdString[0])){
+				ThreadPriority=strtoul(&(*argv)[6], NULL, 10);
 				if(ThreadPriority-9>=0x73){
 					return DisplayHelpMessage();
 				}
 
-				if(((unsigned char*)*argv)[6]!='\0'){
-					while(look_ctype_table(*CmdString)&4){
+				if((*argv)[6]!='\0'){
+					while(isdigit(*CmdString)){
 						CmdString++;
 					}
 					if(*CmdString!='\0') return DisplayHelpMessage();
@@ -827,11 +842,11 @@ int smap_init(int argc, char *argv[]){
 			else return DisplayHelpMessage();
 		}
 		else if(strncmp("thstack=", *argv, 8)==0){
-			CmdString=&((unsigned char*)*argv)[8];
-			if(look_ctype_table(CmdString[0])&4){
-				ThreadStackSize=strtoul(&((unsigned char*)*argv)[8], NULL, 10);
-				if(((unsigned char*)*argv)[8]!='\0'){
-					while(look_ctype_table(*CmdString)&4){
+			CmdString=&(*argv)[8];
+			if(isdigit(CmdString[0])){
+				ThreadStackSize=strtoul(&(*argv)[8], NULL, 10);
+				if((*argv)[8]!='\0'){
+					while(isdigit(*CmdString)){
 						CmdString++;
 					}
 				}
@@ -870,9 +885,8 @@ int smap_init(int argc, char *argv[]){
 		DelayThread(1000);
 	}
 
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_MODE0, SMAP_E3_SOFT_RESET);
-	SMAP_EMAC3_GET(SMAP_R_EMAC3_MODE0);
-	for(i=9; SMAP_EMAC3_GET(SMAP_R_EMAC3_MODE0)&SMAP_E3_SOFT_RESET; i--){
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_MODE0, SMAP_E3_SOFT_RESET);
+	for(i=9; SMAP_EMAC3_GET32(SMAP_R_EMAC3_MODE0)&SMAP_E3_SOFT_RESET; i--){
 		if(i<=0) return -4;
 		DelayThread(1000);
 	}
@@ -908,29 +922,27 @@ int smap_init(int argc, char *argv[]){
 	}
 	if(checksum16!=eeprom_data[3]) return -5;
 
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_MODE1, SMAP_E3_FDX_ENABLE|SMAP_E3_IGNORE_SQE|SMAP_E3_MEDIA_100M|SMAP_E3_RXFIFO_2K|SMAP_E3_TXFIFO_1K|SMAP_E3_TXREQ0_MULTI|SMAP_E3_TXREQ1_SINGLE);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_TxMODE1, 7<<SMAP_E3_TX_LOW_REQ_BITSFT | 15<<SMAP_E3_TX_URG_REQ_BITSFT);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_RxMODE, SMAP_E3_RX_STRIP_PAD|SMAP_E3_RX_STRIP_FCS|SMAP_E3_RX_INDIVID_ADDR|SMAP_E3_RX_BCAST|SMAP_E3_RX_MCAST);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_INTR_STAT, SMAP_E3_INTR_TX_ERR_0|SMAP_E3_INTR_SQE_ERR_0|SMAP_E3_INTR_DEAD_0);
-	//Do not handle the EMAC3 interrupts because the SONY original didn't do anything useful with them either.
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_INTR_ENABLE, 0);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_MODE1, SMAP_E3_FDX_ENABLE|SMAP_E3_IGNORE_SQE|SMAP_E3_MEDIA_100M|SMAP_E3_RXFIFO_2K|SMAP_E3_TXFIFO_1K|SMAP_E3_TXREQ0_MULTI|SMAP_E3_TXREQ1_SINGLE);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_TxMODE1, 7<<SMAP_E3_TX_LOW_REQ_BITSFT | 15<<SMAP_E3_TX_URG_REQ_BITSFT);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_RxMODE, SMAP_E3_RX_STRIP_PAD|SMAP_E3_RX_STRIP_FCS|SMAP_E3_RX_INDIVID_ADDR|SMAP_E3_RX_BCAST|SMAP_E3_RX_MCAST);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_INTR_STAT, SMAP_E3_INTR_TX_ERR_0|SMAP_E3_INTR_SQE_ERR_0|SMAP_E3_INTR_DEAD_0);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_INTR_ENABLE, SMAP_E3_INTR_TX_ERR_0|SMAP_E3_INTR_SQE_ERR_0|SMAP_E3_INTR_DEAD_0);
 
 	mac_address=(u16)(eeprom_data[0]>>8 | eeprom_data[0]<<8);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_ADDR_HI, mac_address);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_ADDR_HI, mac_address);
 
 	mac_address=((u16)(eeprom_data[1]>>8 | eeprom_data[1]<<8) << 16) | (u16)(eeprom_data[2]>>8 | eeprom_data[2]<<8);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_ADDR_LO, mac_address);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_ADDR_LO, mac_address);
 
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_PAUSE_TIMER, 0xFFFF);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_PAUSE_TIMER, 0xFFFF);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_GROUP_HASH1, 0);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_GROUP_HASH2, 0);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_GROUP_HASH3, 0);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_GROUP_HASH4, 0);
 
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_GROUP_HASH1, 0);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_GROUP_HASH2, 0);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_GROUP_HASH3, 0);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_GROUP_HASH4, 0);
-
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_INTER_FRAME_GAP, 4);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_TX_THRESHOLD, 12<<SMAP_E3_TX_THRESHLD_BITSFT);
-	SMAP_EMAC3_SET(SMAP_R_EMAC3_RX_WATERMARK, 16<<SMAP_E3_RX_LO_WATER_BITSFT|128<<SMAP_E3_RX_HI_WATER_BITSFT);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_INTER_FRAME_GAP, 4);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_TX_THRESHOLD, 12<<SMAP_E3_TX_THRESHLD_BITSFT);
+	SMAP_EMAC3_SET32(SMAP_R_EMAC3_RX_WATERMARK, 16<<SMAP_E3_RX_LO_WATER_BITSFT|128<<SMAP_E3_RX_HI_WATER_BITSFT);
 
 	//Register the interrupt handlers for all SMAP events.
 	for(i=2; i<7; i++) dev9RegisterIntrCb(i, &Dev9IntrCb);
@@ -941,8 +953,8 @@ int smap_init(int argc, char *argv[]){
 	return SetupNetDev();
 }
 
-int SMAPGetMACAddress(unsigned char *buffer){
-	unsigned int mac_address_lo, mac_address_hi;
+int SMAPGetMACAddress(u8 *buffer){
+	u32 mac_address_lo, mac_address_hi;
 	volatile u8 *emac3_regbase;
 	int OldState;
 
@@ -950,8 +962,8 @@ int SMAPGetMACAddress(unsigned char *buffer){
 
 	CpuSuspendIntr(&OldState);
 
-	mac_address_hi=SMAP_EMAC3_GET(SMAP_R_EMAC3_ADDR_HI);
-	mac_address_lo=SMAP_EMAC3_GET(SMAP_R_EMAC3_ADDR_LO);
+	mac_address_hi=SMAP_EMAC3_GET32(SMAP_R_EMAC3_ADDR_HI);
+	mac_address_lo=SMAP_EMAC3_GET32(SMAP_R_EMAC3_ADDR_LO);
 
 	CpuResumeIntr(OldState);
 

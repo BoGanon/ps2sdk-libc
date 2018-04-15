@@ -18,6 +18,7 @@ cdvdman_IMPORTS_end
 
 dev9_IMPORTS_start
 I_dev9Shutdown
+I_dev9RegisterShutdownCb
 dev9_IMPORTS_end
 
 intrman_IMPORTS_start
@@ -52,6 +53,10 @@ sysmem_IMPORTS_start
 I_AllocSysMemory
 I_FreeSysMemory
 sysmem_IMPORTS_end
+
+thbase_IMPORTS_start
+I_DelayThread
+thbase_IMPORTS_end
 
 thsemap_IMPORTS_start
 I_CreateSema
