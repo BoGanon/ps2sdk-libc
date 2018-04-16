@@ -82,7 +82,7 @@ typedef union {
 	u8 data[0x420];
 } sCmdSendParams_t;
 
-#ifdef F__scmd_internals
+#if defined(F__scmd_internals) || defined(DOXYGEN)
 int bindSCmd = -1;
 
 SifRpcClientData_t clientSCmd __attribute__ ((aligned(64)));
@@ -110,7 +110,7 @@ int _CdCheckSCmd(int cmd);
 
 /* S-Command Functions */
 
-#ifdef F_sceCdReadClock
+#if defined(F_sceCdReadClock) || defined(DOXYGEN)
 int sceCdReadClock(sceCdCLOCK * clock)
 {
 	if (_CdCheckSCmd(CD_SCMD_READCLOCK) == 0)
@@ -134,7 +134,7 @@ int sceCdReadClock(sceCdCLOCK * clock)
 }
 #endif
 
-#ifdef F_sceCdWriteClock
+#if defined(F_sceCdWriteClock) || defined(DOXYGEN)
 int sceCdWriteClock(const sceCdCLOCK * clock)
 {
 	int result;
@@ -157,7 +157,7 @@ int sceCdWriteClock(const sceCdCLOCK * clock)
 }
 #endif
 
-#ifdef F_sceCdGetDiskType
+#if defined(F_sceCdGetDiskType) || defined(DOXYGEN)
 int sceCdGetDiskType(void)
 {
 	int result;
@@ -177,7 +177,7 @@ int sceCdGetDiskType(void)
 }
 #endif
 
-#ifdef F_sceCdGetError
+#if defined(F_sceCdGetError) || defined(DOXYGEN)
 int sceCdGetError(void)
 {
 	int result;
@@ -197,7 +197,7 @@ int sceCdGetError(void)
 }
 #endif
 
-#ifdef F_sceCdTrayReq
+#if defined(F_sceCdTrayReq) || defined(DOXYGEN)
 int sceCdTrayReq(int param, u32 * traychk)
 {
 	int result;
@@ -221,7 +221,7 @@ int sceCdTrayReq(int param, u32 * traychk)
 }
 #endif
 
-#ifdef F_sceCdApplySCmd
+#if defined(F_sceCdApplySCmd) || defined(DOXYGEN)
 int sceCdApplySCmd(u8 cmdNum, const void *inBuff, u16 inBuffSize, void *outBuff, u16 outBuffSize)
 {
 	if (_CdCheckSCmd(CD_SCMD_SCMD) == 0)
@@ -245,7 +245,7 @@ int sceCdApplySCmd(u8 cmdNum, const void *inBuff, u16 inBuffSize, void *outBuff,
 }
 #endif
 
-#ifdef F_sceCdStatus
+#if defined(F_sceCdStatus) || defined(DOXYGEN)
 int sceCdStatus(void)
 {
 	int result;
@@ -267,7 +267,7 @@ int sceCdStatus(void)
 }
 #endif
 
-#ifdef F_sceCdBreak
+#if defined(F_sceCdBreak) || defined(DOXYGEN)
 int sceCdBreak(void)
 {
 	int result;
@@ -286,7 +286,7 @@ int sceCdBreak(void)
 }
 #endif
 
-#ifdef F_sceCdCancelPOffRdy
+#if defined(F_sceCdCancelPOffRdy) || defined(DOXYGEN)
 int sceCdCancelPOffRdy(u32 * result)
 {
 	int status;
@@ -307,7 +307,7 @@ int sceCdCancelPOffRdy(u32 * result)
 }
 #endif
 
-#ifdef F_sceCdBlueLedCtrl
+#if defined(F_sceCdBlueLedCtrl) || defined(DOXYGEN)
 int sceCdBlueLedCtrl(u8 control, u32 *result)
 {
 	int status;
@@ -329,7 +329,7 @@ int sceCdBlueLedCtrl(u8 control, u32 *result)
 }
 #endif
 
-#ifdef F_sceCdPowerOff
+#if defined(F_sceCdPowerOff) || defined(DOXYGEN)
 int sceCdPowerOff(u32 * result)
 {
 	int status;
@@ -350,7 +350,7 @@ int sceCdPowerOff(u32 * result)
 }
 #endif
 
-#ifdef F_sceCdMmode
+#if defined(F_sceCdMmode) || defined(DOXYGEN)
 int sceCdMmode(int media)
 {
 	int result;
@@ -371,7 +371,7 @@ int sceCdMmode(int media)
 }
 #endif
 
-#ifdef F_sceCdChangeThreadPriority
+#if defined(F_sceCdChangeThreadPriority) || defined(DOXYGEN)
 int sceCdChangeThreadPriority(int priority)
 {
 	int result;
@@ -392,7 +392,7 @@ int sceCdChangeThreadPriority(int priority)
 }
 #endif
 
-#ifdef F__CdCheckSCmd
+#if defined(F__CdCheckSCmd) || defined(DOXYGEN)
 int _CdCheckSCmd(int cur_cmd)
 {
 	int i;
@@ -430,7 +430,7 @@ int _CdCheckSCmd(int cur_cmd)
 }
 #endif
 
-#ifdef F_sceCdForbidRead
+#if defined(F_sceCdForbidRead) || defined(DOXYGEN)
 int sceCdForbidRead(u32 *status)
 {
 	int result;
@@ -447,7 +447,7 @@ int sceCdForbidRead(u32 *status)
 }
 #endif
 
-#ifdef F_sceCdSpinCtrlEE
+#if defined(F_sceCdSpinCtrlEE) || defined(DOXYGEN)
 int sceCdSpinCtrlEE(u32 speed)
 {
 	int result;
@@ -464,7 +464,7 @@ int sceCdSpinCtrlEE(u32 speed)
 }
 #endif
 
-#ifdef F_sceCdBootCertify
+#if defined(F_sceCdBootCertify) || defined(DOXYGEN)
 int sceCdBootCertify(const u8 *romname)
 {
 	int result;
@@ -483,7 +483,7 @@ int sceCdBootCertify(const u8 *romname)
 }
 #endif
 
-#ifdef F_sceCdReadSUBQ
+#if defined(F_sceCdReadSUBQ) || defined(DOXYGEN)
 int sceCdReadSUBQ(void *buffer, u32 *status)
 {
 	int result;
@@ -504,7 +504,7 @@ int sceCdReadSUBQ(void *buffer, u32 *status)
 }
 #endif
 
-#ifdef F_sceCdForbidDVDP
+#if defined(F_sceCdForbidDVDP) || defined(DOXYGEN)
 int sceCdForbidDVDP(u32 *result)
 {
 	int status;
@@ -523,7 +523,7 @@ int sceCdForbidDVDP(u32 *result)
 }
 #endif
 
-#ifdef F_sceCdAutoAdjustCtrl
+#if defined(F_sceCdAutoAdjustCtrl) || defined(DOXYGEN)
 int sceCdAutoAdjustCtrl(int mode, u32 *result)
 {
 	int status;
@@ -543,7 +543,7 @@ int sceCdAutoAdjustCtrl(int mode, u32 *result)
 }
 #endif
 
-#ifdef F_sceCdDecSet
+#if defined(F_sceCdDecSet) || defined(DOXYGEN)
 int sceCdDecSet(unsigned char arg1, unsigned char arg2, unsigned char shift)
 {
 	int result;
@@ -565,7 +565,7 @@ int sceCdDecSet(unsigned char arg1, unsigned char arg2, unsigned char shift)
 }
 #endif
 
-#ifdef F_sceCdSetHDMode
+#if defined(F_sceCdSetHDMode) || defined(DOXYGEN)
 int sceCdSetHDMode(u32 mode)
 {
 	int result;
@@ -582,7 +582,7 @@ int sceCdSetHDMode(u32 mode)
 }
 #endif
 
-#ifdef F_sceCdOpenConfig
+#if defined(F_sceCdOpenConfig) || defined(DOXYGEN)
 int sceCdOpenConfig(int block, int mode, int NumBlocks, u32 *status){
 	int result;
 
@@ -605,7 +605,7 @@ int sceCdOpenConfig(int block, int mode, int NumBlocks, u32 *status){
 }
 #endif
 
-#ifdef F_sceCdCloseConfig
+#if defined(F_sceCdCloseConfig) || defined(DOXYGEN)
 int sceCdCloseConfig(u32 *result){
 	int status;
 
@@ -623,7 +623,7 @@ int sceCdCloseConfig(u32 *result){
 }
 #endif
 
-#ifdef F_sceCdReadConfig
+#if defined(F_sceCdReadConfig) || defined(DOXYGEN)
 int sceCdReadConfig(void *buffer, u32 *result){
 	int status;
 
@@ -642,7 +642,7 @@ int sceCdReadConfig(void *buffer, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdWriteConfig
+#if defined(F_sceCdWriteConfig) || defined(DOXYGEN)
 int sceCdWriteConfig(const void *buffer, u32 *result){
 	int status;
 
@@ -662,7 +662,7 @@ int sceCdWriteConfig(const void *buffer, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdReadNVM
+#if defined(F_sceCdReadNVM) || defined(DOXYGEN)
 int sceCdReadNVM(u32 address, u16 *data, u8 *result){
 	int status;
 
@@ -685,7 +685,7 @@ int sceCdReadNVM(u32 address, u16 *data, u8 *result){
 }
 #endif
 
-#ifdef F_sceCdWriteNVM
+#if defined(F_sceCdWriteNVM) || defined(DOXYGEN)
 int sceCdWriteNVM(u32 address, u16 data, u8 *result){
 	int status;
 
@@ -707,7 +707,7 @@ int sceCdWriteNVM(u32 address, u16 data, u8 *result){
 }
 #endif
 
-#ifdef F_sceCdRI
+#if defined(F_sceCdRI) || defined(DOXYGEN)
 int sceCdRI(unsigned char *buffer, u32 *result){
 	int status;
 
@@ -726,7 +726,7 @@ int sceCdRI(unsigned char *buffer, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdWI
+#if defined(F_sceCdWI) || defined(DOXYGEN)
 int sceCdWI(const unsigned char *buffer, u32 *status){
 	int result;
 
@@ -745,7 +745,7 @@ int sceCdWI(const unsigned char *buffer, u32 *status){
 }
 #endif
 
-#ifdef F_sceCdReadConsoleID
+#if defined(F_sceCdReadConsoleID) || defined(DOXYGEN)
 int sceCdReadConsoleID(unsigned char *buffer, u32 *result){
 	int status;
 
@@ -764,7 +764,7 @@ int sceCdReadConsoleID(unsigned char *buffer, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdWriteConsoleID
+#if defined(F_sceCdWriteConsoleID) || defined(DOXYGEN)
 int sceCdWriteConsoleID(const unsigned char *buffer, u32 *result){
 	int status;
 
@@ -783,7 +783,7 @@ int sceCdWriteConsoleID(const unsigned char *buffer, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdMV
+#if defined(F_sceCdMV) || defined(DOXYGEN)
 int sceCdMV(unsigned char *buffer, u32 *result){
 	int status;
 
@@ -807,7 +807,7 @@ int sceCdMV(unsigned char *buffer, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdCtrlADout
+#if defined(F_sceCdCtrlADout) || defined(DOXYGEN)
 int sceCdCtrlADout(int arg1, u32 *result){
 	int status;
 
@@ -826,7 +826,7 @@ int sceCdCtrlADout(int arg1, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdRM
+#if defined(F_sceCdRM) || defined(DOXYGEN)
 int sceCdRM(char *buffer, u32 *result){
 	int status;
 
@@ -845,7 +845,7 @@ int sceCdRM(char *buffer, u32 *result){
 }
 #endif
 
-#ifdef F_sceCdWM
+#if defined(F_sceCdWM) || defined(DOXYGEN)
 int sceCdWM(const char *buffer, u32 *result){
 	int status;
 
@@ -864,7 +864,7 @@ int sceCdWM(const char *buffer, u32 *result){
 }
 #endif
 
-#ifdef F__CdSyncS
+#if defined(F__CdSyncS) || defined(DOXYGEN)
 int _CdSyncS(int mode)
 {
 	if (mode == 0) {

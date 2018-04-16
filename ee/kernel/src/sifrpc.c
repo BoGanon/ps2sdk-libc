@@ -47,7 +47,7 @@ extern struct rpc_data _sif_rpc_data;
 void *_rpc_get_packet(struct rpc_data *rpc_data);
 void *_rpc_get_fpacket(struct rpc_data *rpc_data);
 
-#ifdef F__rpc_get_packet
+#if defined(F__rpc_get_packet) || defined(DOXYGEN)
 void *_rpc_get_packet(struct rpc_data *rpc_data)
 {
 	SifRpcPktHeader_t *packet;
@@ -87,7 +87,7 @@ void *_rpc_get_packet(struct rpc_data *rpc_data)
 }
 #endif
 
-#ifdef F__rpc_get_fpacket
+#if defined(F__rpc_get_fpacket) || defined(DOXYGEN)
 void *_rpc_get_fpacket(struct rpc_data *rpc_data)
 {
 	int index;
@@ -99,7 +99,7 @@ void *_rpc_get_fpacket(struct rpc_data *rpc_data)
 }
 #endif
 
-#ifdef F_SifBindRpc
+#if defined(F_SifBindRpc) || defined(DOXYGEN)
 int SifBindRpc(SifRpcClientData_t *cd, int sid, int mode)
 {
 	ee_sema_t sema;
@@ -142,7 +142,7 @@ int SifBindRpc(SifRpcClientData_t *cd, int sid, int mode)
 }
 #endif
 
-#ifdef F_SifCallRpc
+#if defined(F_SifCallRpc) || defined(DOXYGEN)
 int SifCallRpc(SifRpcClientData_t *cd, int rpc_number, int mode,
 		void *sendbuf, int ssize, void *recvbuf, int rsize,
 		SifRpcEndFunc_t endfunc, void *efarg)
@@ -204,7 +204,7 @@ int SifCallRpc(SifRpcClientData_t *cd, int rpc_number, int mode,
 }
 #endif
 
-#ifdef F_SifRpcGetOtherData
+#if defined(F_SifRpcGetOtherData) || defined(DOXYGEN)
 int SifRpcGetOtherData(SifRpcReceiveData_t *rd, void *src, void *dest,
 		int size, int mode)
 {
@@ -247,7 +247,7 @@ int SifRpcGetOtherData(SifRpcReceiveData_t *rd, void *src, void *dest,
 }
 #endif
 
-#ifdef F_SifRpcMain
+#if defined(F_SifRpcMain) || defined(DOXYGEN)
 
 /* The packets sent on EE RPC requests are allocated from this table.  */
 static u8 pkt_table[2048] __attribute__((aligned(64)));
@@ -432,7 +432,7 @@ void SifExitRpc(void)
 }
 #endif
 
-#ifdef F_SifRegisterRpc
+#if defined(F_SifRegisterRpc) || defined(DOXYGEN)
 SifRpcServerData_t *
 SifRegisterRpc(SifRpcServerData_t *sd,
 		int sid, SifRpcFunc_t func, void *buff, SifRpcFunc_t cfunc,
@@ -466,7 +466,7 @@ SifRegisterRpc(SifRpcServerData_t *sd,
 }
 #endif
 
-#ifdef F_SifRemoveRpc
+#if defined(F_SifRemoveRpc) || defined(DOXYGEN)
 SifRpcServerData_t *
 SifRemoveRpc(SifRpcServerData_t *sd, SifRpcDataQueue_t *queue)
 {
@@ -496,7 +496,7 @@ SifRemoveRpc(SifRpcServerData_t *sd, SifRpcDataQueue_t *queue)
 }
 #endif
 
-#ifdef F_SifSetRpcQueue
+#if defined(F_SifSetRpcQueue) || defined(DOXYGEN)
 SifRpcDataQueue_t *
 SifSetRpcQueue(SifRpcDataQueue_t *qd, int thread_id)
 {
@@ -527,7 +527,7 @@ SifSetRpcQueue(SifRpcDataQueue_t *qd, int thread_id)
 }
 #endif
 
-#ifdef F_SifRemoveRpcQueue
+#if defined(F_SifRemoveRpcQueue) || defined(DOXYGEN)
 SifRpcDataQueue_t *
 SifRemoveRpcQueue(SifRpcDataQueue_t *qd)
 {
@@ -557,7 +557,7 @@ SifRemoveRpcQueue(SifRpcDataQueue_t *qd)
 }
 #endif
 
-#ifdef F_SifGetNextRequest
+#if defined(F_SifGetNextRequest) || defined(DOXYGEN)
 SifRpcServerData_t *
 SifGetNextRequest(SifRpcDataQueue_t *qd)
 {
@@ -579,7 +579,7 @@ SifGetNextRequest(SifRpcDataQueue_t *qd)
 }
 #endif
 
-#ifdef F_SifExecRequest
+#if defined(F_SifExecRequest) || defined(DOXYGEN)
 static void *_rpc_get_fpacket2(struct rpc_data *rpc_data, int rid)
 {
 	if (rid < 0 || rid < rpc_data->client_table_len)
@@ -642,7 +642,7 @@ void SifExecRequest(SifRpcServerData_t *sd)
 }
 #endif
 
-#ifdef F_SifRpcLoop
+#if defined(F_SifRpcLoop) || defined(DOXYGEN)
 void SifRpcLoop(SifRpcDataQueue_t *qd)
 {
 	SifRpcServerData_t *server;
@@ -656,7 +656,7 @@ void SifRpcLoop(SifRpcDataQueue_t *qd)
 }
 #endif
 
-#ifdef F_SifCheckStatRpc
+#if defined(F_SifCheckStatRpc) || defined(DOXYGEN)
 int SifCheckStatRpc(SifRpcClientData_t *cd)
 {
 	SifRpcPktHeader_t *packet = (SifRpcPktHeader_t *)cd->hdr.pkt_addr;

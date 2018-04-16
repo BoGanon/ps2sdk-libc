@@ -21,19 +21,19 @@
 //#define F_vsprintf
 #define F_vsnprintf
 
-#ifdef F_sprintf
+#if defined(F_sprintf) || defined(DOXYGEN)
 int sprintf(char *str, const char *format, ...);
 #endif
 
-#ifdef F_snprintf
+#if defined(F_snprintf) || defined(DOXYGEN)
 int snprintf(char *str, size_t sz, const char *format, ...);
 #endif
 
-#ifdef F_vsprintf
+#if defined(F_vsprintf) || defined(DOXYGEN)
 int vsprintf(char *buf, const char *fmt, va_list ap);
 #endif
 
-#ifdef F_vsnprintf
+#if defined(F_vsnprintf) || defined(DOXYGEN)
 int vsnprintf(char *buf, size_t n, const char *fmt, va_list ap);
 #endif
 

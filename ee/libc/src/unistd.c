@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#ifdef F_getcwd
+#if defined(F_getcwd) || defined(DOXYGEN)
 extern char __direct_pwd[256];
 
 char *getcwd(char *buf, int len)
@@ -27,7 +27,7 @@ char *getcwd(char *buf, int len)
 }
 #endif
 
-#ifdef F_access
+#if defined(F_access) || defined(DOXYGEN)
 int access(const char *path, int mode)
 {
 	printf("access() unimplemented\n");
@@ -35,7 +35,7 @@ int access(const char *path, int mode)
 }
 #endif
 
-#ifdef F_fstat
+#if defined(F_fstat) || defined(DOXYGEN)
 int fstat(int filedes, struct stat *buf)
 {
 	printf("fstat() unimplemented\n");
@@ -43,7 +43,7 @@ int fstat(int filedes, struct stat *buf)
 }
 #endif
 
-#ifdef F_sleep
+#if defined(F_sleep) || defined(DOXYGEN)
 #include <kernel.h>
 #include <time.h>
 

@@ -26,7 +26,7 @@
 */
 #define MAXDIG 20
 
-#ifdef F_vxwprintf
+#if defined(F_vxwprintf) || defined(DOXYGEN)
 /*
 ** Conversion types fall into various categories as defined by the
 ** following enumeration.
@@ -640,7 +640,7 @@ struct s_strargument {    /* Describes the string being written to */
   wchar_t *last;                   /* Last available slot in the string */
 };
 
-#ifdef F___swout
+#if defined(F___swout) || defined(DOXYGEN)
 void __swout(wchar_t *txt, int amt, void *arg)
 {
   register wchar_t *head;
@@ -661,7 +661,7 @@ void __swout(wchar_t *txt, int amt, void *arg)
 }
 #endif
 
-#ifdef F_vsnwprintf
+#if defined(F_vsnwprintf) || defined(DOXYGEN)
 int vsnwprintf(wchar_t *buf, size_t n, const wchar_t *fmt, va_list ap)
 {
   struct s_strargument arg;
@@ -672,7 +672,7 @@ int vsnwprintf(wchar_t *buf, size_t n, const wchar_t *fmt, va_list ap)
 }
 #endif
 
-#ifdef F_snwprintf
+#if defined(F_snwprintf) || defined(DOXYGEN)
 int snwprintf(wchar_t *str, size_t sz, const wchar_t *format, ...)
 {
 	va_list args;
@@ -690,7 +690,7 @@ int snwprintf(wchar_t *str, size_t sz, const wchar_t *format, ...)
 }
 #endif
 
-#ifdef F_vswprintf
+#if defined(F_vswprintf) || defined(DOXYGEN)
 int vswprintf(wchar_t *buf, const wchar_t *fmt, va_list ap)
 {
   struct s_strargument arg;
@@ -701,7 +701,7 @@ int vswprintf(wchar_t *buf, const wchar_t *fmt, va_list ap)
 }
 #endif
 
-#ifdef F_swprintf
+#if defined(F_swprintf) || defined(DOXYGEN)
 int swprintf(wchar_t *str, size_t n, const wchar_t *format, ...)
 {
 	va_list args;

@@ -13,7 +13,7 @@
  * Simple standard C library implementation.
  */
 
-#ifdef F_strerror
+#if defined(F_strerror) || defined(DOXYGEN)
 #define E_USE_NAMES
 #endif
 
@@ -52,7 +52,7 @@ void _ps2sdk_stdio_init();
 extern char __direct_pwd[256];
 extern int __stdio_initialised;
 
-#ifdef F_clearerr
+#if defined(F_clearerr) || defined(DOXYGEN)
 void clearerr(FILE *stream)
 {
   stream->flag &= ~(_IOERR|_IOEOF);
@@ -60,7 +60,7 @@ void clearerr(FILE *stream)
 #endif
 
 
-#ifdef F_fclose
+#if defined(F_fclose) || defined(DOXYGEN)
 int fclose(FILE *stream)
 {
   int ret = EOF;
@@ -95,7 +95,7 @@ int fclose(FILE *stream)
 #endif
 
 
-#ifdef F_fcloseall
+#if defined(F_fcloseall) || defined(DOXYGEN)
 int _fcloseall(void)
 {
   int  i, ret = 0;
@@ -114,7 +114,7 @@ int _fcloseall(void)
 #endif
 
 
-#ifdef F_feof
+#if defined(F_feof) || defined(DOXYGEN)
 int feof(FILE *stream)
 {
   return ((stream->flag & _IOEOF) != 0);
@@ -122,14 +122,14 @@ int feof(FILE *stream)
 #endif
 
 
-#ifdef F_ferror
+#if defined(F_ferror) || defined(DOXYGEN)
 int ferror(FILE *stream)
 {
   return ((stream->flag & _IOERR) != 0);
 }
 #endif
 
-#ifdef F_fflush
+#if defined(F_fflush) || defined(DOXYGEN)
 __attribute__((weak))
 int mcFlush(int fd)
 {
@@ -183,7 +183,7 @@ int fflush(FILE *stream)
 #endif
 
 
-#ifdef F_fflushall
+#if defined(F_fflushall) || defined(DOXYGEN)
 int _fflushall(void)
 {
   int  i, ret = 0;
@@ -202,7 +202,7 @@ int _fflushall(void)
 #endif
 
 
-#ifdef F_fgetc
+#if defined(F_fgetc) || defined(DOXYGEN)
 int fgetc(FILE *stream)
 {
   unsigned char c;
@@ -231,7 +231,7 @@ int fgetc(FILE *stream)
 #endif
 
 
-#ifdef F_fgetpos
+#if defined(F_fgetpos) || defined(DOXYGEN)
 int fgetpos(FILE *stream, fpos_t *pos)
 {
   long n;
@@ -243,7 +243,7 @@ int fgetpos(FILE *stream, fpos_t *pos)
 #endif
 
 
-#ifdef F_fgets
+#if defined(F_fgets) || defined(DOXYGEN)
 char *fgets(char *buf, int n, FILE *stream)
 {
   char *ret = buf;
@@ -289,7 +289,7 @@ char *fgets(char *buf, int n, FILE *stream)
 #endif
 
 
-#ifdef F_fopen
+#if defined(F_fopen) || defined(DOXYGEN)
 /** std I/O internal function. */
 int __stdio_get_fd_type(const char *);
 
@@ -493,7 +493,7 @@ FILE *fopen(const char *fname, const char *mode)
 }
 #endif
 
-#ifdef F_fdopen
+#if defined(F_fdopen) || defined(DOXYGEN)
 FILE *fdopen(int fd, const char *mode)
 {
   FILE *ret = NULL;
@@ -553,7 +553,7 @@ FILE *fdopen(int fd, const char *mode)
 }
 #endif
 
-#ifdef F_fileno
+#if defined(F_fileno) || defined(DOXYGEN)
 int fileno(FILE * f) {
     if (f->fd > 0)
       return f->fd;
@@ -563,7 +563,7 @@ int fileno(FILE * f) {
 }
 #endif
 
-#ifdef F_fputc
+#if defined(F_fputc) || defined(DOXYGEN)
 int fputc(int c, FILE *stream)
 {
   unsigned char ch = (unsigned char)c;
@@ -572,7 +572,7 @@ int fputc(int c, FILE *stream)
 #endif
 
 
-#ifdef F_fputs
+#if defined(F_fputs) || defined(DOXYGEN)
 int fputs(const char *s, FILE *stream)
 {
   size_t len;
@@ -586,7 +586,7 @@ int fputs(const char *s, FILE *stream)
 #endif
 
 
-#ifdef F_fread
+#if defined(F_fread) || defined(DOXYGEN)
 size_t fread(void *buf, size_t r, size_t n, FILE *stream)
 {
   size_t ret = 0, read_len = r * n;
@@ -624,7 +624,7 @@ size_t fread(void *buf, size_t r, size_t n, FILE *stream)
 #endif
 
 
-#ifdef F_fseek
+#if defined(F_fseek) || defined(DOXYGEN)
 int fseek(FILE *stream, long offset, int origin)
 {
   int ret;
@@ -666,7 +666,7 @@ int fseek(FILE *stream, long offset, int origin)
 #endif
 
 
-#ifdef F_fsetpos
+#if defined(F_fsetpos) || defined(DOXYGEN)
 int fsetpos(FILE *stream, const fpos_t *pos)
 {
   stream->has_putback = 0;
@@ -675,7 +675,7 @@ int fsetpos(FILE *stream, const fpos_t *pos)
 #endif
 
 
-#ifdef F_ftell
+#if defined(F_ftell) || defined(DOXYGEN)
 long ftell(FILE *stream)
 {
   long n, ret = -1L;
@@ -710,7 +710,7 @@ long ftell(FILE *stream)
 #endif
 
 
-#ifdef F_fwrite
+#if defined(F_fwrite) || defined(DOXYGEN)
 size_t fwrite(const void *buf, size_t r, size_t n, FILE *stream)
 {
   size_t i, len, ret;
@@ -752,7 +752,7 @@ size_t fwrite(const void *buf, size_t r, size_t n, FILE *stream)
 #endif
 
 
-#ifdef F_getc
+#if defined(F_getc) || defined(DOXYGEN)
 int getc(FILE *stream)
 {
   unsigned char c;
@@ -774,7 +774,7 @@ int getc(FILE *stream)
 #endif
 
 
-#ifdef F_getchar
+#if defined(F_getchar) || defined(DOXYGEN)
 int getchar(void)
 {
   return (getc(stdin));
@@ -782,7 +782,7 @@ int getchar(void)
 #endif
 
 
-#ifdef F_getfdtype
+#if defined(F_getfdtype) || defined(DOXYGEN)
 static struct {
   char * prefix;
   int len;
@@ -827,7 +827,7 @@ int __stdio_get_fd_type(const char *s)
 #endif
 
 
-#ifdef F_gets
+#if defined(F_gets) || defined(DOXYGEN)
 char *gets(char *buf)
 {
   char *str = NULL;
@@ -844,14 +844,14 @@ char *gets(char *buf)
 #endif
 
 
-#ifdef F_strerror
+#if defined(F_strerror) || defined(DOXYGEN)
 char * strerror(int err) {
     return error_to_string(err);
 }
 #endif
 
 
-#ifdef F_perror
+#if defined(F_perror) || defined(DOXYGEN)
 void perror(const char *s)
 {
   char *err;
@@ -863,7 +863,7 @@ void perror(const char *s)
 #endif
 
 
-#ifdef F_putc
+#if defined(F_putc) || defined(DOXYGEN)
 /* std I/O data variable. */
 #ifdef USE_GS
 extern int __stdio_stdout_xy[2];
@@ -922,7 +922,7 @@ int putc(int c, FILE *stream)
 #endif
 
 
-#ifdef F_putchar
+#if defined(F_putchar) || defined(DOXYGEN)
 int putchar(int c)
 {
   return (putc(c, stdout));
@@ -930,7 +930,7 @@ int putchar(int c)
 #endif
 
 
-#ifdef F_puts
+#if defined(F_puts) || defined(DOXYGEN)
 int puts(const char *s)
 {
   int ret;
@@ -947,7 +947,7 @@ int puts(const char *s)
 #endif
 
 
-#ifdef F_remove
+#if defined(F_remove) || defined(DOXYGEN)
 /*
 **
 **  [func] - remove.
@@ -963,7 +963,7 @@ int puts(const char *s)
 #endif
 
 
-#ifdef F_rename
+#if defined(F_rename) || defined(DOXYGEN)
 /*
 **
 **  [func] - rename.
@@ -984,7 +984,7 @@ int puts(const char *s)
 #endif
 
 
-#ifdef F_rewind
+#if defined(F_rewind) || defined(DOXYGEN)
 void rewind(FILE *stream)
 {
   fseek(stream, 0, SEEK_SET);
@@ -992,7 +992,7 @@ void rewind(FILE *stream)
 #endif
 
 
-#ifdef F_skipatoi
+#if defined(F_skipatoi) || defined(DOXYGEN)
 /**
  * @param s the pointer to the source string pointer.
  */
@@ -1006,7 +1006,7 @@ int __stdio_skip_atoi(const char **s)
 #endif
 
 
-#ifdef F_stdio
+#if defined(F_stdio) || defined(DOXYGEN)
 /* stdio data variables. */
 int __stdio_initialised = 0;
 
@@ -1033,7 +1033,7 @@ int  __stdio_stdout_xy[2];
 #endif
 
 
-#ifdef F_tmpfile
+#if defined(F_tmpfile) || defined(DOXYGEN)
 /* stdio temp name variable. */
 extern char __stdio_tmpnam[256];
 
@@ -1044,7 +1044,7 @@ FILE *tmpfile(void)
 #endif
 
 
-#ifdef F_tmpnam
+#if defined(F_tmpnam) || defined(DOXYGEN)
 /* stdio temp name variable. */
 extern char __stdio_tmpnam[256];
 
@@ -1057,7 +1057,7 @@ char *tmpnam(char *name)
 #endif
 
 
-#ifdef F_ungetc
+#if defined(F_ungetc) || defined(DOXYGEN)
 int ungetc(int c, FILE *stream)
 {
 
@@ -1073,7 +1073,7 @@ int ungetc(int c, FILE *stream)
 #endif
 
 
-#ifdef F_updatestdoutxy
+#if defined(F_updatestdoutxy) || defined(DOXYGEN)
 /* std I/O data variable. */
 #ifdef USE_GS
 extern int __stdio_stdout_xy[2];
@@ -1097,7 +1097,7 @@ void __stdio_update_stdout_xy(int x, int y)
 }
 #endif
 
-#ifdef F___stdio_internals
+#if defined(F___stdio_internals) || defined(DOXYGEN)
 void _ps2sdk_stdio_init()
 {
     int i;
@@ -1120,7 +1120,7 @@ void _ps2sdk_stdio_deinit()
 }
 #endif
 
-#ifdef F_chdir
+#if defined(F_chdir) || defined(DOXYGEN)
 int chdir(const char *path) {
     strcpy(__direct_pwd, path);
     return 0;

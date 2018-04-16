@@ -39,7 +39,7 @@ void _ps2sdk_alloc_deinit();
 void _ps2sdk_alloc_lock();
 void _ps2sdk_alloc_unlock();
 
-#ifdef F___alloc_internals
+#if defined(F___alloc_internals) || defined(DOXYGEN)
 static vs32 alloc_sema = -1;
 void _ps2sdk_alloc_init()
 {
@@ -88,7 +88,7 @@ extern heap_mem_header_t *__alloc_heap_tail;
 
 heap_mem_header_t * _heap_mem_fit(heap_mem_header_t *head, size_t size);
 
-#ifdef F_malloc
+#if defined(F_malloc) || defined(DOXYGEN)
 
 void * __alloc_heap_base = NULL;
 heap_mem_header_t *__alloc_heap_head = NULL;
@@ -225,7 +225,7 @@ void * malloc(size_t size)
 }
 #endif
 
-#ifdef F_realloc
+#if defined(F_realloc) || defined(DOXYGEN)
 static void * do_realloc(void *ptr, size_t size, size_t align )
 {
 	heap_mem_header_t *prev_mem;
@@ -314,7 +314,7 @@ void *realloc64(void *ptr, size_t size)
 }
 #endif
 
-#ifdef F_calloc
+#if defined(F_calloc) || defined(DOXYGEN)
 __attribute__((weak))
 void * calloc(size_t n, size_t size)
 {
@@ -330,7 +330,7 @@ void * calloc(size_t n, size_t size)
 }
 #endif
 
-#ifdef F_memalign
+#if defined(F_memalign) || defined(DOXYGEN)
 __attribute__((weak))
 void * memalign(size_t align, size_t size)
 {
@@ -384,7 +384,7 @@ void * memalign(size_t align, size_t size)
 }
 #endif
 
-#ifdef F_free
+#if defined(F_free) || defined(DOXYGEN)
 __attribute__((weak))
 void free(void *ptr)
 {
@@ -463,7 +463,7 @@ void free(void *ptr)
 #endif
 
 /* These are here in case C++ needs them.  */
-#ifdef F___builtin_alloc
+#if defined(F___builtin_alloc) || defined(DOXYGEN)
 __attribute__((weak))
 void * __builtin_new(size_t size) { return malloc(size); }
 
@@ -471,7 +471,7 @@ __attribute__((weak))
 void __builtin_delete(void *ptr) { free(ptr); }
 #endif
 
-#ifdef F___mem_walk
+#if defined(F___mem_walk) || defined(DOXYGEN)
 void * __mem_walk_begin() {
 	return __alloc_heap_head;
 }

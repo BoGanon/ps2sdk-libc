@@ -53,7 +53,7 @@ extern int _iop_reboot_count;
 extern struct cmd_data _sif_cmd_data;
 int _SifCmdIntHandler(int channel);
 
-#ifdef F_sif_cmd_send
+#if defined(F_sif_cmd_send) || defined(DOXYGEN)
 static unsigned int _SifSendCmd(int cid, int mode, void *pkt, int pktsize, void *src,
 		void *dest, int size)
 {
@@ -116,7 +116,7 @@ iSifSendCmd( int command, void *send_data, int send_len,
 }
 #endif
 
-#ifdef F__sif_cmd_int_handler
+#if defined(F__sif_cmd_int_handler) || defined(DOXYGEN)
 int _SifCmdIntHandler(int channel)
 {
 	u128 packet[8];
@@ -172,7 +172,7 @@ out:
 }
 #endif
 
-#ifdef F_sif_cmd_main
+#if defined(F_sif_cmd_main) || defined(DOXYGEN)
 static u8 pktbuf[CMD_PACKET_MAX] __attribute__((aligned(64)));
 /* Define this so that in the unlikely case another SIF implementation decides
    to use it, it won't crash.  Otherwise unused.  */
@@ -298,7 +298,7 @@ void SifExitCmd(void)
 }
 #endif
 
-#ifdef F_sif_cmd_client
+#if defined(F_sif_cmd_client) || defined(DOXYGEN)
 SifCmdHandlerData_t *SifSetCmdBuffer(SifCmdHandlerData_t *db, int size)
 {
 	SifCmdHandlerData_t *old;
@@ -322,7 +322,7 @@ void SifAddCmdHandler(int pos, SifCmdHandler_t handler, void *harg)
 }
 #endif
 
-#ifdef F_sif_cmd_remove_cmdhandler
+#if defined(F_sif_cmd_remove_cmdhandler) || defined(DOXYGEN)
 void SifRemoveCmdHandler(int pos)
 {
 	u32 id = pos & ~SIF_CMD_ID_SYSTEM;
@@ -334,7 +334,7 @@ void SifRemoveCmdHandler(int pos)
 }
 #endif
 
-#ifdef F_sif_sreg_get
+#if defined(F_sif_sreg_get) || defined(DOXYGEN)
 int SifGetSreg(int sreg)
 {
 	return _sif_cmd_data.sregs[sreg];

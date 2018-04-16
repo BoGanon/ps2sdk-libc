@@ -18,11 +18,11 @@
 extern char **_kExecArg;
 const char *SetArg(const char *filename, int argc, char *argv[]);
 
-#ifdef F__exit_internals
+#if defined(F__exit_internals) || defined(DOXYGEN)
 char **_kExecArg;
 #endif
 
-#ifdef F_SetArg
+#if defined(F_SetArg) || defined(DOXYGEN)
 struct SyscallData{
 	int syscall;
 	void *function;
@@ -62,7 +62,7 @@ const char *SetArg(const char *filename, int argc, char *argv[])
 }
 #endif
 
-#ifdef F_Exit
+#if defined(F_Exit) || defined(DOXYGEN)
 void Exit(s32 exit_code)
 {
 	TerminateLibrary();
@@ -70,7 +70,7 @@ void Exit(s32 exit_code)
 }
 #endif
 
-#ifdef F_ExecPS2
+#if defined(F_ExecPS2) || defined(DOXYGEN)
 s32  ExecPS2(void *entry, void *gp, int num_args, char *args[])
 {
 	SetArg("", num_args, args);
@@ -79,7 +79,7 @@ s32  ExecPS2(void *entry, void *gp, int num_args, char *args[])
 }
 #endif
 
-#ifdef F_LoadExecPS2
+#if defined(F_LoadExecPS2) || defined(DOXYGEN)
 void LoadExecPS2(const char *filename, s32 num_args, char *args[])
 {
 	const char *pFilename;
@@ -90,7 +90,7 @@ void LoadExecPS2(const char *filename, s32 num_args, char *args[])
 }
 #endif
 
-#ifdef F_ExecOSD
+#if defined(F_ExecOSD) || defined(DOXYGEN)
 void ExecOSD(int num_args, char *args[])
 {
 	SetArg("", num_args, args);

@@ -110,7 +110,7 @@
 #define FLTBUF	40
 #endif
 
-#ifdef F_vxscanf
+#if defined(F_vxscanf) || defined(DOXYGEN)
 #define w_xgetc(s) xgetc(s), clen++
 
 int vxscanf(int (*xgetc)(void **), void (*xungetc)(int, void **), void *stream, const char *fmt, va_list ap) {
@@ -633,7 +633,7 @@ leave:
 }
 #endif
 
-#ifdef F_xscanf
+#if defined(F_xscanf) || defined(DOXYGEN)
 int xscanf(int (*xgetc)(void **), void (*xungetc)(int, void **), void *stream, const char *fmt, ...) {
 	int r;
         va_list args;
@@ -649,7 +649,7 @@ void _f_xungetc(int, void **);
 int _s_xgetc(void **);
 void _s_xungetc(int, void **);
 
-#ifdef F__xscanf_internals
+#if defined(F__xscanf_internals) || defined(DOXYGEN)
 int _f_xgetc(void ** stream) {
     return fgetc(*(FILE**)stream);
 }
@@ -668,7 +668,7 @@ void _s_xungetc(int c, void ** p_str) {
 }
 #endif
 
-#ifdef F_scanf
+#if defined(F_scanf) || defined(DOXYGEN)
 int scanf(const char * fmt, ...) {
 	int r;
         va_list args;
@@ -679,7 +679,7 @@ int scanf(const char * fmt, ...) {
 }
 #endif
 
-#ifdef F_sscanf
+#if defined(F_sscanf) || defined(DOXYGEN)
 int sscanf(const char * str, const char * fmt, ...) {
 	int r;
         va_list args;
@@ -690,7 +690,7 @@ int sscanf(const char * str, const char * fmt, ...) {
 }
 #endif
 
-#ifdef F_fscanf
+#if defined(F_fscanf) || defined(DOXYGEN)
 int fscanf(FILE * stream, const char * fmt, ...) {
 	int r;
         va_list args;
@@ -701,19 +701,19 @@ int fscanf(FILE * stream, const char * fmt, ...) {
 }
 #endif
 
-#ifdef F_vscanf
+#if defined(F_vscanf) || defined(DOXYGEN)
 int vscanf(const char * fmt, va_list args) {
 	return vxscanf(_f_xgetc, _f_xungetc, stdin, fmt, args);
 }
 #endif
 
-#ifdef F_vsscanf
+#if defined(F_vsscanf) || defined(DOXYGEN)
 int vsscanf(const char * str, const char * fmt, va_list args) {
 	return vxscanf(_s_xgetc, _s_xungetc, (void *) str, fmt, args);
 }
 #endif
 
-#ifdef F_vfscanf
+#if defined(F_vfscanf) || defined(DOXYGEN)
 int vfscanf(FILE * stream, const char * fmt, va_list args) {
 	return vxscanf(_f_xgetc, _f_xungetc, stream, fmt, args);
 }

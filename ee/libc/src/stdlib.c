@@ -37,7 +37,7 @@ extern environvariable_t __stdlib_env[32];
 extern unsigned int __stdlib_rand_seed;
 
 
-#ifdef F_abs
+#if defined(F_abs) || defined(DOXYGEN)
 // shouldn't we rather put that as a macro... ?
 int abs(int c)
 {
@@ -46,7 +46,7 @@ int abs(int c)
 #endif
 
 
-#ifdef F_atexit
+#if defined(F_atexit) || defined(DOXYGEN)
 int atexit(void (*func)(void))
 {
   int ret;
@@ -62,7 +62,7 @@ int atexit(void (*func)(void))
 #endif
 
 
-#ifdef F_atof
+#if defined(F_atof) || defined(DOXYGEN)
 // macro... maybe ? :)
 double atof(const char *s)
 {
@@ -71,7 +71,7 @@ double atof(const char *s)
 #endif
 
 
-#ifdef F_atoi
+#if defined(F_atoi) || defined(DOXYGEN)
 int atoi(const char *s)
 {
   return (int)strtol(s, NULL, 10);
@@ -100,7 +100,7 @@ int atoi(const char *s)
 #endif
 
 
-#ifdef F_atol
+#if defined(F_atol) || defined(DOXYGEN)
 long atol(const char *s)
 {
   return strtol(s, NULL, 10);
@@ -130,7 +130,7 @@ long atol(const char *s)
 #endif
 
 
-#ifdef F_bsearch
+#if defined(F_bsearch) || defined(DOXYGEN)
 void *bsearch(const void *key, const void *base, size_t count, size_t size, int (* compare)(const void *, const void *))
 {
   int        comparison;
@@ -157,7 +157,7 @@ void *bsearch(const void *key, const void *base, size_t count, size_t size, int 
 #endif
 
 
-#ifdef F_div
+#if defined(F_div) || defined(DOXYGEN)
 div_t div(int n, int d)
 {
   div_t ret;
@@ -237,7 +237,7 @@ char *_gcvt(double x, size_t n, char *buf)
 #endif
 
 
-#ifdef F_getenv
+#if defined(F_getenv) || defined(DOXYGEN)
 char *getenv(const char *name)
 {
   int  i;
@@ -256,7 +256,7 @@ char *getenv(const char *name)
 #endif
 
 
-#ifdef F__itoa
+#if defined(F__itoa) || defined(DOXYGEN)
 char *_itoa(int n, char *buf, int radix)
 {
   char         *ret = buf;
@@ -284,7 +284,7 @@ char *_itoa(int n, char *buf, int radix)
 #endif
 
 
-#ifdef F_labs
+#if defined(F_labs) || defined(DOXYGEN)
 long labs(long n)
 {
   return ((n >= 0) ? n : -n);
@@ -292,7 +292,7 @@ long labs(long n)
 #endif
 
 
-#ifdef F_ldiv
+#if defined(F_ldiv) || defined(DOXYGEN)
 ldiv_t ldiv(long n, long d)
 {
   ldiv_t ret;
@@ -304,7 +304,7 @@ ldiv_t ldiv(long n, long d)
 #endif
 
 
-#ifdef F_llabs
+#if defined(F_llabs) || defined(DOXYGEN)
 long long llabs(long long n)
 {
   return ((n >= 0) ? n : -n);
@@ -312,7 +312,7 @@ long long llabs(long long n)
 #endif
 
 
-#ifdef F_lldiv
+#if defined(F_lldiv) || defined(DOXYGEN)
 lldiv_t lldiv(long long n, long long d)
 {
   lldiv_t ret;
@@ -324,7 +324,7 @@ lldiv_t lldiv(long long n, long long d)
 #endif
 
 
-#ifdef F__lltoa
+#if defined(F__lltoa) || defined(DOXYGEN)
 char *_lltoa(long long n, char *buf, int radix)
 {
   char         *ret = buf;
@@ -353,7 +353,7 @@ char *_lltoa(long long n, char *buf, int radix)
 #endif
 
 
-#ifdef F__ltoa
+#if defined(F__ltoa) || defined(DOXYGEN)
 char *_ltoa(long n, char *buf, int radix)
 {
   char         *ret = buf;
@@ -382,7 +382,7 @@ char *_ltoa(long n, char *buf, int radix)
 #endif
 
 
-#ifdef F_mblen
+#if defined(F_mblen) || defined(DOXYGEN)
 int mblen(const char *s, size_t n)
 {
   return (mbtowc((wchar_t *)NULL, s, n));
@@ -390,7 +390,7 @@ int mblen(const char *s, size_t n)
 #endif
 
 
-#ifdef F_mbslen
+#if defined(F_mbslen) || defined(DOXYGEN)
 int mbslen(const char *s)
 {
   int    len;
@@ -417,7 +417,7 @@ int mbslen(const char *s)
 #endif
 
 
-#ifdef F_mbstowcs
+#if defined(F_mbstowcs) || defined(DOXYGEN)
 size_t mbstowcs(wchar_t *ws, const char *s, size_t n)
 {
   int    len;
@@ -453,7 +453,7 @@ size_t mbstowcs(wchar_t *ws, const char *s, size_t n)
 #endif
 
 
-#ifdef F_mbtowc
+#if defined(F_mbtowc) || defined(DOXYGEN)
 int mbtowc(wchar_t *wc, const char *s, size_t n)
 {
   int ret;
@@ -496,7 +496,7 @@ int mbtowc(wchar_t *wc, const char *s, size_t n)
 #endif
 
 
-#ifdef F_rand
+#if defined(F_rand) || defined(DOXYGEN)
 int rand(void)
 {
 // I don't agree with it...
@@ -511,7 +511,7 @@ int rand(void)
 #endif
 
 
-#ifdef F_setenv
+#if defined(F_setenv) || defined(DOXYGEN)
 int setenv(const char *name, const char *value, int rewrite)
 {
   int done, i, ret = -1;
@@ -548,7 +548,7 @@ int setenv(const char *name, const char *value, int rewrite)
 #endif
 
 
-#ifdef F_srand
+#if defined(F_srand) || defined(DOXYGEN)
 void srand(unsigned int seed)
 {
   __stdlib_rand_seed = seed;
@@ -556,12 +556,12 @@ void srand(unsigned int seed)
 #endif
 
 
-#ifdef F___stdlib_environmentals
+#if defined(F___stdlib_environmentals) || defined(DOXYGEN)
 /* stdlib environmental data variables. */
 environvariable_t    __stdlib_env[32];
 #endif
 
-#ifdef F___stdlib_internals
+#if defined(F___stdlib_internals) || defined(DOXYGEN)
 /* stdlib data variables. */
 void                 (* __stdlib_exit_func[32])(void);
 int                  __stdlib_exit_index = 0;
@@ -570,7 +570,7 @@ unsigned int         __stdlib_rand_seed = 92384729;
 #endif
 
 
-#ifdef F_strtod
+#if defined(F_strtod) || defined(DOXYGEN)
 double strtod(const char *s, char **eptr)
 {
   double d, ret = 0.0, sign = 1.0;
@@ -625,7 +625,7 @@ double strtod(const char *s, char **eptr)
 #endif
 
 
-#ifdef F_strtol
+#if defined(F_strtol) || defined(DOXYGEN)
 #if 0
 long strtol(const char *s, char **eptr, int b)
 {
@@ -767,7 +767,7 @@ long strtol(const char *s, char **eptr, int b)
 #endif
 
 
-#ifdef F_strtoul
+#if defined(F_strtoul) || defined(DOXYGEN)
 #if 0
 unsigned long strtoul(const char *s, char **eptr, int b)
 {
@@ -890,7 +890,7 @@ unsigned long strtoul(const char *nptr, char **endptr, int base)
 #endif
 
 
-#ifdef F_wcstombs
+#if defined(F_wcstombs) || defined(DOXYGEN)
 size_t wcstombs(char *s, const wchar_t *ws, size_t n)
 {
   int            len;
@@ -939,7 +939,7 @@ size_t wcstombs(char *s, const wchar_t *ws, size_t n)
 #endif
 
 
-#ifdef F_wctomb
+#if defined(F_wctomb) || defined(DOXYGEN)
 int wctomb(char *s, wchar_t wc)
 {
   int ret;
@@ -977,7 +977,7 @@ int wctomb(char *s, wchar_t wc)
 }
 #endif
 
-#ifdef F___assert_fail
+#if defined(F___assert_fail) || defined(DOXYGEN)
 int __assert_fail (const char *assertion, const char *file, unsigned int line)
 {
     fprintf(stderr, "Error: assertion `%s' failed in %s:%i\n", assertion, file, line);
@@ -985,7 +985,7 @@ int __assert_fail (const char *assertion, const char *file, unsigned int line)
 }
 #endif
 
-#ifdef F___stdlib_internals
+#if defined(F___stdlib_internals) || defined(DOXYGEN)
 void _ps2sdk_stdlib_init()
 {
 }

@@ -12,7 +12,7 @@
 
 #include <locale.h>
 
-#ifdef F_setlocale
+#if defined(F_setlocale) || defined(DOXYGEN)
 char  _ps2sdk_locale[2] = "C";
 
 char *setlocale(int cat, const char *loc)
@@ -30,7 +30,7 @@ char *setlocale(int cat, const char *loc)
 }
 #endif
 
-#ifdef F_localeconv
+#if defined(F_localeconv) || defined(DOXYGEN)
 
 struct lconv _ps2sdk_lconv = 
 {

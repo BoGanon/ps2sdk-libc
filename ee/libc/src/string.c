@@ -17,14 +17,14 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef F_strcoll
+#if defined(F_strcoll) || defined(DOXYGEN)
 int strcoll(const char *s1, const char *s2)
 {
 	return strcmp(s1, s2);
 }
 #endif
 
-#ifdef F_strxfrm
+#if defined(F_strxfrm) || defined(DOXYGEN)
 size_t strxfrm(char *dest, const char *src, size_t n)
 {
 	strncpy(dest, src, n);
@@ -32,7 +32,7 @@ size_t strxfrm(char *dest, const char *src, size_t n)
 }
 #endif
 
-#ifdef F_strdup
+#if defined(F_strdup) || defined(DOXYGEN)
 char *strdup(const char *s) {
 	size_t str_size = strlen(s);
 	char * r = (char *)malloc(str_size + 1);
@@ -41,7 +41,7 @@ char *strdup(const char *s) {
 }
 #endif
 
-#ifdef F_strcasecmp
+#if defined(F_strcasecmp) || defined(DOXYGEN)
 int	strcasecmp(const char * string1, const char * string2)
 {
 	while (*string1 != '\0' && tolower(*string1) == tolower(*string2))
@@ -55,7 +55,7 @@ int	strcasecmp(const char * string1, const char * string2)
 #endif
 
 
-#ifdef F_strncasecmp
+#if defined(F_strncasecmp) || defined(DOXYGEN)
 int	 strncasecmp(const char * string1, const char * string2, size_t n)
 {
 	if (n == 0)
@@ -74,7 +74,7 @@ int	 strncasecmp(const char * string1, const char * string2, size_t n)
 }
 #endif
 
-#ifdef F_strtok
+#if defined(F_strtok) || defined(DOXYGEN)
 char* strtok(char * strToken, const char * strDelimit)
 {
 	static char* start;
@@ -136,7 +136,7 @@ char* strtok(char * strToken, const char * strDelimit)
 }
 #endif
 
-#ifdef F_strrchr
+#if defined(F_strrchr) || defined(DOXYGEN)
 char* strrchr(const char * string, int c)
 {
 	/* use the asm strchr to do strrchr */
@@ -160,7 +160,7 @@ char* strrchr(const char * string, int c)
 }
 #endif
 
-#ifdef F_strstr
+#if defined(F_strstr) || defined(DOXYGEN)
 char *	strstr(const char * string, const char * substring)
 {
 	char* strpos;
@@ -188,7 +188,7 @@ char *	strstr(const char * string, const char * substring)
 #endif
 
 
-#ifdef F_strupr
+#if defined(F_strupr) || defined(DOXYGEN)
 char * strupr(char *str)
 {
 	char * strptr = str;
@@ -206,7 +206,7 @@ char * strupr(char *str)
 }
 #endif
 
-#ifdef F_strlwr
+#if defined(F_strlwr) || defined(DOXYGEN)
 char * strlwr(char *str)
 {
 	char * strptr = str;
@@ -225,7 +225,7 @@ char * strlwr(char *str)
 #endif
 
 
-#ifdef F_tolower
+#if defined(F_tolower) || defined(DOXYGEN)
 int tolower(int c)
 {
 	if (isupper(c))
@@ -235,7 +235,7 @@ int tolower(int c)
 }
 #endif
 
-#ifdef F_toupper
+#if defined(F_toupper) || defined(DOXYGEN)
 int toupper(int c)
 {
 	if (islower(c))
@@ -245,7 +245,7 @@ int toupper(int c)
 }
 #endif
 
-#ifdef F_isupper
+#if defined(F_isupper) || defined(DOXYGEN)
 int isupper(int c)
 {
 	if (c < 'A')
@@ -260,7 +260,7 @@ int isupper(int c)
 }
 #endif
 
-#ifdef F_islower
+#if defined(F_islower) || defined(DOXYGEN)
 int islower(int c)
 {
 	if (c < 'a')
@@ -275,7 +275,7 @@ int islower(int c)
 }
 #endif
 
-#ifdef F_isalpha
+#if defined(F_isalpha) || defined(DOXYGEN)
 int isalpha(int c)
 {
 	if (islower(c) || isupper(c))
@@ -285,7 +285,7 @@ int isalpha(int c)
 }
 #endif
 
-#ifdef F_isdigit
+#if defined(F_isdigit) || defined(DOXYGEN)
 int isdigit(int c)
 {
 	if (c < '0')
@@ -300,7 +300,7 @@ int isdigit(int c)
 }
 #endif
 
-#ifdef F_isalnum
+#if defined(F_isalnum) || defined(DOXYGEN)
 int isalnum(int c)
 {
 	if (isalpha(c) || isdigit(c))
@@ -310,7 +310,7 @@ int isalnum(int c)
 }
 #endif
 
-#ifdef F_iscntrl
+#if defined(F_iscntrl) || defined(DOXYGEN)
 int iscntrl(int c)
 {
 	if (c < 0x20)
@@ -323,7 +323,7 @@ int iscntrl(int c)
 }
 #endif
 
-#ifdef F_isgraph
+#if defined(F_isgraph) || defined(DOXYGEN)
 int isgraph(int c)
 {
 	if (iscntrl(c))
@@ -336,7 +336,7 @@ int isgraph(int c)
 }
 #endif
 
-#ifdef F_isprint
+#if defined(F_isprint) || defined(DOXYGEN)
 int isprint(int c)
 {
 	if (iscntrl(c))
@@ -346,7 +346,7 @@ int isprint(int c)
 }
 #endif
 
-#ifdef F_ispunct
+#if defined(F_ispunct) || defined(DOXYGEN)
 int ispunct(int c)
 {
 	if (iscntrl(c))
@@ -365,7 +365,7 @@ int ispunct(int c)
 }
 #endif
 
-#ifdef F_isspace
+#if defined(F_isspace) || defined(DOXYGEN)
 int isspace(int c)
 {
 	if ((c>=0x09) && (c<=0x0D))
@@ -378,7 +378,7 @@ int isspace(int c)
 }
 #endif
 
-#ifdef F_isxdigit
+#if defined(F_isxdigit) || defined(DOXYGEN)
 int isxdigit(int c)
 {
 	if (isdigit(c))
@@ -402,7 +402,7 @@ struct charmap_t {
 	unsigned char ascii;
 };
 
-#ifdef F__sjis_internals
+#if defined(F__sjis_internals) || defined(DOXYGEN)
 /* What was the original encoding?
    Assuming ISO-8859-1 or ISO-8859-15. */
 struct charmap_t sjis_conversion[] = {
@@ -466,7 +466,7 @@ unsigned char isSpecialSJIS(short sjis);
 short isSpecialASCII(unsigned char ascii);
 #endif
 
-#ifdef F_strcpy_ascii
+#if defined(F_strcpy_ascii) || defined(DOXYGEN)
 int strcpy_ascii(char* ascii_buff, const short* sjis_buff)
 {
     int i;
@@ -488,7 +488,7 @@ int strcpy_ascii(char* ascii_buff, const short* sjis_buff)
 }
 #endif
 
-#ifdef F_strcpy_sjis
+#if defined(F_strcpy_sjis) || defined(DOXYGEN)
 int strcpy_sjis(short* sjis_buff, const char* ascii_buff)
 {
     int i;
@@ -510,7 +510,7 @@ int strcpy_sjis(short* sjis_buff, const char* ascii_buff)
 }
 #endif
 
-#ifdef F_strpbrk
+#if defined(F_strpbrk) || defined(DOXYGEN)
 char *strpbrk(const char *s, const char *accept)
 {
     const char *needle;
@@ -525,7 +525,7 @@ char *strpbrk(const char *s, const char *accept)
 }
 #endif
 
-#ifdef F_strspn
+#if defined(F_strspn) || defined(DOXYGEN)
 size_t strspn(const char *s, const char *accept) {
     const char *c;
 
@@ -538,7 +538,7 @@ size_t strspn(const char *s, const char *accept) {
 }
 #endif
 
-#ifdef F_strcspn
+#if defined(F_strcspn) || defined(DOXYGEN)
 size_t strcspn(const char *s, const char *reject) {
     const char *c;
 
@@ -551,7 +551,7 @@ size_t strcspn(const char *s, const char *reject) {
 }
 #endif
 
-#ifdef F_ctype
+#if defined(F_ctype) || defined(DOXYGEN)
 const unsigned char ctype[256] = {
     _C,     _C,    _C,    _C,    _C,    _C,    _C,    _C,
     _C,     _C|_S, _C|_S, _C|_S, _C|_S, _C|_S, _C,    _C,

@@ -24,7 +24,7 @@ void _ps2sdk_time_deinit();
 
 int chdir(const char *path);
 
-#ifdef F_init_libc
+#if defined(F_init_libc) || defined(DOXYGEN)
 __attribute__((weak))
 void _ps2sdk_libc_init()
 {
@@ -44,7 +44,7 @@ void _ps2sdk_libc_deinit()
 }
 #endif
 
-#ifdef F_init_args
+#if defined(F_init_args) || defined(DOXYGEN)
 __attribute__((weak))
 void _ps2sdk_args_parse(int argc, char ** argv)
 {

@@ -14,7 +14,7 @@
 
 #include <kernel.h>
 
-#ifdef F_kCopy
+#if defined(F_kCopy) || defined(DOXYGEN)
 int kCopy(void *dest, const void *src, int size)
 {
 	const u32 *pSrc;
@@ -33,7 +33,7 @@ int kCopy(void *dest, const void *src, int size)
 }
 #endif
 
-#ifdef F_kCopyBytes
+#if defined(F_kCopyBytes) || defined(DOXYGEN)
 int kCopyBytes(void *dest, const void *src, int size)
 {
 	const u8 *pSrc;

@@ -35,7 +35,7 @@ extern unsigned int size_imgdrv_irx;
 #define IMGDRV_IRX_PTRS		0x190
 #define IMGDRV_IRX_SIZES	0x198
 
-#ifdef F__iopcontrol_special_internals
+#if defined(F__iopcontrol_special_internals) || defined(DOXYGEN)
 u8 iopbtconf_img[IOPBTCONF_IOP_MAX_SIZE] __attribute__((aligned(64)));
 #endif
 
@@ -45,7 +45,7 @@ u8 iopbtconf_img[IOPBTCONF_IOP_MAX_SIZE] __attribute__((aligned(64)));
 #define SifLoadModuleEncryptedSpecial(path, arg_len, args, dontwait)	\
 	_SifLoadModule(path, arg_len, args, NULL, LF_F_MG_MOD_LOAD, dontwait);
 
-#ifdef F_SifIopRebootBufferEncrypted
+#if defined(F_SifIopRebootBufferEncrypted) || defined(DOXYGEN)
 int SifIopRebootBufferEncrypted(void *udnl, int size)
 {
 	int iopbtconf_img_size;
@@ -115,7 +115,7 @@ int SifIopRebootBufferEncrypted(void *udnl, int size)
 }
 #endif
 
-#ifdef F_SifIopRebootBuffer
+#if defined(F_SifIopRebootBuffer) || defined(DOXYGEN)
 static int generateIOPBTCONF_img(void *output, void *ioprp);
 
 int SifIopRebootBuffer(void *ioprp, int size)

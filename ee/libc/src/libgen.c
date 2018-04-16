@@ -20,7 +20,7 @@
 #define PATH_MAX 255
 #endif
 
-#ifdef F_basename
+#if defined(F_basename) || defined(DOXYGEN)
 char *basename(char *path)
 {
     static char base[PATH_MAX];
@@ -126,7 +126,7 @@ char *basename(char *path)
 }
 #endif
 
-#ifdef F_dirname
+#if defined(F_dirname) || defined(DOXYGEN)
 char *dirname(char *path)
 {
     static char dir[PATH_MAX];

@@ -4,7 +4,7 @@
 #include <limits.h>
 #include <wchar.h>
 
-#ifdef F_wcstod
+#if defined(F_wcstod) || defined(DOXYGEN)
 double wcstod(const wchar_t *s, wchar_t **eptr)
 {
   double d, ret = 0.0, sign = 1.0;
@@ -58,7 +58,7 @@ double wcstod(const wchar_t *s, wchar_t **eptr)
 }
 #endif
 
-#ifdef F_wcstol
+#if defined(F_wcstol) || defined(DOXYGEN)
 long int wcstol(const wchar_t *nptr, wchar_t **endptr, int base)
 {
          register const wchar_t *s = nptr;
@@ -152,7 +152,7 @@ long int wcstol(const wchar_t *nptr, wchar_t **endptr, int base)
  }
 #endif
 
-#ifdef F_wcstoul
+#if defined(F_wcstoul) || defined(DOXYGEN)
 unsigned long int wcstoul(const wchar_t *nptr, wchar_t **endptr, int base)
 {
          register const wchar_t *s = nptr;

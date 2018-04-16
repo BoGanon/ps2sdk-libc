@@ -69,7 +69,7 @@ extern int _fio_intr_data[32];
 void _fio_read_intr(struct _fio_read_data *);
 void _fio_intr();
 
-#ifdef F___fio_internals
+#if defined(F___fio_internals) || defined(DOXYGEN)
 SifRpcClientData_t _fio_cd;
 int _fio_recv_data[512] __attribute__((aligned(64)));
 int _fio_intr_data[32] __attribute__((aligned(64)));
@@ -78,7 +78,7 @@ int _fio_block_mode;
 int _fio_completion_sema = -1;
 #endif
 
-#ifdef F_fio_init
+#if defined(F_fio_init) || defined(DOXYGEN)
 int fioInit(void)
 {
 	int res;
@@ -118,14 +118,14 @@ int fioInit(void)
 }
 #endif
 
-#ifdef F__fio_intr
+#if defined(F__fio_intr) || defined(DOXYGEN)
 void _fio_intr(void)
 {
 	iSignalSema(_fio_completion_sema);
 }
 #endif
 
-#ifdef F_fio_sync
+#if defined(F_fio_sync) || defined(DOXYGEN)
 int fioSync(int mode, int *retVal)
 {
 	int res;
@@ -165,7 +165,7 @@ int fioSync(int mode, int *retVal)
 }
 #endif
 
-#ifdef F_fio_setblockmode
+#if defined(F_fio_setblockmode) || defined(DOXYGEN)
 void fioSetBlockMode(int blocking)
 {
 	_fio_block_mode = blocking;
@@ -173,7 +173,7 @@ void fioSetBlockMode(int blocking)
 
 #endif
 
-#ifdef F_fio_exit
+#if defined(F_fio_exit) || defined(DOXYGEN)
 void fioExit(void)
 {
 	if(_fio_init)
@@ -188,7 +188,7 @@ void fioExit(void)
 }
 #endif
 
-#ifdef F_fio_open
+#if defined(F_fio_open) || defined(DOXYGEN)
 struct _fio_open_arg {
 	int	mode;
 	char 	name[FIO_PATH_MAX];
@@ -224,7 +224,7 @@ int fioOpen(const char *name, int mode)
 }
 #endif
 
-#ifdef F_fio_close
+#if defined(F_fio_close) || defined(DOXYGEN)
 int fioClose(int fd)
 {
 	union { int fd; int result; } arg;
@@ -252,7 +252,7 @@ int fioClose(int fd)
 }
 #endif
 
-#ifdef F__fio_read_intr
+#if defined(F__fio_read_intr) || defined(DOXYGEN)
 void _fio_read_intr(struct _fio_read_data *data)
 {
 	struct _fio_read_data *uncached = UNCACHED_SEG(data);
@@ -269,7 +269,7 @@ void _fio_read_intr(struct _fio_read_data *data)
 }
 #endif
 
-#ifdef F_fio_read
+#if defined(F_fio_read) || defined(DOXYGEN)
 struct _fio_read_arg {
 	int	fd;
 	void	*ptr;
@@ -310,7 +310,7 @@ int fioRead(int fd, void *ptr, int size)
 }
 #endif
 
-#ifdef F_fio_write
+#if defined(F_fio_write) || defined(DOXYGEN)
 struct _fio_write_arg {
 	int	fd;
 	const void	*ptr;
@@ -363,7 +363,7 @@ int fioWrite(int fd, const void *ptr, int size)
 }
 #endif
 
-#ifdef F_fio_lseek
+#if defined(F_fio_lseek) || defined(DOXYGEN)
 struct _fio_lseek_arg {
 	union {
 		int	fd;
@@ -402,7 +402,7 @@ int fioLseek(int fd, int offset, int whence)
 }
 #endif
 
-#ifdef F_fio_ioctl
+#if defined(F_fio_ioctl) || defined(DOXYGEN)
 struct _fio_ioctl_arg {
 	union {
 		int fd;
@@ -443,7 +443,7 @@ int fioIoctl(int fd, int request, void *data)
 }
 #endif
 
-#ifdef F_fio_remove
+#if defined(F_fio_remove) || defined(DOXYGEN)
 int fioRemove(const char *name)
 {
 	union {
@@ -475,7 +475,7 @@ int fioRemove(const char *name)
 }
 #endif
 
-#ifdef F_fio_mkdir
+#if defined(F_fio_mkdir) || defined(DOXYGEN)
 int fioMkdir(const char* path)
 {
 	union {
@@ -507,7 +507,7 @@ int fioMkdir(const char* path)
 }
 #endif
 
-#ifdef F_fio_rmdir
+#if defined(F_fio_rmdir) || defined(DOXYGEN)
 int fioRmdir(const char* dirname)
 {
 	union {
@@ -539,14 +539,14 @@ int fioRmdir(const char* dirname)
 }
 #endif
 
-#ifdef F_fio_putc
+#if defined(F_fio_putc) || defined(DOXYGEN)
 int fioPutc(int fd,int c)
 {
 	return fioWrite(fd,&c,1);
 }
 #endif
 
-#ifdef F_fio_getc
+#if defined(F_fio_getc) || defined(DOXYGEN)
 int fioGetc(int fd)
 {
 	int c;
@@ -556,7 +556,7 @@ int fioGetc(int fd)
 }
 #endif
 
-#ifdef F_fio_gets
+#if defined(F_fio_gets) || defined(DOXYGEN)
 int fioGets(int fd, char* buff, int n)
 {
 	// Rather than doing a slow byte-at-a-time read
@@ -585,7 +585,7 @@ int fioGets(int fd, char* buff, int n)
 }
 #endif
 
-#ifdef F_fio_dopen
+#if defined(F_fio_dopen) || defined(DOXYGEN)
 int fioDopen(const char *name)
 {
 	union {
@@ -617,7 +617,7 @@ int fioDopen(const char *name)
 }
 #endif
 
-#ifdef F_fio_dclose
+#if defined(F_fio_dclose) || defined(DOXYGEN)
 int fioDclose(int fd)
 {
 	union {
@@ -648,7 +648,7 @@ int fioDclose(int fd)
 }
 #endif
 
-#ifdef F_fio_dread
+#if defined(F_fio_dread) || defined(DOXYGEN)
 struct _fio_dread_arg {
 	union {
 		int fd;
@@ -688,7 +688,7 @@ int fioDread(int fd, fio_dirent_t *buf)
 }
 #endif
 
-#ifdef F_fio_getstat
+#if defined(F_fio_getstat) || defined(DOXYGEN)
 struct _fio_getstat_arg {
 	union {
 		fio_stat_t *buf;
@@ -729,7 +729,7 @@ int fioGetstat(const char *name, fio_stat_t *buf)
 }
 #endif
 
-#ifdef F_fio_chstat
+#if defined(F_fio_chstat) || defined(DOXYGEN)
 struct _fio_chstat_arg {
 	union {
 		int cbit;
@@ -769,7 +769,7 @@ int fioChstat(const char *name, fio_stat_t *buf, u32 cbit)
 }
 #endif
 
-#ifdef F_fio_format
+#if defined(F_fio_format) || defined(DOXYGEN)
 int fioFormat(const char *name)
 {
 	union {
@@ -802,7 +802,7 @@ int fioFormat(const char *name)
 #endif
 
 /* The unistd glue functions.  */
-#ifdef F_fio_unistd
+#if defined(F_fio_unistd) || defined(DOXYGEN)
 #include <limits.h>
 #include <kernel/dirent.h>
 

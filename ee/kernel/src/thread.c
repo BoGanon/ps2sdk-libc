@@ -35,7 +35,7 @@ extern int topId;
 extern int topSema;
 extern struct topArg topArg;
 
-#ifdef F__thread_internals
+#if defined(F__thread_internals) || defined(DOXYGEN)
 
 extern void *_gp;
 
@@ -105,7 +105,7 @@ int InitThread(void)
 }
 #endif
 
-#ifdef F_iWakeupThread
+#if defined(F_iWakeupThread) || defined(DOXYGEN)
 //The original iWakeupThread cannot wake up threads in THS_RUN state.
 s32 iWakeupThread(s32 thread_id)
 {
@@ -130,7 +130,7 @@ s32 iWakeupThread(s32 thread_id)
 }
 #endif
 
-#ifdef F_iRotateThreadReadyQueue
+#if defined(F_iRotateThreadReadyQueue) || defined(DOXYGEN)
 //The original iRotateThreadReadyQueue will not change the current thread ID.
 s32 iRotateThreadReadyQueue(s32 priority)
 {
@@ -150,7 +150,7 @@ s32 iRotateThreadReadyQueue(s32 priority)
 }
 #endif
 
-#ifdef F_iSuspendThread
+#if defined(F_iSuspendThread) || defined(DOXYGEN)
 //The original iSuspendThread allows a thread to suspend itself, but won't change the current thread ID.
 s32 iSuspendThread(s32 thread_id)
 {

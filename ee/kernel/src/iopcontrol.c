@@ -23,13 +23,13 @@
 
 #include <iopcontrol.h>
 
-#ifdef F___iop_control_internals
+#if defined(F___iop_control_internals) || defined(DOXYGEN)
 int _iop_reboot_count = 0;
 #endif
 
 extern int _iop_reboot_count;
 
-#ifdef F_SifIopReset
+#if defined(F_SifIopReset) || defined(DOXYGEN)
 
 int SifIopReset(const char *arg, int mode)
 {
@@ -78,7 +78,7 @@ int SifIopReset(const char *arg, int mode)
 }
 #endif
 
-#ifdef F_SifIopReboot
+#if defined(F_SifIopReboot) || defined(DOXYGEN)
 int SifIopReboot(const char* arg)
 {
 	char param_str[RESET_ARG_MAX+1];
@@ -99,14 +99,14 @@ int SifIopReboot(const char* arg)
 }
 #endif
 
-#ifdef F_SifIopIsAlive
+#if defined(F_SifIopIsAlive) || defined(DOXYGEN)
 int SifIopIsAlive(void)
 {
 	return ((SifGetReg(SIF_REG_SMFLAG) & SIF_STAT_SIFINIT) != 0);
 }
 #endif
 
-#ifdef F_SifIopSync
+#if defined(F_SifIopSync) || defined(DOXYGEN)
 int SifIopSync()
 {
 	return((SifGetReg(SIF_REG_SMFLAG) & SIF_STAT_BOOTEND) != 0);

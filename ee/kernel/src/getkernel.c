@@ -14,7 +14,7 @@
 
 #include <kernel.h>
 
-#ifdef F_GetSyscallHandler
+#if defined(F_GetSyscallHandler) || defined(DOXYGEN)
 static u32* g_pSyscallTable = NULL;
 
 /** Initialise the syscall table address */
@@ -58,7 +58,7 @@ void *GetSyscallHandler(int syscall_no)
 }
 #endif
 
-#ifdef F_GetSyscall
+#if defined(F_GetSyscall) || defined(DOXYGEN)
 /** Get the address of an EE syscall handler function. Deprecated, use GetSyscallHandler.
  * @param syscall_no - The syscall number.
  * @return - The address of the syscall handler function (or NULL)
@@ -66,7 +66,7 @@ void *GetSyscallHandler(int syscall_no)
 void *GetSyscall(int syscall_no) { return(GetSyscallHandler(syscall_no)); }
 #endif
 
-#ifdef F_GetExceptionHandler
+#if defined(F_GetExceptionHandler) || defined(DOXYGEN)
 
 extern void *GetSyscallHandler(int syscall_no);
 
@@ -107,7 +107,7 @@ void *GetExceptionHandler(int ex_cause_no)
 }
 #endif
 
-#ifdef F_GetInterruptHandler
+#if defined(F_GetInterruptHandler) || defined(DOXYGEN)
 
 extern void *GetSyscallHandler(int syscall_no);
 

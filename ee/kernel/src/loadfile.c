@@ -86,7 +86,7 @@ void SifLoadFileExit()
 }
 #endif
 
-#ifdef F__SifLoadModule
+#if defined(F__SifLoadModule) || defined(DOXYGEN)
 struct _lf_module_load_arg {
 	union {
 		int	arg_len;
@@ -148,7 +148,7 @@ int SifLoadModuleEncrypted(const char *path, int arg_len, const char *args)
 }
 #endif
 
-#ifdef F_SifStopModule
+#if defined(F_SifStopModule) || defined(DOXYGEN)
 struct _lf_module_stop_arg {
 	union {
 		int	id;
@@ -188,7 +188,7 @@ int SifStopModule(int id, int arg_len, const char *args, int *mod_res)
 }
 #endif
 
-#ifdef F_SifUnloadModule
+#if defined(F_SifUnloadModule) || defined(DOXYGEN)
 union _lf_module_unload_arg {
 	int	id;
 	int	result;
@@ -210,7 +210,7 @@ int SifUnloadModule(int id)
 }
 #endif
 
-#ifdef F_SifSearchModuleByName
+#if defined(F_SifSearchModuleByName) || defined(DOXYGEN)
 struct _lf_search_module_by_name_arg {
 	int	id;
 	int	dummy1;
@@ -234,7 +234,7 @@ int SifSearchModuleByName(const char * name)
 }
 #endif
 
-#ifdef F_SifSearchModuleByAddress
+#if defined(F_SifSearchModuleByAddress) || defined(DOXYGEN)
 struct _lf_search_module_by_address_arg {
 	union {
 		const void	*ptr;
@@ -257,7 +257,7 @@ int SifSearchModuleByAddress(const void *ptr)
 }
 #endif
 
-#ifdef F__SifLoadElfPart
+#if defined(F__SifLoadElfPart) || defined(DOXYGEN)
 struct _lf_elf_load_arg {
 	u32	epc;
 	u32	gp;
@@ -381,7 +381,7 @@ int SifIopGetVal(u32 iop_addr, void *val, int type)
 }
 #endif
 
-#ifdef F__SifLoadModuleBuffer
+#if defined(F__SifLoadModuleBuffer) || defined(DOXYGEN)
 struct _lf_module_buffer_load_arg {
 	union {
 		void	*ptr;

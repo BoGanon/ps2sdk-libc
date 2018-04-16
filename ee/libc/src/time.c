@@ -20,7 +20,7 @@
 #include <kernel.h>
 #include <timer.h>
 
-#ifdef F_clock
+#if defined(F_clock) || defined(DOXYGEN)
 static int      s_intrOverflowID = -1;
 static clock_t  s_intrOverflowCount = 0;
 
@@ -93,7 +93,7 @@ clock_t clock(void)
 }
 #endif /* F_clock */
 
-#ifdef F_time
+#if defined(F_time) || defined(DOXYGEN)
 time_t time(time_t *t)
 {
 	if (t != 0) {
@@ -104,14 +104,14 @@ time_t time(time_t *t)
 }
 #endif
 
-#ifdef F_times
+#if defined(F_times) || defined(DOXYGEN)
 clock_t times(struct tms *buf)
 {
   return ENOSYS;
 }
 #endif
 
-#ifdef F_mktime
+#if defined(F_mktime) || defined(DOXYGEN)
 static unsigned char month_days[12] =
 {
   31,28,31,30,31,30,31,31,30,31,30,31

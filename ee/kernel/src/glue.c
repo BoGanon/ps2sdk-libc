@@ -15,7 +15,7 @@
 
 #include "kernel.h"
 
-#ifdef F_DIntr
+#if defined(F_DIntr) || defined(DOXYGEN)
 int DIntr()
 {
 	int eie, res;
@@ -39,7 +39,7 @@ int DIntr()
 }
 #endif
 
-#ifdef F_EIntr
+#if defined(F_EIntr) || defined(DOXYGEN)
 int EIntr()
 {
 	int eie;
@@ -52,7 +52,7 @@ int EIntr()
 }
 #endif
 
-#ifdef F_EnableIntc
+#if defined(F_EnableIntc) || defined(DOXYGEN)
 int EnableIntc(int intc)
 {
 	int eie, res;
@@ -73,7 +73,7 @@ int EnableIntc(int intc)
 }
 #endif
 
-#ifdef F_DisableIntc
+#if defined(F_DisableIntc) || defined(DOXYGEN)
 int DisableIntc(int intc)
 {
 	int eie, res;
@@ -94,7 +94,7 @@ int DisableIntc(int intc)
 }
 #endif
 
-#ifdef F_EnableDmac
+#if defined(F_EnableDmac) || defined(DOXYGEN)
 int EnableDmac(int dmac)
 {
 	int eie, res;
@@ -115,7 +115,7 @@ int EnableDmac(int dmac)
 }
 #endif
 
-#ifdef F_DisableDmac
+#if defined(F_DisableDmac) || defined(DOXYGEN)
 int DisableDmac(int dmac)
 {
 	int eie, res;
@@ -136,7 +136,7 @@ int DisableDmac(int dmac)
 }
 #endif
 
-#ifdef F_SetAlarm
+#if defined(F_SetAlarm) || defined(DOXYGEN)
 int SetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common)
 {
 	int eie, res;
@@ -157,7 +157,7 @@ int SetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), v
 }
 #endif
 
-#ifdef F_ReleaseAlarm
+#if defined(F_ReleaseAlarm) || defined(DOXYGEN)
 int ReleaseAlarm(int alarm_id)
 {
 	int eie, res;
@@ -178,7 +178,7 @@ int ReleaseAlarm(int alarm_id)
 }
 #endif
 
-#ifdef F_iEnableIntc
+#if defined(F_iEnableIntc) || defined(DOXYGEN)
 int iEnableIntc(int intc)
 {
 	int res = _iEnableIntc(intc);
@@ -188,7 +188,7 @@ int iEnableIntc(int intc)
 }
 #endif
 
-#ifdef F_iDisableIntc
+#if defined(F_iDisableIntc) || defined(DOXYGEN)
 int iDisableIntc(int intc)
 {
 	int res = _iDisableIntc(intc);
@@ -198,7 +198,7 @@ int iDisableIntc(int intc)
 }
 #endif
 
-#ifdef F_iEnableDmac
+#if defined(F_iEnableDmac) || defined(DOXYGEN)
 int iEnableDmac(int dmac)
 {
 	int res = _iEnableDmac(dmac);
@@ -208,7 +208,7 @@ int iEnableDmac(int dmac)
 }
 #endif
 
-#ifdef F_iDisableDmac
+#if defined(F_iDisableDmac) || defined(DOXYGEN)
 int iDisableDmac(int dmac)
 {
 	int res = _iDisableDmac(dmac);
@@ -218,7 +218,7 @@ int iDisableDmac(int dmac)
 }
 #endif
 
-#ifdef F_iSetAlarm
+#if defined(F_iSetAlarm) || defined(DOXYGEN)
 int iSetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), void *common)
 {
 	int res = _iSetAlarm(time, callback, common);
@@ -228,7 +228,7 @@ int iSetAlarm(u16 time, void (*callback)(s32 alarm_id, u16 time, void *common), 
 }
 #endif
 
-#ifdef F_iReleaseAlarm
+#if defined(F_iReleaseAlarm) || defined(DOXYGEN)
 int iReleaseAlarm(int alarm_id)
 {
 	int res = _iReleaseAlarm(alarm_id);
@@ -238,7 +238,7 @@ int iReleaseAlarm(int alarm_id)
 }
 #endif
 
-#ifdef F_SyncDCache
+#if defined(F_SyncDCache) || defined(DOXYGEN)
 void SyncDCache(void *start, void *end)
 {
 	int eie;
@@ -256,14 +256,14 @@ void SyncDCache(void *start, void *end)
 }
 #endif
 
-#ifdef F_iSyncDCache
+#if defined(F_iSyncDCache) || defined(DOXYGEN)
 void iSyncDCache(void *start, void *end)
 {
 	_SyncDCache((void *)((u32)start & 0xffffffc0), (void *)((u32)end & 0xffffffc0));
 }
 #endif
 
-#ifdef F_InvalidDCache
+#if defined(F_InvalidDCache) || defined(DOXYGEN)
 void InvalidDCache(void *start, void *end)
 {
 	int eie;
@@ -281,7 +281,7 @@ void InvalidDCache(void *start, void *end)
 }
 #endif
 
-#ifdef F_iInvalidDCache
+#if defined(F_iInvalidDCache) || defined(DOXYGEN)
 void iInvalidDCache(void *start, void *end)
 {
 	_InvalidDCache((void *)((u32)start & 0xffffffc0), (void *)((u32)end & 0xffffffc0));

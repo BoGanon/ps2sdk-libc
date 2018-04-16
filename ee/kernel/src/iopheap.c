@@ -24,7 +24,7 @@ extern int _iop_reboot_count;
 extern SifRpcClientData_t _ih_cd;
 extern int _ih_caps;
 
-#ifdef F_SifInitIopHeap
+#if defined(F_SifInitIopHeap) || defined(DOXYGEN)
 SifRpcClientData_t _ih_cd;
 int _ih_caps = 0;
 
@@ -58,7 +58,7 @@ int SifInitIopHeap()
 }
 #endif
 
-#ifdef F_SifExitIopHeap
+#if defined(F_SifExitIopHeap) || defined(DOXYGEN)
 void SifExitIopHeap()
 {
 	_ih_caps = 0;
@@ -66,7 +66,7 @@ void SifExitIopHeap()
 }
 #endif
 
-#ifdef F_SifAllocIopHeap
+#if defined(F_SifAllocIopHeap) || defined(DOXYGEN)
 void * SifAllocIopHeap(int size)
 {
 	union { int size; u32 addr; } arg;
@@ -83,7 +83,7 @@ void * SifAllocIopHeap(int size)
 }
 #endif
 
-#ifdef F_SifFreeIopHeap
+#if defined(F_SifFreeIopHeap) || defined(DOXYGEN)
 int SifFreeIopHeap(void *addr)
 {
 	union { void *addr; int result; } arg;
@@ -100,7 +100,7 @@ int SifFreeIopHeap(void *addr)
 }
 #endif
 
-#ifdef F_SifLoadIopHeap
+#if defined(F_SifLoadIopHeap) || defined(DOXYGEN)
 
 #define LIH_PATH_MAX	252
 

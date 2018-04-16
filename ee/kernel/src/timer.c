@@ -15,7 +15,7 @@
 
 #include <tamtypes.h>
 
-#ifdef F_cpu_ticks
+#if defined(F_cpu_ticks) || defined(DOXYGEN)
 u32 cpu_ticks(void) {
     u32 out;
 

@@ -15,7 +15,7 @@
 #include "kernel.h"
 #include "kernel/string.h"
 
-#ifdef F__InitSys
+#if defined(F__InitSys) || defined(DOXYGEN)
 void _InitSys(void)
 {
 #ifndef KERNEL_NO_PATCHES
@@ -27,7 +27,7 @@ void _InitSys(void)
 }
 #endif
 
-#ifdef F_TerminateLibrary
+#if defined(F_TerminateLibrary) || defined(DOXYGEN)
 void TerminateLibrary(void)
 {
 #ifndef KERNEL_NO_PATCHES

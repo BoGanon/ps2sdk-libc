@@ -30,7 +30,7 @@
 /** Baud rate generator output that divided CPUCLK.  */
 #define LCR_SCS_VAL	(1<<5)
 
-#ifdef F_sio_init
+#if defined(F_sio_init) || defined(DOXYGEN)
 void sio_init(u32 baudrate, u8 lcr_ueps, u8 lcr_upen, u8 lcr_usbl, u8 lcr_umode)
 {
 	u32 brd;		/* Baud rate divisor.  */
@@ -56,7 +56,7 @@ void sio_init(u32 baudrate, u8 lcr_ueps, u8 lcr_upen, u8 lcr_usbl, u8 lcr_umode)
 }
 #endif
 
-#ifdef F_sio_putc
+#if defined(F_sio_putc) || defined(DOXYGEN)
 static u8 ___last_sio_putc = 0;
 int sio_putc(int c)
 {
@@ -77,7 +77,7 @@ int sio_putc(int c)
 }
 #endif
 
-#ifdef F_sio_getc
+#if defined(F_sio_getc) || defined(DOXYGEN)
 int sio_getc()
 {
 	/* Do we have something in the RX FIFO?  */
@@ -92,7 +92,7 @@ int sio_getc()
 }
 #endif
 
-#ifdef F_sio_getc_block
+#if defined(F_sio_getc_block) || defined(DOXYGEN)
 int sio_getc_block()
 {
 	/* Do we have something in the RX FIFO?  */
@@ -101,7 +101,7 @@ int sio_getc_block()
 }
 #endif
 
-#ifdef F_sio_write
+#if defined(F_sio_write) || defined(DOXYGEN)
 size_t sio_write(void *buf, size_t size)
 {
 	u8 *p = (u8 *)buf;
@@ -114,7 +114,7 @@ size_t sio_write(void *buf, size_t size)
 }
 #endif
 
-#ifdef F_sio_read
+#if defined(F_sio_read) || defined(DOXYGEN)
 size_t sio_read(void *buf, size_t size)
 {
 	u8 *p = (u8 *)buf;
@@ -132,7 +132,7 @@ size_t sio_read(void *buf, size_t size)
 }
 #endif
 
-#ifdef F_sio_puts
+#if defined(F_sio_puts) || defined(DOXYGEN)
 int sio_puts(const char *str)
 {
 	int res;
@@ -145,7 +145,7 @@ int sio_puts(const char *str)
 }
 #endif
 
-#ifdef F_sio_putsn
+#if defined(F_sio_putsn) || defined(DOXYGEN)
 int sio_putsn(const char *str)
 {
 	int res;
@@ -157,7 +157,7 @@ int sio_putsn(const char *str)
 }
 #endif
 
-#ifdef F_sio_gets
+#if defined(F_sio_gets) || defined(DOXYGEN)
 char *sio_gets(char *str)
 {
 	char *s = str;
@@ -177,7 +177,7 @@ char *sio_gets(char *str)
 }
 #endif
 
-#ifdef F_sio_flush
+#if defined(F_sio_flush) || defined(DOXYGEN)
 void sio_flush()
 {
     while (_lw(SIO_ISR) & 0xf00)

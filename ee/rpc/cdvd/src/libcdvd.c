@@ -50,7 +50,7 @@ typedef struct {
 	void *dest;
 } SearchFilePkt;
 
-#ifdef F__libcdvd_internals
+#if defined(F__libcdvd_internals) || defined(DOXYGEN)
 // bind variables
 int bindInit = -1;
 int bindDiskReady = -1;
@@ -117,7 +117,7 @@ extern u32 searchFileRecvBuff;
 
 /* Other Functions */
 
-#ifdef F_sceCdInit
+#if defined(F_sceCdInit) || defined(DOXYGEN)
 s32 sceCdInit(s32 mode)
 {
 	int i;
@@ -162,7 +162,7 @@ s32 sceCdInit(s32 mode)
 }
 #endif
 
-#ifdef F_sceCdIntToPos
+#if defined(F_sceCdIntToPos) || defined(DOXYGEN)
 sceCdlLOCCD *sceCdIntToPos(u32 i, sceCdlLOCCD * p)
 {
 	p->minute = (((((i + 150) / 75) / 60) / 10) * 16) + ((((i + 150) / 75) / 60) % 10);
@@ -172,7 +172,7 @@ sceCdlLOCCD *sceCdIntToPos(u32 i, sceCdlLOCCD * p)
 }
 #endif
 
-#ifdef F_sceCdPosToInt
+#if defined(F_sceCdPosToInt) || defined(DOXYGEN)
 u32 sceCdPosToInt(sceCdlLOCCD * p)
 {
 	return ((((p->minute / 16) * 10) + (p->minute & 0xF)) * 60 + ((p->second / 16) * 10) + (p->second & 0xF)
@@ -180,7 +180,7 @@ u32 sceCdPosToInt(sceCdlLOCCD * p)
 }
 #endif
 
-#ifdef F_sceCdSearchFile
+#if defined(F_sceCdSearchFile) || defined(DOXYGEN)
 s32 sceCdSearchFile(sceCdlFILE * file, const char *name)
 {
 	int i;
@@ -240,7 +240,7 @@ s32 sceCdSearchFile(sceCdlFILE * file, const char *name)
 }
 #endif
 
-#ifdef F_sceCdDiskReady
+#if defined(F_sceCdDiskReady) || defined(DOXYGEN)
 s32 sceCdDiskReady(s32 mode)
 {
 	int i;
@@ -285,7 +285,7 @@ s32 sceCdDiskReady(s32 mode)
 }
 #endif
 
-#ifdef F__CdSemaInit
+#if defined(F__CdSemaInit) || defined(DOXYGEN)
 void _CdSemaInit(void)
 {
 	struct t_ee_sema semaParam;
@@ -307,7 +307,7 @@ void _CdSemaInit(void)
 }
 #endif
 
-#ifdef F__CdSemaExit
+#if defined(F__CdSemaExit) || defined(DOXYGEN)
 void _CdSemaExit(void)
 {
 	if (callbackThreadId) {
@@ -320,7 +320,7 @@ void _CdSemaExit(void)
 }
 #endif
 
-#ifdef F_sceCdInitEeCB
+#if defined(F_sceCdInitEeCB) || defined(DOXYGEN)
 static void _CdCallbackLoop(void);
 s32 sceCdInitEeCB(s32 priority, void *stackAddr, s32 stackSize)
 {
@@ -344,7 +344,7 @@ s32 sceCdInitEeCB(s32 priority, void *stackAddr, s32 stackSize)
 }
 #endif
 
-#ifdef F_sceCdCallback
+#if defined(F_sceCdCallback) || defined(DOXYGEN)
 sceCdCBFunc sceCdCallback(sceCdCBFunc newFunc)
 {
 	sceCdCBFunc oldFunc = sceCdCallbackFunc;
@@ -365,7 +365,7 @@ sceCdCBFunc sceCdCallback(sceCdCBFunc newFunc)
  * this function continually loops until a callback with function
  * number '-1' is generated
  */
-#ifdef F_sceCdInitEeCB
+#if defined(F_sceCdInitEeCB) || defined(DOXYGEN)
 static void _CdCallbackLoop(void)
 {
 	while (1) {
@@ -388,7 +388,7 @@ static void _CdCallbackLoop(void)
 #endif
 
 /** generic callback function */
-#ifdef F__CdGenericCallbackFunction
+#if defined(F__CdGenericCallbackFunction) || defined(DOXYGEN)
 void _CdGenericCallbackFunction(void *funcNum)
 {
 	// set the currently executing function num

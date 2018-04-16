@@ -74,7 +74,7 @@ typedef union {
 	u8 data[48];
 } nCmdSendParams_t;
 
-#ifdef F__ncmd_internals
+#if defined(F__ncmd_internals) || defined(DOXYGEN)
 int bindNCmd = -1;
 
 /** for n-cmds */
@@ -150,7 +150,7 @@ void _CdAlignReadBuffer(void *data);
 /** this gets called when the sceCdRead function finishes
  * to copy the data read in to unaligned buffers 
  */
-#ifdef F__CdAlignReadBuffer
+#if defined(F__CdAlignReadBuffer) || defined(DOXYGEN)
 void _CdAlignReadBuffer(void *data)
 {
 	struct _cdvd_read_data *uncached = UNCACHED_SEG(data);
@@ -167,7 +167,7 @@ void _CdAlignReadBuffer(void *data)
 }
 #endif
 
-#ifdef F_sceCdRead
+#if defined(F_sceCdRead) || defined(DOXYGEN)
 int sceCdRead(u32 lbn, u32 sectors, void *buf, sceCdRMode * mode)
 {
 	int bufSize;
@@ -217,7 +217,7 @@ int sceCdRead(u32 lbn, u32 sectors, void *buf, sceCdRMode * mode)
 }
 #endif
 
-#ifdef F_sceCdReadDVDV
+#if defined(F_sceCdReadDVDV) || defined(DOXYGEN)
 int sceCdReadDVDV(u32 lbn, u32 nsectors, void *buf, sceCdRMode *rm)
 {
 	if (sceCdNCmdDiskReady() == SCECdNotReady)
@@ -248,7 +248,7 @@ int sceCdReadDVDV(u32 lbn, u32 nsectors, void *buf, sceCdRMode *rm)
 }
 #endif
 
-#ifdef F_sceCdReadCDDA
+#if defined(F_sceCdReadCDDA) || defined(DOXYGEN)
 int sceCdReadCDDA(u32 lbn, u32 nsectors, void *buf, sceCdRMode *rm)
 {
 	unsigned int sector_size;
@@ -293,7 +293,7 @@ int sceCdReadCDDA(u32 lbn, u32 nsectors, void *buf, sceCdRMode *rm)
 }
 #endif
 
-#ifdef F_sceCdGetToc
+#if defined(F_sceCdGetToc) || defined(DOXYGEN)
 int sceCdGetToc(u8 * toc)
 {
 	u8 *tocPtr, *tocEnd;
@@ -334,7 +334,7 @@ int sceCdGetToc(u8 * toc)
 }
 #endif
 
-#ifdef F_sceCdSeek
+#if defined(F_sceCdSeek) || defined(DOXYGEN)
 int sceCdSeek(u32 lbn)
 {
 	if (sceCdNCmdDiskReady() == SCECdNotReady)
@@ -358,7 +358,7 @@ int sceCdSeek(u32 lbn)
 }
 #endif
 
-#ifdef F_sceCdStandby
+#if defined(F_sceCdStandby) || defined(DOXYGEN)
 int sceCdStandby(void)
 {
 	if (sceCdNCmdDiskReady() == SCECdNotReady)
@@ -380,7 +380,7 @@ int sceCdStandby(void)
 }
 #endif
 
-#ifdef F_sceCdStop
+#if defined(F_sceCdStop) || defined(DOXYGEN)
 int sceCdStop(void)
 {
 	if (sceCdNCmdDiskReady() == SCECdNotReady)
@@ -402,7 +402,7 @@ int sceCdStop(void)
 }
 #endif
 
-#ifdef F_sceCdPause
+#if defined(F_sceCdPause) || defined(DOXYGEN)
 int sceCdPause(void)
 {
 	if (sceCdNCmdDiskReady() == SCECdNotReady)
@@ -424,7 +424,7 @@ int sceCdPause(void)
 }
 #endif
 
-#ifdef F_sceCdApplyNCmd
+#if defined(F_sceCdApplyNCmd) || defined(DOXYGEN)
 int sceCdApplyNCmd(u8 cmdNum, const void *inBuff, u16 inBuffSize, void *outBuff, u16 outBuffSize)
 {
 	if (sceCdNCmdDiskReady() == SCECdNotReady)
@@ -451,7 +451,7 @@ int sceCdApplyNCmd(u8 cmdNum, const void *inBuff, u16 inBuffSize, void *outBuff,
 }
 #endif
 
-#ifdef F_sceCdReadIOPMem
+#if defined(F_sceCdReadIOPMem) || defined(DOXYGEN)
 int sceCdReadIOPMem(u32 lbn, u32 sectors, void *buf, sceCdRMode * mode)
 {
 	if (sceCdNCmdDiskReady() == SCECdNotReady)
@@ -483,7 +483,7 @@ int sceCdReadIOPMem(u32 lbn, u32 sectors, void *buf, sceCdRMode * mode)
 }
 #endif
 
-#ifdef F_sceCdNCmdDiskReady
+#if defined(F_sceCdNCmdDiskReady) || defined(DOXYGEN)
 int sceCdNCmdDiskReady(void)
 {
 	if (_CdCheckNCmd(CD_NCMD_DISKREADY) == 0)
@@ -499,7 +499,7 @@ int sceCdNCmdDiskReady(void)
 }
 #endif
 
-#ifdef F_sceCdReadChain
+#if defined(F_sceCdReadChain) || defined(DOXYGEN)
 int sceCdReadChain(sceCdRChain * readChain, sceCdRMode * mode)
 {
 	int chainNum, i, sectorType;
@@ -572,7 +572,7 @@ int sceCdReadChain(sceCdRChain * readChain, sceCdRMode * mode)
 }
 #endif
 
-#ifdef F_sceCdGetReadPos
+#if defined(F_sceCdGetReadPos) || defined(DOXYGEN)
 u32 sceCdGetReadPos(void)
 {
 	if (CdCallbackNum == CD_NCMD_READ) {
@@ -584,7 +584,7 @@ u32 sceCdGetReadPos(void)
 
 /* Stream Functions */
 
-#ifdef F_sceCdStStart
+#if defined(F_sceCdStStart) || defined(DOXYGEN)
 int sceCdStStart(u32 lbn, sceCdRMode * mode)
 {
 	streamStatus = 1;
@@ -592,7 +592,7 @@ int sceCdStStart(u32 lbn, sceCdRMode * mode)
 }
 #endif
 
-#ifdef F_sceCdStRead
+#if defined(F_sceCdStRead) || defined(DOXYGEN)
 int sceCdStRead(u32 sectorType, u32 * buffer, u32 mode, u32 * error)
 {
 	int ret, i, err, sectorReadSize;
@@ -634,7 +634,7 @@ int sceCdStRead(u32 sectorType, u32 * buffer, u32 mode, u32 * error)
 }
 #endif
 
-#ifdef F_sceCdStStop
+#if defined(F_sceCdStStop) || defined(DOXYGEN)
 int sceCdStStop(void)
 {
 	streamStatus = 0;
@@ -642,14 +642,14 @@ int sceCdStStop(void)
 }
 #endif
 
-#ifdef F_sceCdStSeek
+#if defined(F_sceCdStSeek) || defined(DOXYGEN)
 int sceCdStSeek(u32 lbn)
 {
 	return sceCdStream(lbn, 0, NULL, CDVD_ST_CMD_SEEK, &dummyMode);
 }
 #endif
 
-#ifdef F_sceCdStInit
+#if defined(F_sceCdStInit) || defined(DOXYGEN)
 int sceCdStInit(u32 buffSize, u32 numBuffers, void *buf)
 {
 	streamStatus = 0;
@@ -657,7 +657,7 @@ int sceCdStInit(u32 buffSize, u32 numBuffers, void *buf)
 }
 #endif
 
-#ifdef F_sceCdStStat
+#if defined(F_sceCdStStat) || defined(DOXYGEN)
 int sceCdStStat(void)
 {
 	streamStatus = 0;
@@ -665,7 +665,7 @@ int sceCdStStat(void)
 }
 #endif
 
-#ifdef F_sceCdStPause
+#if defined(F_sceCdStPause) || defined(DOXYGEN)
 int sceCdStPause(void)
 {
 	streamStatus = 0;
@@ -673,7 +673,7 @@ int sceCdStPause(void)
 }
 #endif
 
-#ifdef F_sceCdStResume
+#if defined(F_sceCdStResume) || defined(DOXYGEN)
 int sceCdStResume(void)
 {
 	streamStatus = 0;
@@ -682,7 +682,7 @@ int sceCdStResume(void)
 #endif
 
 /** perform the stream operation */
-#ifdef F_sceCdStream
+#if defined(F_sceCdStream) || defined(DOXYGEN)
 int sceCdStream(u32 lbn, u32 nsectors, void *buf, CdvdStCmd_t cmd, sceCdRMode *rm)
 {
 	if (_CdCheckNCmd(15) == 0)
@@ -713,7 +713,7 @@ int sceCdStream(u32 lbn, u32 nsectors, void *buf, CdvdStCmd_t cmd, sceCdRMode *r
 }
 #endif
 
-#ifdef F_sceCdCddaStream
+#if defined(F_sceCdCddaStream) || defined(DOXYGEN)
 int sceCdCddaStream(u32 lbn, u32 nsectors, void *buf, CdvdStCmd_t cmd, sceCdRMode *rm)
 {
 	unsigned int sector_size;
@@ -747,7 +747,7 @@ int sceCdCddaStream(u32 lbn, u32 nsectors, void *buf, CdvdStCmd_t cmd, sceCdRMod
 }
 #endif
 
-#ifdef F_sceCdSync
+#if defined(F_sceCdSync) || defined(DOXYGEN)
 int sceCdSync(int mode)
 {
 	// block till completed mode
@@ -773,7 +773,7 @@ int sceCdSync(int mode)
  * @param cmd current command
  * @return 1 if read to send; 0 if busy/error
  */
-#ifdef F__CdCheckNCmd
+#if defined(F__CdCheckNCmd) || defined(DOXYGEN)
 int _CdCheckNCmd(int cmd)
 {
 	int i;
@@ -814,7 +814,7 @@ int _CdCheckNCmd(int cmd)
 }
 #endif
 
-#ifdef F_sceCdReadKey
+#if defined(F_sceCdReadKey) || defined(DOXYGEN)
 int sceCdReadKey(unsigned char arg1, unsigned char arg2, unsigned int command, unsigned char *key)
 {
 	int result;
