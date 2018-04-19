@@ -11,7 +11,13 @@
 /**
  * @file
  * Pad externals
+ *
+ * @defgroup libpad libpad: pad input library.
  */
+
+/** @addtogroup libpad
+    @{
+*/
 
 #ifndef __LIBPAD_H__
 #define __LIBPAD_H__
@@ -19,7 +25,6 @@
 /*
  * Button bits
  */
-#ifndef __INPUT_H__
 #define PAD_LEFT      0x0080
 #define PAD_DOWN      0x0040
 #define PAD_RIGHT     0x0020
@@ -36,7 +41,7 @@
 #define PAD_L1        0x0400
 #define PAD_R2        0x0200
 #define PAD_L2        0x0100
-#endif
+
 /*
  * Pad states
  */
@@ -141,6 +146,8 @@ int padPortOpen(int port, int slot, void *padArea);
 int padPortClose(int port, int slot);
 
 /** Read pad data
+ * @param port A number indicating port. 0-1
+ * @param slot A number indicating slot. 0-3 with multitap
  * @param data A pointer to a 32 byte array where the result is stored
  */
 unsigned char padRead(int port, int slot, struct padButtonStatus *data);
@@ -247,3 +254,7 @@ int padReset();
 #endif
 
 #endif /* __LIBPAD_H__ */
+
+/** End of addtogroup libpad
+    @}
+*/
