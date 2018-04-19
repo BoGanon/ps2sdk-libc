@@ -174,6 +174,8 @@ int ps2_screenshot_file( const char* pFilename,unsigned int VramAdress,
 /** Downloads vram back to host
  * @param pDest Temporary storeage for the screen (allocated by user)
  * @param VramAdress  pointer to where in vram to transfer from (wordaddress/64)
+ * @param x x coordinate in framebuffer
+ * @param y y coordinate in framebuffer
  * @param Width Width of Screen
  * @param Height Width of Screen
  * @param Psm Pixelformat of screen
