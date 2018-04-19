@@ -16,6 +16,8 @@
 #ifndef __PS2IP_H__
 #define __PS2IP_H__
 
+#include <sys/time.h>
+
 #include <types.h>
 #include <irx.h>
 

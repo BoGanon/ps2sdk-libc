@@ -26,14 +26,9 @@ typedef unsigned long time_t;
 #define __time_t_defined
 #endif
 
-/* Quick fix for ee/network/tcpip compile error. */
-#ifndef __TCPIP_SRC__
-#if defined(_EE) || defined(_R5900)
 struct timeval {
 	time_t tv_sec;
 	time_t tv_usec;
 };
-#endif
-#endif
 
 #endif /* __SYS_TIME_H__ */

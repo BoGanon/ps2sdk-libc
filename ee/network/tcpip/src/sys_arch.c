@@ -12,9 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <kernel.h>
-#define __TCPIP_SRC__
 #include <time.h>
-#undef __TCPIP_SRC__
 #include <limits.h>
 
 #include "lwip/sys.h"

@@ -44,6 +44,7 @@
 #if LWIP_SOCKET /* don't build if not configured for use in lwipopts.h */
 
 #include <stddef.h> /* for size_t */
+#include <sys/time.h> /*  for timeval */
 
 #include "lwip/ip_addr.h"
 #include "lwip/err.h"
@@ -435,7 +436,7 @@ typedef struct fd_set
 /** LWIP_TIMEVAL_PRIVATE: if you want to use the struct timeval provided
  * by your system, set this to 0 and include <sys/time.h> in cc.h */
 #ifndef LWIP_TIMEVAL_PRIVATE
-#define LWIP_TIMEVAL_PRIVATE 1
+#define LWIP_TIMEVAL_PRIVATE 0
 #endif
 
 #if LWIP_TIMEVAL_PRIVATE
