@@ -11,8 +11,13 @@
 /**
  * @file
  * Definitions for libcdvd on the EE
+ *
+ * @defgroup libcdvd libcdvd: CDVD library.
  */
 
+/** @addtogroup libcdvd
+    @{
+*/
 #ifndef __LIBCDVD_H__
 #define __LIBCDVD_H__
 
@@ -43,11 +48,11 @@ int sceCdNCmdDiskReady(void);
 
 /** send an s-command by function number
  * 
- * @param command number
- * @param input buffer  (can be null)
- * @param size of input buffer  (0 - 16 bytes)
- * @param output buffer (can be null)
- * @param size of output buffer (0 - 16 bytes)
+ * @param cmdNum command number
+ * @param inBuff input buffer  (can be null)
+ * @param inBuffSize size of input buffer  (0 - 16 bytes)
+ * @param outBuff output buffer (can be null)
+ * @param outBuffSize size of output buffer (0 - 16 bytes)
  * @return 1 if successful, 0 if error
  */
 int sceCdApplySCmd(u8 cmdNum, const void* inBuff, u16 inBuffSize, void *outBuff, u16 outBuffSize);
@@ -80,6 +85,10 @@ int sceCdOpenConfig(int block, int mode, int NumBlocks, u32 *status);
  * @return 1 on success, 0 on failure.
  */
 int sceCdSpinCtrlEE(u32 speed);
+
+/** End of addtogroup libcdvd
+    @}
+*/
 
 #ifdef __cplusplus
 }
