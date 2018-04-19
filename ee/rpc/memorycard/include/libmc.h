@@ -11,7 +11,13 @@
 /**
  * @file
  * Macros, structures & function prototypes for mclib.
+ *
+ * @defgroup libmc libmc: memorycard library.
  */
+
+/** @addtogroup libmc
+    @{
+*/
 
 /*
 	NOTE: These functions will work with the MCMAN/MCSERV or XMCMAN/XMCSERV
@@ -318,7 +324,7 @@ int mcChdir(int port, int slot, const char* newDir, char* currentDir);
  * @param slot slot number of memcard
  * @param name filename to search for (can use wildcard and relative dirs)
  * @param mode mode: 0 = first call, otherwise = followup call
- * @param maxext maximum number of entries to be written to filetable in 1 call
+ * @param maxent maximum number of entries to be written to filetable in 1 call
  * @param table mc table array
  * @return 0 = successful; < 0 = error
  */
@@ -462,3 +468,7 @@ int mcReset(void);
 #endif
 
 #endif /* __LIBMC_H__ */
+
+/** End of addtogroup libmc
+    @}
+*/
