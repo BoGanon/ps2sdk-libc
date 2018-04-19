@@ -14,6 +14,7 @@
 #define PACKET_NORMAL 0x00
 #define PACKET_UCAB   0x01
 #define PACKET_SPR    0x02
+
 /**
  * Dmatags use qwc for the number of qwords for they handle.
  *
@@ -39,9 +40,6 @@ void packet_reset(packet_t *packet);
 
 /** Free the space allocated by packet. */
 void packet_free(packet_t *packet);
-
-/** Advances the qwc and returns the current qword count. */
-qword_t *packet_increment_qwc(packet_t *packet, int num);
 
 /** For those that like getters and setters */
 static inline qword_t *packet_get_qword(packet_t *packet)
