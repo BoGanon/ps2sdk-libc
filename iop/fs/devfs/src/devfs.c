@@ -359,9 +359,10 @@ int devfs_deinit(iop_device_t *dev)
 }
 
 /** ioman open handler
- * @oaram file: Pointer to the ioman file structure
+ * @param file: Pointer to the ioman file structure
  * @param name: Name of file to open
  * @param mode: Open file mode settings
+ * @param unused: Unused parameter to match open in newer versions of IOMAN
  * @returns 0 if success, -1 on error
 */
 #ifdef USE_IOMAN

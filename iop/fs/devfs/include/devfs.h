@@ -135,6 +135,7 @@ int DevFSDelDevice(HDEV hDev);
 /** Adds a sub device to a previously opened device
  * @param hDev: Handle to an opened device
  * @param subdev_no: The number of the subdevice. Can be 0 to DEVFS_MAX_SUBDEVS
+ * @param mode The access mode of the subdevice. See @ref devfs_subdev_modes "modes"
  * @param extent: A 64bit extent which reflects the size of the underlying device
  * @param data: Pointer to some private data to associate with this sub device
  * @returns 0 if sub device added, else -1

@@ -112,7 +112,7 @@ size_t sio_read(void *buf, size_t size);
 
 int sio_puts(const char *str);
 int sio_putsn(const char *str); // no newline for this one
-/** Will block until it recieves \n or \r. */
+/** Will block until it recieves \\n or \\r. */
 char *sio_gets(char *str);
 
 /** Flushes the input buffer. */

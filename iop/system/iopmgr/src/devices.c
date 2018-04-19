@@ -92,6 +92,7 @@ iop_device_t *iopmgr_get_iomanxdev(char *device)
  *
  * @param man Device manager mask (IOPMGR_DEVTYPE_IOMAN or IOPMGR_DEVTYPE_IOMANX).
  * @param devtype Device type mask (0x10 for filesystems).
+ * @param buffer Pointer to buffer to fill with device names.
  * @return Number of devices found
  *
  * return values:

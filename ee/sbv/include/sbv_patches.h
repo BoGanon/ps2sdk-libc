@@ -39,7 +39,7 @@ int sbv_patch_enable_lmb(void);
  */
 int sbv_patch_disable_prefix_check(void);
 /**
- * @start address above which all user memory is cleared
+ * @param start address above which all user memory is cleared
  * @return 0: success, -1: error
  *
  * LoadExecPS2() wipes all user-space memory above 0x82000.  With this patch,

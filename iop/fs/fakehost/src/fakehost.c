@@ -171,7 +171,7 @@ int fd_read( iop_io_file_t *f, void * buffer, int size )
 /** Handle write request.
  * @ingroup fakehost
  *
- * @param f       Pointer to io_device structure.
+ * @param fd       Pointer to io_device structure.
  * @param buffer  Pointer to read buffer.
  * @param size    Size of buffer.
  * @return Status (as for fileio write).
@@ -184,7 +184,7 @@ int fd_write( iop_io_file_t *fd, void *buffer, int size )
 /** Handle lseek request.
  * @ingroup fakehost
  *
- * @param f       Pointer to io_device structure.
+ * @param fd       Pointer to io_device structure.
  * @param offset  Offset for seek.
  * @param whence  Base for seek.
  * @return Status (as for fileio lseek).

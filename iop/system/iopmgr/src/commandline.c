@@ -157,6 +157,7 @@ void list_fs_devices(int mgrtype)
  * @ingroup iopmgr
  *
  * @param command Pointer to command string.
+ * @param arg1 Pointer to command argument.
  */
 void cmdline_handle(char *command, char *arg1)
 {

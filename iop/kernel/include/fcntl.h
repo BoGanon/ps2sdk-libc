@@ -13,8 +13,8 @@
 #ifndef __IOP_FCNTL_H__
 #define __IOP_FCNTL_H__
 
-/** @file fcnt.h */
-/** @warning This file should not be included in external IOP projects.
+/** @file
+    @warning This file should not be included in external IOP projects.
 	     It's been added to both iomanX.h and ioman.h headers to utilize
 	     their unique header guards.
 	     The standard symbols used for ioman/X's interface functions cause

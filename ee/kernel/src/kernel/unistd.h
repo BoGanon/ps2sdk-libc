@@ -82,7 +82,7 @@ int mkdir(const char *path, mode_t mode);
 
     @param path  Name of file to open
     @param flags Flags to control the opening of the file see <sys/fcntl.h>
-    @param mode  A single integer indicating file permissions
+    @param ...  A single integer indicating file permissions
 
     @retval 0    Success
     @retval <0   Failure

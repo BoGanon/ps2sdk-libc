@@ -211,7 +211,7 @@ enum GsGifDataFormat{
 #define gs_p_imr			0x12001010
 /** Set direction of data transmission FIFO */
 #define gs_p_busdir			0x12001040
-/** Signal\label value */
+/** Signal/label value */
 #define gs_p_siglblid		0x12001080
 
 
@@ -244,9 +244,9 @@ enum GsGifDataFormat{
 #define gs_g_xyz3		0x0d
 #define gs_g_tex1_1		0x14
 #define gs_g_tex1_2		0x15
-/** Set texture filtering\sampling style in context 1 */
+/** Set texture filtering/sampling style in context 1 */
 #define gs_g_tex2_1		0x16
-/** Set texture filtering\sampling style in context 2 */
+/** Set texture filtering/sampling style in context 2 */
 #define gs_g_tex2_2		0x17
 /** Mapping from Primitive to Window coordinate system (Context 1) */
 #define gs_g_xyoffset_1	0x18
@@ -257,7 +257,7 @@ enum GsGifDataFormat{
 /** attributes of current drawing primitive */
 #define gs_g_prmode		0x1b
 #define gs_g_texclut	0x1c
-/** Raster odd\even line drawing setting */
+/** Raster odd/even line drawing setting */
 #define gs_g_scanmsk	0x22
 /** Set mipmap address in context 1(mip level 1-3) */
 #define gs_g_miptbp1_1	0x34
@@ -287,9 +287,9 @@ enum GsGifDataFormat{
 #define gs_g_dthe		0x45
 /** Color clamp control */
 #define gs_g_colclamp	0x46
-/** FrameBuffer\ZBuffer Pixel test contol (Context 1) */
+/** FrameBuffer/ZBuffer Pixel test contol (Context 1) */
 #define gs_g_test_1		0x47
-/** FrameBuffer\ZBuffer Pixel test contol (Context 2) */
+/** FrameBuffer/ZBuffer Pixel test contol (Context 2) */
 #define gs_g_test_2		0x48
 /** Enable alpha blending */
 #define gs_g_pabe		0x49
@@ -317,7 +317,7 @@ enum GsGifDataFormat{
 #define gs_g_signal		0x60
 #define gs_g_finish		0x61
 #define gs_g_label		0x62
-/** no operation\does nothing\can be used as padding */
+/** no operation/does nothing/can be used as padding */
 #define gs_g_nop		0x7f
 
 
