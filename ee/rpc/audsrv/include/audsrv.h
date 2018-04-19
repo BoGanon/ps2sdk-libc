@@ -11,7 +11,13 @@
 /**
  * @file
  * audsrv EE-side RPC code
+ *
+ * @defgroup audsrv audsrv: Audio playback library.
  */
+
+/** @addtogroup audsrv
+    @{
+*/
 
 #ifndef __AUDSRV_H__
 #define __AUDSRV_H__
@@ -95,7 +101,7 @@ int audsrv_set_format(struct audsrv_fmt_t *fmt);
 int audsrv_wait_audio(int bytes);
 
 /** Sets output volume
- * @param vol volume in percentage
+ * @param volume volume in percentage
  * @returns error code
  */
 int audsrv_set_volume(int volume);
@@ -203,7 +209,7 @@ int audsrv_get_cd_type();
 
 /** Installs a callback function to be called when ringbuffer has enough
  * space to transmit the request number of bytes.
- * @param bytes request a callback when this amount of bytes is available
+ * @param amount request a callback when this amount of bytes is available
  * @param cb your callback
  * @param arg extra parameter to pass to callback function later
  * @returns AUDSRV_ERR_NOERROR, AUDSRV_ERR_ARGS if amount is greater than sizeof(ringbuf)
@@ -227,7 +233,7 @@ int audsrv_adpcm_init();
 int audsrv_load_adpcm(audsrv_adpcm_t *adpcm, void *buffer, int size);
 
 /** Plays an adpcm sample already uploaded with audsrv_load_adpcm()
- * @param id    sample identifier, as specified in load()
+ * @param adpcm    sample identifier, as specified in load()
  * @returns zero on success, negative value on error
  *
  * The sample will be played in an unoccupied channel. If all 24 channels
@@ -248,3 +254,7 @@ int audsrv_on_cdda_stop(audsrv_callback_t cb, void *arg);
 #endif
 
 #endif /* __AUDSRV_H__ */
+
+/** End of addtogroup audsrv
+    @}
+*/
