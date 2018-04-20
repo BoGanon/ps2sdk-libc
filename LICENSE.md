@@ -1,3 +1,4 @@
+# AFL 2.0 #
 
   The Academic Free License
   v. 2.0
@@ -44,7 +45,7 @@ the Original Work, and by publishing the address of that information
 repository in a notice immediately following the copyright notice that
 applies to the Original Work.
 
-4) *Exclusions From License Grant. *Neither the names of Licensor, nor
+4) *Exclusions From License Grant.* Neither the names of Licensor, nor
 the names of any contributors to the Original Work, nor any of their
 trademarks or service marks, may be used to endorse or promote products
 derived from this Original Work without express prior written permission
