@@ -36,21 +36,27 @@ install-include:
 	   fi \
 	done;
 
-link-include:
+link-ee-include:
 	@for file in include/* ; do \
 	   if test -f $$file ; then \
 	     $(ECHO) Linking $$file to $(PS2SDK)/ee/include ; \
 	     $(LN) -s $(PS2SDK)/common/$$file $(PS2SDK)/ee/$$file ; \
-	     $(ECHO) Linking $$file to $(PS2SDK)/iop/include ; \
-	     $(LN) -s $(PS2SDK)/common/$$file $(PS2SDK)/iop/$$file ; \
 	   fi \
 	done;
 	@$(ECHO) Linking $(PS2SDK)/common/include/sys to $(PS2SDK)/ee/include/sys
 	@$(LN) -s $(PS2SDK)/common/include/sys $(PS2SDK)/ee/include/sys
+
+link-iop-include:
+	@for file in include/* ; do \
+	   if test -f $$file ; then \
+	     $(ECHO) Linking $$file to $(PS2SDK)/iop/include ; \
+	     $(LN) -s $(PS2SDK)/common/$$file $(PS2SDK)/iop/$$file ; \
+	   fi \
+	done;
 	@$(ECHO) Linking $(PS2SDK)/common/include/sys to $(PS2SDK)/iop/include/sys
 	@$(LN) -s $(PS2SDK)/common/include/sys $(PS2SDK)/iop/include/sys
 
-release-include: install-include link-include
+release-include: install-include link-ee-include link-iop-include
 
 release: release-dirs release-include
 

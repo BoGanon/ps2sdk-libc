@@ -93,14 +93,17 @@ env_release_check:
 	fi
 
 install-libc: env_release_check
-	$(MAKEREC) common release-dirs
-	$(MAKEREC) common release-include
-	$(MAKEREC) ee/libc release-ee-dirs
+	$(MKDIR) -p $(PS2SDK)/ee
+	$(MKDIR) -p $(PS2SDK)/ee/include
 	$(MAKEREC) ee/libc release-ee-include
+	$(MAKEREC) ee/fdlibm release-ee-include
 
-install-headers: env_release_check release_base release-clean install-libc
+install-headers: release-clean release_base install-libc
+	$(MAKEREC) common release-dirs
+	$(MAKEREC) common install-include
+	$(MAKEREC) common link-ee-include
 	@$(ECHO) .;
-	@$(ECHO) PS2SDK headers installed.;
+	@$(ECHO) PS2SDK LIBC headers installed.;
 	@$(ECHO) .;
 
 docs:
