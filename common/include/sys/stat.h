@@ -88,11 +88,6 @@
 #define FIO_S_ISREG(m)	(((m) & FIO_S_IFMT) == FIO_S_IFREG)
 #define FIO_S_ISDIR(m)	(((m) & FIO_S_IFMT) == FIO_S_IFDIR)
 
-/* File attributes that are retrieved using the getstat and dread calls, and
-   set using chstat.  */
-
-/* The following structures are only supported by iomanX.  */
-
 typedef struct {
 	unsigned int	mode;
 	unsigned int	attr;
@@ -117,10 +112,11 @@ typedef struct {
 	unsigned int	unknown;
 } iox_dirent_t;
 
-/* The following defines are only supported by ioman.  */
 /** End of addtogroup libfileXio
  *  @}
  */
+
+/* The following defines and types are only supported by ioman.  */
 
 /** @addtogroup libfileio
     @{
@@ -148,8 +144,6 @@ typedef struct {
 #define FIO_SO_ISLNK(m)	(((m) & FIO_SO_IFMT) == FIO_SO_IFLNK)
 #define FIO_SO_ISREG(m)	(((m) & FIO_SO_IFMT) == FIO_SO_IFREG)
 #define FIO_SO_ISDIR(m)	(((m) & FIO_SO_IFMT) == FIO_SO_IFDIR)
-
-/* The following structures are only supported by ioman.  */
 
 typedef struct {
 	unsigned int mode;
