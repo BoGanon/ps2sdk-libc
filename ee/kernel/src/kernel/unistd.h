@@ -6,22 +6,27 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# Declarations for externally defined I/O.
 */
+
+/**
+ * @file
+ * Declarations for file I/O not part of libc.
+ * Only libfileio or libfileXio needs to be linked.
+ */
 
 #ifndef __KERNEL_UNISTD_H__
 #define __KERNEL_UNISTD_H__
 
 /** @defgroup unistd POSIX I/O functions.
-
-    These functions are defined in either libfileio or libfileXio.*/
+ *
+ *  These functions are defined in both libfileio and libfileXio.
+ */
 
 #include <sys/stat.h>
 
 /** @addtogroup unistd
-    @{
-*/
+ *  @{
+ */
 
 #ifdef __cplusplus
 extern "C" {
@@ -179,7 +184,7 @@ int unlink(const char *path);
 int write(int fd, const void *buf, size_t count);
 
 /** End of addtogroup unistd
-    @}
-*/
+ *  @}
+ */
 
 #endif /* __KERNEL_UNISTD_H__ */

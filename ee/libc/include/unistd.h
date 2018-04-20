@@ -10,7 +10,7 @@
 
 /**
  * @file
- * Trap the unistd.h include and redirect it to stdio.h
+ * POSIX API miscellaneous constants, types, and symbols.
  */
 
 #ifndef __UNISTD_H__

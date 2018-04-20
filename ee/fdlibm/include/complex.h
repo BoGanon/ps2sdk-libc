@@ -7,6 +7,12 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 */
+
+/**
+ * @file
+ * Complex number arithmetic.
+ */
+
 #ifndef __COMPLEX_H__
 #define __COMPLEX_H__
 

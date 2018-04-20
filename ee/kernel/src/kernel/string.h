@@ -6,9 +6,12 @@
 # Copyright 2001-2004, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# Internal kernel string functions
 */
+
+/**
+ * @file
+ * String functions defined inside kernel.
+ */
 
 #ifndef __KERNEL_STRING_H__
 #define __KERNEL_STRING_H__

@@ -8,6 +8,11 @@
 # Review ps2sdk README & LICENSE files for further details.
 */
 
+/**
+ * @file
+ * Floating point environment definitions.
+ */
+
 #include "fenv.h"
 
 #ifndef FENV_SOFTFLOAT
