@@ -122,6 +122,9 @@ typedef struct {
  *  @}
  */
 
+/** @addtogroup libfileio
+    @{
+*/
 // File mode flags (for mode in io_stat_t)
 /** Format mask */
 #define FIO_SO_IFMT		0x0038
@@ -164,7 +167,11 @@ typedef struct {
 	unsigned int unknown;
 } io_dirent_t;
 
-/* ANSI C stat structure */
+/** End of addtogroup libfileio
+ *  @}
+ */
+
+/* ANSI C stat defines, types, and symbols. */
 /** type of file */
 #define	S_IFMT		0170000
 /** directory */

@@ -11,8 +11,22 @@
 
 /**
  * @file
- * EE FILE IO handling
+ * EE File IO handling
+ * @defgroup libfileio Fileio: File I/O functions.
+ *
+ * The file input/output handling library for rom0:IOMAN and rom0:FILEIO.
+ *
+ * @warning  @ref fioDread "fioDread()" and @ref fioGetstat "fioGetstat()"
+ *           are unstable.
+ * @warning  @ref fioRemove "fioRemove()" falls through to fioMkdir() upon
+ *           completion.
+ * @warning  @ref sbvpatches "Patches" are available to fix these issues.
+ *                            Otherwise, please use fileXio instead.
  */
+
+/** @addtogroup libfileio
+    @{
+*/
 
 #ifndef __FILEIO_H__
 #define __FILEIO_H__
@@ -47,20 +61,24 @@ int fioSync(int mode, int *retVal);
 int fioIoctl(int fd, int request, void *data);
 int fioDopen(const char *name);
 int fioDclose(int fd);
-int fioDread(int fd, fio_dirent_t *buf);		//Warning! (*)
-int fioGetstat(const char *name, fio_stat_t *buf);	//Warning! (*)
-int fioChstat(const char *name, fio_stat_t *buf, unsigned int cbit);
-int fioRemove(const char *name);			//Warning! (**)
+/** @warning Unstable; does not suspend interrupts prior to performing DMA
+             transfers on the IOP side. */
+int fioDread(int fd, io_dirent_t *buf);
+/** @warning Unstable; does not suspend interrupts prior to performing DMA
+             transfers on the IOP side. */
+int fioGetstat(const char *name, io_stat_t *buf);
+int fioChstat(const char *name, io_stat_t *buf, unsigned int cbit);
+/** @warning Falls through to the next case (mkdir) upon completion. */
+int fioRemove(const char *name);
 int fioFormat(const char *name);
 int fioRmdir(const char* dirname);
-
-/*	* Function is unstable; does not suspend interrupts prior to performing DMA transfers on the IOP side.
-	** Function is broken; falls through to the next case (mkdir) upon completion.
-
-	Patches are available to fix these issues. Otherwise, please use fileXio instead.	*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __FILEIO_H__ */
+
+/** End of addtogroup libfileio
+ *  @}
+ */
