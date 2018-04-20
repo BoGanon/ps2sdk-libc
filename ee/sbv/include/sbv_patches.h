@@ -16,6 +16,10 @@
 #ifndef __SBV_PATCHES_H__
 #define __SBV_PATCHES_H__
 
+/** @addtogroup sbvpatches SBV Patches
+    @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,5 +65,9 @@ int sbv_patch_fileio(void);
 #ifdef __cplusplus
 }
 #endif
+
+/** End of addtogroup sbvpatches
+ *  @}
+ */
 
 #endif /* __SBV_PATCHES_H__ */
