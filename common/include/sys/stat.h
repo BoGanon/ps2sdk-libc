@@ -23,6 +23,12 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+/* The following defines and types are only supported by iomanX.  */
+
+/** @addtogroup libfileXio
+    @{
+*/
+
 // Flags for chstat 'statmask'
 #define FIO_CST_MODE	0x0001
 #define FIO_CST_ATTR	0x0002
@@ -112,6 +118,9 @@ typedef struct {
 } iox_dirent_t;
 
 /* The following defines are only supported by ioman.  */
+/** End of addtogroup libfileXio
+ *  @}
+ */
 
 // File mode flags (for mode in io_stat_t)
 /** Format mask */

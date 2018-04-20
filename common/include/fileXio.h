@@ -15,6 +15,10 @@
  * that are used by both IOP and EE sides.
  */
 
+/** @addtogroup libfileXio
+    @{
+*/
+
 #ifndef __FILEXIO_H__
 #define __FILEXIO_H__
 
@@ -260,3 +264,7 @@ struct fxio_rwbuff{
 };
 
 #endif /* __FILEXIO_H__ */
+
+/** End of addtogroup libfileXio
+ *  @}
+ */

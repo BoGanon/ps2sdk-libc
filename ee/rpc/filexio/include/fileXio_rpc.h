@@ -13,6 +13,16 @@
  * fileXio RPC client header file
  */
 
+/** @defgroup libfileXio FileXio: File I/O functions.
+ *
+ *  A newer version of the file input/output library that supports more
+ *  filesystem functionality using iomanX.
+ */
+
+/** @addtogroup libfileXio
+    @{
+*/
+
 #ifndef __FILEXIO_RPC_H__
 #define __FILEXIO_RPC_H__
 
@@ -70,3 +80,7 @@ int fileXioSetRWBufferSize(int size);
 #endif
 
 #endif /* __FILEXIO_RPC_H__ */
+
+/** End of addtogroup libfileXio
+ *  @}
+ */
