@@ -49,7 +49,6 @@ clean_base: env_release_check
 	  rm -f $(PS2SDK)/AUTHORS
 	  rm -f $(PS2SDK)/LICENSE
 	  rm -f $(PS2SDK)/ID
-	  rm -f $(PS2SDK)/Defs.make
 
 release-clean: env_release_check clean_base
 	make -C common release-clean
@@ -65,7 +64,7 @@ $(PS2SDK)/ports:
 
 install: release
 
-release: build release_base release-clean $(PS2SDK)/ports $(subdir_release)
+release: build release-clean release_base $(PS2SDK)/ports $(subdir_release)
 	@$(ECHO) .;
 	@$(ECHO) .PS2SDK Installed.;
 	@$(ECHO) .;
@@ -79,7 +78,6 @@ release_base: env_release_check
 	cp -f AUTHORS $(PS2SDK)
 	cp -f LICENSE $(PS2SDK)
 	cp -f ID $(PS2SDK)
-	cp -f Defs.make $(PS2SDK)
 
 env_build_check:
 	@if test -z $(PS2SDKSRC) ; \
