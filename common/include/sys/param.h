@@ -16,11 +16,19 @@
 #ifndef __SYS_PARAM_H__
 #define __SYS_PARAM_H__
 
+/* Ticks per second. */
 #ifndef HZ
-#define HZ		100
+ #ifndef _IOP
+  #define HZ		294912000
+ #else
+  #define HZ		36864000
+ #endif
 #endif
 
-#define NOFILE		60
+/* Max number of open files. */
+#define NOFILE		16
+
+/* Max size of path strings. */
 #define PATHSIZE	1024
 
 #endif /* __SYS_PARAM_H__ */
