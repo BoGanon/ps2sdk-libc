@@ -12,8 +12,7 @@
  * @file
  * fileXio RPC client/server shared includes
  * This header contains the common definitions for fileXio
- * that are used by both IOP and EE sides. This header
- * conflicts with ps2ip_rpc.h
+ * that are used by both IOP and EE sides.
  */
 
 #ifndef __FILEXIO_H__
@@ -66,7 +65,7 @@ typedef struct {
 	void *ebuf;
 	u8 sbuffer[64];
 	u8 ebuffer[64];
-} rests_pkt; // sizeof = 144
+} fxio_rests_pkt; // sizeof = 144
 
 #define FILEXIO_MOUNTFLAG_NORMAL	0
 #define FILEXIO_MOUNTFLAG_READONLY	1

@@ -496,7 +496,7 @@ int fileXioClose(int fd)
 
 static void recv_intr(void *data_raw)
 {
-	rests_pkt *rests = UNCACHED_SEG(data_raw);
+	fxio_rests_pkt *rests = UNCACHED_SEG(data_raw);
 
 	if(rests->ssize) memcpy(rests->sbuf, rests->sbuffer, rests->ssize);
 	if(rests->esize) memcpy(rests->ebuf, rests->ebuffer, rests->esize);

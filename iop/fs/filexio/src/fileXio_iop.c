@@ -50,7 +50,7 @@ static unsigned char fileXio_rpc_buffer[0x4C00]; // RPC send/receive buffer
 struct t_SifRpcDataQueue qd;
 struct t_SifRpcServerData sd0;
 
-static rests_pkt rests;
+static fxio_rests_pkt rests;
 
 /* RPC exported functions */
 static int fileXio_GetDeviceList_RPC(struct fileXioDevice* ee_devices, int eecount);
@@ -281,8 +281,8 @@ EXIT:
 	rests.esize=erest;
 	rests.sbuf =buffer;
 	rests.ebuf =aebuffer;
-      dmaStruct.src =&rests;
-	dmaStruct.size=sizeof(rests_pkt);
+	dmaStruct.src =&rests;
+	dmaStruct.size=sizeof(fxio_rests_pkt);
 	dmaStruct.attr=0;
 	dmaStruct.dest=intr_data;
 	CpuSuspendIntr(&intStatus);
