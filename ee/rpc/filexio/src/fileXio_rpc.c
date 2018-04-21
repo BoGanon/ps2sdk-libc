@@ -1077,7 +1077,8 @@ int stat(const char *path, struct stat *st)
 
   /** @todo add stat time conversion */
 
-  return ret;
+  return 0;
+
 }
 
 int open(const char *name, int flags, ...)

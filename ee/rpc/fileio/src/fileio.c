@@ -829,7 +829,7 @@ off_t lseek(int fd, off_t offset, int whence)
   return fioLseek(fd,offset,whence);
 }
 
-/* fioStat is unstable on an unpatched kernel */
+/* fioGetStat is unstable on an unpatched kernel */
 int stat(const char *path, struct stat *st)
 {
   long long high;
@@ -866,7 +866,7 @@ int stat(const char *path, struct stat *st)
 
   /** @todo Add time functions to stat */
 
-  return ret;
+  return 0;
 }
 
 int open(const char *name, int flags, ...)
