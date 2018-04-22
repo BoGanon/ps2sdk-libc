@@ -51,7 +51,7 @@ clean_base: env_release_check
 	  rm -f $(PS2SDK)/README.md
 	  rm -f $(PS2SDK)/CHANGELOG
 	  rm -f $(PS2SDK)/AUTHORS
-	  rm -f $(PS2SDK)/LICENSE
+	  rm -f $(PS2SDK)/LICENSE.md
 	  rm -f $(PS2SDK)/ID
 
 release-clean: env_release_check clean_base
@@ -81,7 +81,7 @@ release_base: env_release_check
 	cp -f README.md $(PS2SDK)
 	cp -f CHANGELOG $(PS2SDK)
 	cp -f AUTHORS $(PS2SDK)
-	cp -f LICENSE $(PS2SDK)
+	cp -f LICENSE.md $(PS2SDK)
 	cp -f ID $(PS2SDK)
 
 env_build_check:
