@@ -17,19 +17,19 @@ include $(PS2SDKSRC)/ee/Rules.make
 include $(PS2SDKSRC)/ee/Rules.release
 
 $(IOPCONTROL_SPECIAL_EE_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)SifIopRebootBuffer.c
-	$(EE_C_COMPILE) -I$(PS2SDKSRC)/ee/sbv/include  -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -I$(PS2SDKSRC)/ee/sbv/include  -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(EE_OBJS_DIR)imgdrv_irx.o: $(EE_OBJS_DIR)imgdrv_irx.c
 	$(EE_C_COMPILE) $< -c -o $@
 
 $(PS2SDKSRC)/tools/bin2c/bin/bin2c: $(PS2SDKSRC)/tools/bin2c
-	make -C $<
+	$(MAKE) -C $<
 
 $(EE_SRC_DIR)imgdrv/irx/imgdrv.irx: $(EE_SRC_DIR)imgdrv
-	make -C $<
+	$(MAKE) -C $<
 
 $(EE_OBJS_DIR)imgdrv_irx.c: $(EE_SRC_DIR)imgdrv/irx/imgdrv.irx $(PS2SDKSRC)/tools/bin2c/bin/bin2c
 	$(PS2SDKSRC)/tools/bin2c/bin/bin2c $< $@ imgdrv_irx
 
 clean::
-	make -C $(EE_SRC_DIR)imgdrv clean
+	$(MAKE) -C $(EE_SRC_DIR)imgdrv clean

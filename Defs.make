@@ -54,7 +54,6 @@ STRIP = strip
 MKDIR = mkdir
 RMDIR = rmdir
 ECHO  = echo
-GNUMAKE = make
 LN = ln
 
 SYSTEM = $(shell uname)
@@ -65,12 +64,5 @@ ifeq ($(findstring Windows, $(SYSTEM)), Windows)
   MKDIR = cyg-mkdir
   RMDIR = cyg-rmdir
   ECHO  = cyg-echo
-  GNUMAKE = make
 endif
 
-ifeq ($(findstring BSD, $(SYSTEM)), BSD)
-  # *BSD needs gnu make
-  GNUMAKE = gmake
-endif
-
-MAKEREC = $(GNUMAKE) -C

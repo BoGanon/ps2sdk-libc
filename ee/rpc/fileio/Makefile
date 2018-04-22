@@ -23,4 +23,4 @@ include $(PS2SDKSRC)/ee/Rules.make
 include $(PS2SDKSRC)/ee/Rules.release
 
 $(FILEIO_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)fileio.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@

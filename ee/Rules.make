@@ -34,19 +34,19 @@ EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%)
 # Externally defined variables: EE_BIN, EE_OBJS, EE_LIB
 
 # These macros can be used to simplify certain build rules.
-EE_C_COMPILE = $(EE_CC) $(EE_CFLAGS)
-EE_CXX_COMPILE = $(EE_CXX) $(EE_CXXFLAGS)
+EE_C_COMPILE := $(EE_CC) $(EE_CFLAGS)
+EE_CXX_COMPILE := $(EE_CXX) $(EE_CXXFLAGS)
 
 # Extra macro for disabling the automatic inclusion of the built-in CRT object(s)
 EE_CC_VERSION := $(shell $(EE_CC) --version 2>&1 | sed -n 's/^.*(GCC) //p')
 
 ifdef EE_CC_VERSION
 	ifeq ($(EE_CC_VERSION),3.2.2)
-		EE_NO_CRT = -mno-crt0
+		EE_NO_CRT := -mno-crt0
 	else ifeq ($(EE_CC_VERSION),3.2.3)
-		EE_NO_CRT = -mno-crt0
+		EE_NO_CRT := -mno-crt0
 	else
-		EE_NO_CRT = -nostartfiles
+		EE_NO_CRT := -nostartfiles
 		CRTBEGIN_OBJ := $(shell $(EE_CC) $(CFLAGS) -print-file-name=crtbegin.o)
 		CRTEND_OBJ := $(shell $(EE_CC) $(CFLAGS) -print-file-name=crtend.o)
 		CRTI_OBJ := $(shell $(EE_CC) $(CFLAGS) -print-file-name=crti.o)

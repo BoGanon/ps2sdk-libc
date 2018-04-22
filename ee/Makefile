@@ -21,7 +21,6 @@ SUBDIRS += math
 SUBDIRS += packet
 SUBDIRS += draw
 SUBDIRS += erl
-SUBDIRS += erl-loader
 SUBDIRS += mpeg
 SUBDIRS += libgs
 SUBDIRS += libvux

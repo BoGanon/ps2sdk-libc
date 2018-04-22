@@ -35,10 +35,10 @@ include $(PS2SDKSRC)/ee/Rules.make
 include $(PS2SDKSRC)/ee/Rules.release
 
 $(LIBCDVD_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)libcdvd.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(NCMD_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)ncmd.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(SCMD_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)scmd.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@

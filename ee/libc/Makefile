@@ -73,44 +73,44 @@ include $(PS2SDKSRC)/ee/Rules.make
 include $(PS2SDKSRC)/ee/Rules.release
 
 $(XPRINTF_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)xprintf.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(WXPRINTF_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)xwprintf.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(XSCANF_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)xscanf.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(ALLOC_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)alloc.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(STRING_C_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)string.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(WSTRING_C_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)wstring.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(STDIO_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)stdio.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(STDLIB_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)stdlib.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(WSTDLIB_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)wstdlib.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(UNISTD_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)unistd.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(TIME_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)time.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(LOCALE_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)locale.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(LIBGEN_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)libgen.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
 $(INIT_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)init.c
-	$(EE_C_COMPILE) -DF_$(*:$(EE_OBJS_DIR)%=%) $< -c -o $@
+	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
 
