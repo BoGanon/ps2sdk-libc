@@ -12,6 +12,8 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
+#define __STDC_VERSION__ 199901L
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,6 +51,7 @@ extern double      ldexp(double, int);
 extern double      modf(double, double*);
 
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+
 #if defined (FLT_EVAL_METHOD)
   #if FLT_EVAL_METHOD == 0
     typedef float float_t;
@@ -82,7 +85,8 @@ extern double      modf(double, double*);
 
 #define	FP_ILOGB0		(-2147483647)
 #define	FP_ILOGBNAN		2147483647
-#endif
+
+#endif /* __STDC_VERSION__ */
 
 /* Long double precision */
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
@@ -162,7 +166,7 @@ extern double      fmin(double, double);
 extern double      fmax(double, double);
 extern double      fma(double, double, double);
 extern double      fdim(double, double);
-//extern double      nan(const char *);
+extern double      nan(const char *);
 
 extern double      exp2(double);
 extern double      expm1(double);
@@ -200,7 +204,7 @@ extern double      copysign(double, double);
 #endif
 
 /* Single precision */
-#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+//#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 extern float       fabsf(float);
 extern float       fmodf(float, float);
 extern float       remainderf(float, float);
@@ -209,7 +213,7 @@ extern float       fmaf(float, float, float);
 extern float       fmaxf(float, float);
 extern float       fminf(float, float);
 extern float       fdimf(float, float);
-//extern float       nanf(const char *);
+extern float       nanf(const char *);
 
 extern float       expf(float);
 extern float       exp2f(float);
@@ -266,7 +270,7 @@ extern float       logbf(float);
 extern float       nextafterf(float, float);
 extern float       nexttowardf(float, long double);
 extern float       copysignf(float, float);
-#endif
+//#endif
 
 /* Comparison */
 extern int         __fpclassify(double);
@@ -323,6 +327,8 @@ extern int         __signbitf(float);
 #endif /* STDC_VERSION >= 19901L */
 
 /* POSIX */
+#define finitef(x) __isfinitef(x)
+
 #define	MAXFLOAT	((float)3.40282346638528860e+38)
 
 #define M_E		2.7182818284590452354
