@@ -9,10 +9,8 @@
 SAMPLES_TARGET = $(PS2SDK)/samples
 
 all:
-	@$(ECHO) Nothing to do in samples
 
 clean:
-	@$(ECHO) Nothing to clean in samples
 
 release: release-samples
 	@$(ECHO) Released samples dir.
