@@ -49,6 +49,7 @@ char *ctime(const time_t *timep);
 struct tm *gmtime(const time_t *timep);
 struct tm *localtime(const time_t *timep);
 size_t strftime(char *s, size_t max, const char *format, const struct tm *tm);
+void tzset (void);
 
 #ifdef __cplusplus
 }

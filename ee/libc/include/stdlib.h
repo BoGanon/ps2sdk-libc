@@ -124,6 +124,7 @@ char          *_lltoa(long long, char *, int);
 
 // blah! C++ is evil.
 int system (const char * string);
+int putenv (char *);
 
 #ifdef __cplusplus
 }

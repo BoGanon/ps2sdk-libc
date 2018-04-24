@@ -33,6 +33,7 @@ typedef void (*_sig_func_ptr) (int);
 
 /* Undefined */
 int raise(int);
+int kill(int,int);
 
 #ifdef __cplusplus
 }
