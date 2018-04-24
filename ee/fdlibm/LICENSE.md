@@ -2,7 +2,7 @@ This derivative of fdlibm is derived from FDLIBM 5.3 and includes a number of
 fixes and updates from FreeBSD msun.
 
 The files math.h, fenv.h, fenv.c were created for compatibility
-for the Playstation 2 FPU and shares the same AFL 2.0 license as PS2SDK.
+for the Playstation 2 and shares the same AFL 2.0 license as PS2SDK.
 
 ## FREEBSD MSUN (FreeBSD/2-clause BSD/Simplified BSD License)
 

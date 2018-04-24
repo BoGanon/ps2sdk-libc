@@ -7,12 +7,58 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
+## FREEBSD MSUN (FreeBSD/2-clause BSD/Simplified BSD License)
+#
+#    Copyright 1992-2011 The FreeBSD Project. All rights reserved.
+#
+#       Redistribution and use in source and binary forms, with or without
+#       modification, are permitted provided that the following conditions are
+#       met:
+#
+#    1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#    2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#    THIS SOFTWARE IS PROVIDED BY THE FREEBSD PROJECT ``AS IS'' AND ANY
+#    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+#    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE FREEBSD PROJECT OR
+#    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+#    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+#    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+#    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+>
+#    The views and conclusions contained in the software and documentation
+#    are those of the authors and should not be interpreted as representing
+#    official policies, either expressed or implied, of the FreeBSD
+#    Project.
+#
+## FDLIBM
+#
+#    Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+#
+#    Developed at SunPro, a Sun Microsystems, Inc. business.
+#    Permission to use, copy, modify, and distribute this
+#    software is freely granted, provided that this notice
+#    is preserved.
 */
+
+/*
+ * @file
+ * Common math
+ */
 
 #ifndef __MATH_H__
 #define __MATH_H__
 
-#define __STDC_VERSION__ 199901L
+#if (defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || __cplusplus
+  #define MATH_STDC 1
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,8 +96,8 @@ extern double      frexp(double, int *);
 extern double      ldexp(double, int);
 extern double      modf(double, double*);
 
-#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 
+#if !defined(__STRICT_ANSI__) || defined(MATH_STDC)
 #if defined (FLT_EVAL_METHOD)
   #if FLT_EVAL_METHOD == 0
     typedef float float_t;
@@ -86,10 +132,10 @@ extern double      modf(double, double*);
 #define	FP_ILOGB0		(-2147483647)
 #define	FP_ILOGBNAN		2147483647
 
-#endif /* __STDC_VERSION__ */
+#endif /* STDC */
 
 /* Long double precision */
-#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(__STRICT_ANSI__) || defined(MATH_STDC)
 /*
 extern long double fabsl(long double);
 extern long double fmodl(long double, long double);
@@ -159,7 +205,7 @@ extern long double copysignl(long double, long double);
 #endif
 
 /* Double precision */
-#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(__STRICT_ANSI__) || defined(MATH_STDC)
 extern double      remainder(double, double);
 extern double      remquo(double, double, int *);
 extern double      fmin(double, double);
@@ -204,7 +250,7 @@ extern double      copysign(double, double);
 #endif
 
 /* Single precision */
-//#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(__STRICT_ANSI__) || defined(MATH_STDC)
 extern float       fabsf(float);
 extern float       fmodf(float, float);
 extern float       remainderf(float, float);
@@ -270,7 +316,7 @@ extern float       logbf(float);
 extern float       nextafterf(float, float);
 extern float       nexttowardf(float, long double);
 extern float       copysignf(float, float);
-//#endif
+#endif
 
 /* Comparison */
 extern int         __fpclassify(double);
@@ -286,7 +332,7 @@ extern int         __isnormalf(float);
 extern int         __signbit(double);
 extern int         __signbitf(float);
 
-#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(__STRICT_ANSI__) || defined(MATH_STDC)
 
 #define FP_NORMAL		0
 #define FP_SUBNORMAL		1
@@ -327,6 +373,7 @@ extern int         __signbitf(float);
 #endif /* STDC_VERSION >= 19901L */
 
 /* POSIX */
+#ifndef __STRICT_ANSI__
 #define finitef(x) __isfinitef(x)
 
 #define	MAXFLOAT	((float)3.40282346638528860e+38)
@@ -366,6 +413,7 @@ extern double      yn(int, double);
 extern float       ynf(int, float);
 
 extern double      lgamma_r(double,int*);
+#endif
 
 #ifdef __cplusplus
 }
