@@ -66,15 +66,15 @@ $(IOP_OBJS_DIR)%.o: $(IOP_SRC_DIR)%.s
 .INTERMEDIATE: $(IOP_OBJS_DIR)build-imports.c $(IOP_OBJS_DIR)build-exports.c
 
 # Rules to build imports.lst.
-$(IOP_OBJS_DIR)build-imports.c: $(IOP_SRC_DIR)imports.lst
+$(IOP_OBJS_DIR)build-imports.c: $(IOP_SRC_DIR)imports.lst | $(IOP_OBJS_DIR)
 	$(ECHO) "#include \"irx_imports.h\"" > $@
 	cat $< >> $@
 
-$(IOP_OBJS_DIR)imports.o: $(IOP_OBJS_DIR)build-imports.c
+$(IOP_OBJS_DIR)imports.o: $(IOP_OBJS_DIR)build-imports.c | $(IOP_OBJS_DIR)
 	$(IOP_C_COMPILE) $(IOP_IETABLE_CFLAGS) -c $< -o $@
 
 # Rules to build exports.tab.
-$(IOP_OBJS_DIR)build-exports.c: $(IOP_SRC_DIR)exports.tab
+$(IOP_OBJS_DIR)build-exports.c: $(IOP_SRC_DIR)exports.tab | $(IOP_OBJS_DIR)
 	$(ECHO) "#include \"irx.h\"" > $@
 	cat $< >> $@
 
