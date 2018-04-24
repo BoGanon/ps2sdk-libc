@@ -293,7 +293,8 @@ CMPLX(double x, double y)
  */
 #if FLT_EVAL_METHOD == 0 || __GNUC__ == 0
 #define	STRICT_ASSIGN(type, lval, rval)	((lval) = (rval))
-#else /* FLT_EVAL_METHOD == 0 || __GNUC__ == 0 */
+#endif
+#else /* !FLT_EVAL_METHOD && !STRICT_ASSIGN */
 #define	STRICT_ASSIGN(type, lval, rval) do {	\
 	volatile type __lval;			\
 						\
@@ -304,7 +305,6 @@ CMPLX(double x, double y)
 		(lval) = __lval;		\
 	}					\
 } while (0)
-#endif /* FLT_EVAL_METHOD == 0 || __GNUC__ == 0 */
 #endif /* FLT_EVAL_METHOD */
 
 /* fdlibm kernel function */
@@ -370,5 +370,50 @@ struct Double {
  */
 double __exp__D(double, double);
 struct Double __log__D(double);
+
+/*
+ * Define non-ANSI symbols and constants here when compiling with -std=c99
+ */
+#ifdef __STRICT_ANSI__
+#define finitef(x) __isfinitef(x)
+
+#define	MAXFLOAT	((float)3.40282346638528860e+38)
+
+#define M_E		2.7182818284590452354
+#define M_LOG2E		1.4426950408889634074
+#define M_LOG10E	0.43429448190325182765
+#define M_LN2		0.69314718055994530942
+#define M_LN10		2.30258509299404568402
+#define M_PI		3.14159265358979323846
+#define M_PI_2		1.57079632679489661923
+#define M_PI_4		0.78539816339744830962
+#define M_1_PI		0.31830988618379067154
+#define M_2_PI		0.63661977236758134308
+#define M_2_SQRTPI	1.12837916709551257390
+#define M_SQRT2		1.41421356237309504880
+#define M_SQRT1_2	0.70710678118654752440
+
+extern int signgam;
+
+extern double      j0(double);
+extern float       j0f(float);
+
+extern double      j1(double);
+extern float       j1f(float);
+
+extern double      jn(int, double);
+extern float       jnf(int, float);
+
+extern double      y0(double);
+extern float       y0f(float);
+
+extern double      y1(double);
+extern float       y1f(float);
+
+extern double      yn(int, double);
+extern float       ynf(int, float);
+
+extern double      lgamma_r(double,int*);
+#endif
 
 #endif /* _MATH_PRIVATE_H_ */

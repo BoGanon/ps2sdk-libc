@@ -56,8 +56,12 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
-#if (defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || __cplusplus
-  #define MATH_STDC 1
+#if defined(__STDC_VERSION__) || defined(__cplusplus)
+  #if __STDC_VERSION__ >= 199901L
+    #define MATH_STDC 1
+  #elif defined(__cplusplus)
+    #define MATH_STDC 1
+  #endif
 #endif
 
 #ifdef __cplusplus
