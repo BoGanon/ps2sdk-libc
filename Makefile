@@ -25,7 +25,6 @@ all: build
 
 .PHONY: dummy
 
-
 # Use SUBDIRS to descend into subdirectories.
 subdir_list  = $(patsubst %,all-%,$(SUBDIRS))
 subdir_clean = $(patsubst %,clean-%,$(SUBDIRS))
@@ -64,20 +63,20 @@ release-clean: env_release_check clean_base
 rebuild: env_build_check $(subdir_clean) $(subdir_list)
 	$(MAKE) -C ee/erl-loader all
 
-$(PS2SDK)/ports:
+ports_dir: env_release_check
 	$(MKDIR) -p $(PS2SDK)/ports
 
 install: release
 
-release: build release-clean release_base $(PS2SDK)/ports $(subdir_release)
+release: build release-clean release_base ports_dir $(subdir_release)
 	@$(ECHO) .;
 	@$(ECHO) .PS2SDK Installed.;
 	@$(ECHO) .;
 
-release_base: env_release_check
-	@if test ! -d $(PS2SDK) ; then \
-	  $(MKDIR) -p $(PS2SDK) ; \
-	fi
+release_base_dir: env_release_check
+	$(MKDIR) -p $(PS2SDK)
+
+release_base: env_release_check release_base_dir
 	cp -f README.md $(PS2SDK)
 	cp -f CHANGELOG $(PS2SDK)
 	cp -f AUTHORS $(PS2SDK)
@@ -97,14 +96,18 @@ env_release_check:
 	  exit 1; \
 	fi
 
-install-libc: env_release_check
+headers_clean: env_release_check clean_base
+	$(MAKE) -C ee release-ee-clean
+	$(MAKE) -C common release-clean
+
+header_dirs: env_release_check
 	$(MKDIR) -p $(PS2SDK)/ee
 	$(MKDIR) -p $(PS2SDK)/ee/include
-	$(MAKE) -C  ee/libc release-ee-include
-	$(MAKE) -C ee/fdlibm release-ee-include
-
-install-headers: release-clean release_base install-libc
 	$(MAKE) -C common release-dirs
+
+install-headers: env_release_check headers_clean header_dirs release_base
+	$(MAKE) -C ee/libc release-ee-include
+	$(MAKE) -C ee/fdlibm release-ee-include
 	$(MAKE) -C common install-include
 	$(MAKE) -C common link-ee-include
 	@$(ECHO) .;
