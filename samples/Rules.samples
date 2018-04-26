@@ -23,29 +23,12 @@ clean:
 # Default release target creates the directory and copies files.
 #
 
-release: sample-dir sample-files
-	@$(ECHO) Released: $(SAMPLE_DIR)
-
-
-#
-# Creates the base target directory in samples directory.
-#
-
-
-sample-dir:
-	@if test -z $(SAMPLE_DIR) ; then \
-	  $(ECHO) SAMPLE_DIR must define the target directory. ; \
-	  exit 1; \
-	fi
-	$(MKDIR) -p $(TARGET)
-
-
 #
 # Any file in the include directory will be copied to the ee/include
 # directory.  This does not currently handle subdirectories.
 #
 
-sample-files:
+release: sample-dir
 	@for file in *; do \
 	   if [ $$file = "Makefile" ] ; then \
 	      $(ECHO) Skipping Makefile. ; \
@@ -62,6 +45,22 @@ sample-files:
 	      cp -fr $$file $(TARGET) ; \
 	   fi ; \
 	done
+	@$(ECHO) Released: $(SAMPLE_DIR)
+
+
+#
+# Creates the base target directory in samples directory.
+#
+
+sample-dir:
+	@if test -z $(SAMPLE_DIR) ; then \
+	  $(ECHO) SAMPLE_DIR must define the target directory. ; \
+	  exit 1; \
+	fi
+	$(MKDIR) -p $(TARGET)
+
+
+
 
 
 

@@ -23,14 +23,14 @@ release-dirs:
 install-include:
 	@for file in include/* ; do \
 	   if test -f $$file ; then \
-	     $(ECHO) Installing $$file to $(PS2SDK)/common/include ; \
+	     $(ECHO) Installing common/$$file to $(PS2SDK)/common/include ; \
 	     cp -f $$file $(PS2SDK)/common/include ; \
 	     chmod 644 $(PS2SDK)/common/$$file ; \
 	   fi \
 	done;
 	@for file in include/sys/* ; do \
 	   if test -f $$file ; then \
-	     $(ECHO) Installing $$file to $(PS2SDK)/common/include/sys ; \
+	     $(ECHO) Installing common/$$file to $(PS2SDK)/common/include/sys ; \
 	     cp -f $$file $(PS2SDK)/common/include/sys ; \
 	     chmod 644 $(PS2SDK)/common/$$file ; \
 	   fi \
@@ -39,22 +39,30 @@ install-include:
 link-ee-include:
 	@for file in include/* ; do \
 	   if test -f $$file ; then \
-	     $(ECHO) Linking $$file to $(PS2SDK)/ee/include ; \
-	     $(LN) -s $(PS2SDK)/common/$$file $(PS2SDK)/ee/$$file ; \
+	     $(ECHO) Linking ../../common/$$file to $(PS2SDK)/ee/$$file ; \
+	     $(LN) -s ../../common/$$file $(PS2SDK)/ee/$$file ; \
 	   fi \
 	done;
-	@$(ECHO) Linking $(PS2SDK)/common/include/sys to $(PS2SDK)/ee/include/sys
-	@$(LN) -s $(PS2SDK)/common/include/sys $(PS2SDK)/ee/include/sys
+	@for file in include/sys/* ; do \
+	   if test -f $$file ; then \
+	     $(ECHO) Linking ../../common/$$file to $(PS2SDK)/ee/$$file ; \
+	     $(LN) -s ../../../common/$$file $(PS2SDK)/ee/$$file ; \
+	   fi \
+	done;
 
 link-iop-include:
 	@for file in include/* ; do \
 	   if test -f $$file ; then \
-	     $(ECHO) Linking $$file to $(PS2SDK)/iop/include ; \
-	     $(LN) -s $(PS2SDK)/common/$$file $(PS2SDK)/iop/$$file ; \
+	     $(ECHO) Linking ../../common/$$file to $(PS2SDK)/iop/$$file ; \
+	     $(LN) -s ../../common/$$file $(PS2SDK)/iop/$$file ; \
 	   fi \
 	done;
-	@$(ECHO) Linking $(PS2SDK)/common/include/sys to $(PS2SDK)/iop/include/sys
-	@$(LN) -s $(PS2SDK)/common/include/sys $(PS2SDK)/iop/include/sys
+	@for file in include/sys/* ; do \
+	   if test -f $$file ; then \
+	     $(ECHO) Linking ../../common/$$file to $(PS2SDK)/iop/$$file ; \
+	     $(LN) -s ../../../common/$$file $(PS2SDK)/iop/$$file ; \
+	   fi \
+	done;
 
 release-include: install-include link-ee-include link-iop-include
 

@@ -11,7 +11,7 @@
 # Creates the base ee directory structure in target directory.
 #
 
-RELEASE_EE_DIRS = ee/ ee/include/ ee/lib/ ee/bin/ ee/startup
+RELEASE_EE_DIRS = ee/ ee/include/ ee/include/sys ee/lib/ ee/bin/ ee/startup
 RELEASE_EE_DIRS := $(RELEASE_EE_DIRS:%=$(PS2SDK)/%)
 
 
@@ -85,7 +85,8 @@ release-ee-samples:
 release: release-ee-dirs release-ee-lib release-ee-bin release-ee-include release-ee-samples
 
 release-ee-clean:
-	rm -f $(PS2SDK)/ee/include/*
+	rm -f $(PS2SDK)/ee/include/sys/*.h
+	rm -f $(PS2SDK)/ee/include/*.h
 	rm -f $(PS2SDK)/ee/bin/*
 	rm -f $(PS2SDK)/ee/startup/*
 	rm -f $(PS2SDK)/ee/lib/*
