@@ -13,7 +13,7 @@ EE_LIB = libc.a
 
 EE_SAMPLES = hello prof regress
 
-CORE_OBJS = sbrk.o memchr.o memcpy.o memset.o strcat.o \
+CORE_OBJS = memchr.o memcpy.o memset.o strcat.o \
 	strncmp.o memcmp.o memmove.o strcpy.o strncat.o \
 	strncpy.o terminate.o strlen.o strchr.o strcmp.o \
 	setjmp.o qsort.o cxx.o

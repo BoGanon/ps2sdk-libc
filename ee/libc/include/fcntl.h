@@ -10,13 +10,12 @@
 
 /**
  * @file
- * File control declarations.
+ * POSIX File control declarations.
  */
 
 #ifndef __FCTNL_H__
 #define __FCNTL_H__
 
-#include <sys/fcntl.h>
 #include <sys/stat.h>
 
 #include <unistd.h>
