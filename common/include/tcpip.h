@@ -1294,6 +1294,13 @@ struct in6_addr {
 /** 255.255.255.255 */
 #define INADDR_BROADCAST    IPADDR_BROADCAST
 
+/* From include/lwip/sockets.h:  */
+
+struct timeval {
+  long    tv_sec;         /* seconds */
+  long    tv_usec;        /* and microseconds */
+};
+
 /* If your port already typedef's sa_family_t, define SA_FAMILY_T_DEFINED
    to prevent this code from redefining it. */
 #if !defined(sa_family_t) && !defined(SA_FAMILY_T_DEFINED)
@@ -1569,6 +1576,9 @@ typedef struct ip_mreq {
 
 /* File status flags and file access modes for fnctl,
    these are bits in an int. */
+#ifndef O_NONBLOCK
+#define O_NONBLOCK  1 /* nonblocking I/O */
+#endif
 #ifndef O_NDELAY
 #define O_NDELAY    1 /* same as O_NONBLOCK, for compatibility */
 #endif
