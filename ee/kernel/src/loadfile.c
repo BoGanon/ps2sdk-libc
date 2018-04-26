@@ -15,7 +15,10 @@
  * @defgroup loadfile EE LOADFILE: ELF and IRX loader client library.
  */
 
-#include <sys/fcntl.h>
+#if defined(F_SifExecModuleFile) || defined(DOXYGEN)
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 #include <tamtypes.h>
 #include <ps2lib_err.h>
@@ -47,7 +50,7 @@ extern int _lf_init;
 int _SifLoadElfPart(const char *path, const char *secname, t_ExecData *data, int fno);
 int _SifLoadModuleBuffer(void *ptr, int arg_len, const char *args, int *modres);
 
-#if defined(F_SifLoadFileInit)
+#if defined(F_SifLoadFileInit) || defined(DOXYGEN)
 SifRpcClientData_t _lf_cd;
 int _lf_init = 0;
 
@@ -78,7 +81,7 @@ int SifLoadFileInit()
 }
 #endif
 
-#if defined(F_SifLoadFileExit)
+#if defined(F_SifLoadFileExit) || defined(DOXYGEN)
 void SifLoadFileExit()
 {
 	_lf_init = 0;
@@ -127,21 +130,21 @@ int _SifLoadModule(const char *path, int arg_len, const char *args, int *modres,
 }
 #endif
 
-#if defined(F_SifLoadModule)
+#if defined(F_SifLoadModule) || defined(DOXYGEN)
 int SifLoadModule(const char *path, int arg_len, const char *args)
 {
 	return _SifLoadModule(path, arg_len, args, NULL, LF_F_MOD_LOAD, 0);
 }
 #endif
 
-#if defined(F_SifLoadStartModule)
+#if defined(F_SifLoadStartModule) || defined(DOXYGEN)
 int SifLoadStartModule(const char *path, int arg_len, const char *args, int *mod_res)
 {
 	return _SifLoadModule(path, arg_len, args, mod_res, LF_F_MOD_LOAD, 0);
 }
 #endif
 
-#if defined(F_SifLoadModuleEncrypted)
+#if defined(F_SifLoadModuleEncrypted) || defined(DOXYGEN)
 int SifLoadModuleEncrypted(const char *path, int arg_len, const char *args)
 {
 	return _SifLoadModule(path, arg_len, args, NULL, LF_F_MG_MOD_LOAD, 0);
@@ -292,14 +295,14 @@ int _SifLoadElfPart(const char *path, const char *secname, t_ExecData *data, int
 }
 #endif
 
-#if defined(F_SifLoadElfPart)
+#if defined(F_SifLoadElfPart) || defined(DOXYGEN)
 int SifLoadElfPart(const char *path, const char *secname, t_ExecData *data)
 {
 	return _SifLoadElfPart(path, secname, data, LF_F_ELF_LOAD);
 }
 #endif
 
-#if defined(F_SifLoadElf)
+#if defined(F_SifLoadElf) || defined(DOXYGEN)
 int SifLoadElf(const char *path, t_ExecData *data)
 {
 	u32 secname = 0x6c6c61;  /* "all" */
@@ -307,7 +310,7 @@ int SifLoadElf(const char *path, t_ExecData *data)
 }
 #endif
 
-#if defined(F_SifLoadElfEncrypted)
+#if defined(F_SifLoadElfEncrypted) || defined(DOXYGEN)
 int SifLoadElfEncrypted(const char *path, t_ExecData *data)
 {
 	u32 secname = 0x6c6c61;  /* "all" */
@@ -315,7 +318,7 @@ int SifLoadElfEncrypted(const char *path, t_ExecData *data)
 }
 #endif
 
-#if defined(F_SifIopSetVal)
+#if defined(F_SifIopSetVal) || defined(DOXYGEN)
 int SifIopSetVal(u32 iop_addr, int val, int type)
 {
 	struct _lf_iop_val_arg arg;
@@ -348,7 +351,7 @@ int SifIopSetVal(u32 iop_addr, int val, int type)
 }
 #endif
 
-#if defined(F_SifIopGetVal)
+#if defined(F_SifIopGetVal) || defined(DOXYGEN)
 int SifIopGetVal(u32 iop_addr, void *val, int type)
 {
 	struct _lf_iop_val_arg arg;
@@ -423,21 +426,21 @@ int _SifLoadModuleBuffer(void *ptr, int arg_len, const char *args, int *modres)
 }
 #endif
 
-#if defined(F_SifLoadModuleBuffer)
+#if defined(F_SifLoadModuleBuffer) || defined(DOXYGEN)
 int SifLoadModuleBuffer(void *ptr, int arg_len, const char *args)
 {
 	return _SifLoadModuleBuffer(ptr, arg_len, args, NULL);
 }
 #endif
 
-#if defined(F_SifLoadStartModuleBuffer)
+#if defined(F_SifLoadStartModuleBuffer) || defined(DOXYGEN)
 int SifLoadStartModuleBuffer(void *ptr, int arg_len, const char *args, int *mod_res)
 {
 	return _SifLoadModuleBuffer(ptr, arg_len, args, mod_res);
 }
 #endif
 
-#if defined(F_SifExecModuleBuffer)
+#if defined(F_SifExecModuleBuffer) || defined(DOXYGEN)
 int SifExecModuleBuffer(void *ptr, u32 size, u32 arg_len, const char *args, int *mod_res)
 {
 	SifDmaTransfer_t dmat;
@@ -470,7 +473,7 @@ int SifExecModuleBuffer(void *ptr, u32 size, u32 arg_len, const char *args, int 
 }
 #endif
 
-#if defined(F_SifExecModuleFile)
+#if defined(F_SifExecModuleFile) || defined(DOXYGEN)
 int SifExecModuleFile(const char *path, u32 arg_len, const char *args, int *mod_res)
 {
 	void *iop_addr;
