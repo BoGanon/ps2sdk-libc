@@ -17,12 +17,12 @@
 
 #if defined(F_GetRomName) || defined(DOXYGEN)
 #include <fcntl.h>
+#include <unistd.h>
 #endif
 
 #include <tamtypes.h>
 #include <kernel.h>
 #include "kernel/string.h"
-#include "kernel/unistd.h"
 #include <osd_config.h>
 
 /** config param data as stored on a DTL-T10000(H) TOOL */

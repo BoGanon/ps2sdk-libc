@@ -25,7 +25,6 @@
 #include <kernel.h>
 #include <sifrpc.h>
 #include "kernel/string.h"
-#include "kernel/unistd.h"
 
 #include <loadfile.h>
 #include <iopheap.h>
