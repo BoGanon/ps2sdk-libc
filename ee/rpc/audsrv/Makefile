@@ -6,8 +6,6 @@
 # Licenced under GNU Library General Public License version 2
 # Review ps2sdk README & LICENSE files for further details.
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
-
 EE_OBJS = audsrv_rpc.o erl-support.o
 
 include $(PS2SDKSRC)/Defs.make

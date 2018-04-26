@@ -6,8 +6,6 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
-
 EE_OBJS = netman.o rpc_server.o rpc_client.o erl-support.o
 
 include $(PS2SDKSRC)/Defs.make

@@ -6,8 +6,6 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
-
 LIBCDVD_OBJS += _libcdvd_internals.o sceCdInit.o sceCdIntToPos.o sceCdPosToInt.o \
 	sceCdSearchFile.o sceCdDiskReady.o _CdSemaInit.o _CdSemaExit.o \
 	sceCdInitEeCB.o sceCdCallback.o _CdGenericCallbackFunction.o

@@ -6,8 +6,6 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
-
 EE_LIB = libmc.a
 
 EE_OBJS = libmc.o

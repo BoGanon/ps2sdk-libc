@@ -6,8 +6,7 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include \
-	  -I$(PS2SDKSRC)/ee/rpc/fileio/include
+EE_INCS = -I$(PS2SDKSRC)/ee/rpc/fileio/include
 
 EE_OBJS = sior_rpc.o erl-support.o
 

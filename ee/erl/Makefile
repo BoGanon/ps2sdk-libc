@@ -8,8 +8,6 @@
 
 EE_SAMPLES = hello
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
-
 EE_OBJS = erl.o hashtab.o lookupa.o recycle.o
 
 include $(PS2SDKSRC)/Defs.make

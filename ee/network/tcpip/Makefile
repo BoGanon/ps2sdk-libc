@@ -31,8 +31,7 @@ ifdef PS2IP_DNS
 EE_CFLAGS += -DPS2IP_DNS
 endif
 
-EE_INCS += -I$(LWIP)/src/include -I$(LWIP)/src/include/ipv4 \
-	   -I$(PS2SDKSRC)/ee/libc/include
+EE_INCS += -I$(LWIP)/src/include -I$(LWIP)/src/include/ipv4
 
 ps2api_OBJECTS = api_lib.o api_msg.o api_netbuf.o err.o sockets.o tcpip.o
 ps2api_IPV4 = icmp.o ip.o ip4.o ip4_addr.o ip4_frag.o inet_chksum.o

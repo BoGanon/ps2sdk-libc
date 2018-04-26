@@ -6,7 +6,10 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 
-SUBDIRS = smbman netman smap udptty
+SUBDIRS = smap
+SUBDIRS += smbman
+SUBDIRS += netman
+SUBDIRS += udptty
 
 include $(PS2SDKSRC)/Defs.make
 include $(PS2SDKSRC)/Rules.make

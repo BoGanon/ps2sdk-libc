@@ -7,7 +7,7 @@
 # Review ps2sdk README & LICENSE files for further details.
 
 EE_INCS += -I$(PS2SDKSRC)/ee/dma/include -I$(PS2SDKSRC)/ee/packet/include \
-	   -I$(PS2SDKSRC)/ee/rpc/cdvd/include -I$(PS2SDKSRC)/ee/libc/include
+	   -I$(PS2SDKSRC)/ee/rpc/cdvd/include
 
 EE_OBJS = graph.o graph_mode.o graph_vram.o graph_config.o erl-support.o
 

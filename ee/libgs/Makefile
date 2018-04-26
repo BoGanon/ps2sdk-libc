@@ -8,8 +8,6 @@
 
 EE_LIB = libgs.a
 
-EE_INCS = -I$(PS2SDKSRC)/ee/libc/include
-
 EE_OBJS = libgs.o ResetPath.o dma.o DoubleBuff.o draw.o Zbuffer.o lowlevel.o packets.o primitives.o sync.o texture.o erl-support.o
 
 include $(PS2SDKSRC)/Defs.make

@@ -7,8 +7,7 @@
 # Review ps2sdk README & LICENSE files for further details.
 
 EE_INCS = -I$(PS2SDKSRC)/ee/rpc/filexio/include \
-	  -I$(PS2SDKSRC)/ee/rpc/poweroff/include \
-	  -I$(PS2SDKSRC)/ee/libc/include
+	  -I$(PS2SDKSRC)/ee/rpc/poweroff/include
 
 EE_OBJS = libhdd.o erl-support.o
 

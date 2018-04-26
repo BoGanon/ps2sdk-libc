@@ -9,7 +9,8 @@
 EE_SRC_DIR = $(PS2SDKSRC)/ee/input/src/
 EE_INC_DIR = $(PS2SDKSRC)/ee/input/include/
 
-EE_INCS += -I$(PS2SDKSRC)/ee/rpc/multitap/include -I$(PS2SDKSRC)/ee/libc/include
+EE_INCS += -I$(PS2SDKSRC)/ee/rpc/multitap/include
+
 EE_CFLAGS += -D_XINPUT
 
 include $(PS2SDKSRC)/ee/input/Makefile
