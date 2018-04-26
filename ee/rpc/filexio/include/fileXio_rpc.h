@@ -27,7 +27,6 @@
 #define __FILEXIO_RPC_H__
 
 #include <fileXio.h>
-#include <sys/stat.h>
 
 #define FXIO_WAIT		0
 #define FXIO_NOWAIT		1

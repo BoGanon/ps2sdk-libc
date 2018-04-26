@@ -194,7 +194,7 @@ int sndStreamOpen(char *file, u32 voices, u32 flags, u32 bufaddr, u32 bufsize)
 	}
 
 	/* Try to open file... */
-	stream_fd = open(file, O_RDONLY);
+	stream_fd = open(file, IO_RDONLY);
 	if (stream_fd<0)
 	{
 		dprintf(OUT_ERROR, "open failed (%d)\n", stream_fd);
@@ -348,7 +348,7 @@ int sndStreamSetPosition(int block)
 	block = (block/chunk)*chunk;
 
 	stream_cur = block;
-	lseek(stream_fd, block*16*stream_chans, SEEK_SET);
+	lseek(stream_fd, block*16*stream_chans, IO_SEEK_SET);
 
 	stream_bufid = 0;
 

@@ -440,14 +440,14 @@ int devfs_open(iop_file_t *file, const char *name, int mode, int unused)
       }
 
       /* Tried to open read but not allowed */
-      if(((mode & O_RDONLY) || ((mode & O_RDWR) == O_RDWR))
+      if(((mode & IO_RDONLY) || ((mode & IO_RDWR) == IO_RDWR))
         && !(dev->subdevs[subdev].mode & DEVFS_MODE_R))
       {
          M_PRINTF("open: Read mode requested but not permitted\n");
          return -1;
       }
 
-      if(((mode & O_WRONLY) || ((mode & O_RDWR) == O_RDWR))
+      if(((mode & IO_WRONLY) || ((mode & IO_RDWR) == IO_RDWR))
         && !(dev->subdevs[subdev].mode & DEVFS_MODE_W))
       {
          M_PRINTF("open: Write mode requested but not permitted\n");
@@ -775,15 +775,15 @@ int devfs_lseek(iop_file_t *file, long loc, int whence)
 
       switch(whence)
       {
-        case SEEK_SET: if(loc > 0)
+        case IO_SEEK_SET: if(loc > 0)
                          data->loc.loc64 = (u64) loc;
                        break;
-        case SEEK_CUR: if(loc > 0)
+        case IO_SEEK_CUR: if(loc > 0)
                          data->loc.loc64 += (u64) loc;
                        else if(((s64) -loc) < data->loc.loc64)
                          data->loc.loc64 += (s64) loc;
                        break;
-        case SEEK_END: if((loc > 0)
+        case IO_SEEK_END: if((loc > 0)
                        && (dev->subdevs[data->subdev].extent.loc64 >= (u64) loc))
                          data->loc.loc64 = dev->subdevs[data->subdev].extent.loc64 - (u64) loc;
                        break;
@@ -823,15 +823,15 @@ int devfs_lseek64(iop_file_t *file, long long loc, int whence)
 
       switch(whence)
       {
-        case SEEK_SET: if(loc > 0)
+        case IO_SEEK_SET: if(loc > 0)
                          data->loc.loc64 = (u64) loc;
                        break;
-        case SEEK_CUR: if(loc > 0)
+        case IO_SEEK_CUR: if(loc > 0)
                          data->loc.loc64 += (u64) loc;
                        else if(((s64) -loc) < data->loc.loc64)
                          data->loc.loc64 += (s64) loc;
                        break;
-        case SEEK_END: if((loc > 0)                                                                                  && (dev->subdevs[data->subdev].extent.loc64 >= (u64) loc))
+        case IO_SEEK_END: if((loc > 0) && (dev->subdevs[data->subdev].extent.loc64 >= (u64) loc))
                          data->loc.loc64 = dev->subdevs[data->subdev].extent.loc64 - (u64) loc;
                        break;
         default:       return -1;

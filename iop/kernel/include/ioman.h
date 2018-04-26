@@ -20,7 +20,8 @@
 #include <types.h>
 #include <irx.h>
 
-#include <fcntl.h>
+#include <sys/io_fcntl.h>
+#include <sys/io_stat.h>
 
 int open(const char *name, int mode);
 int close(int fd);

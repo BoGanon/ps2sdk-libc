@@ -164,8 +164,8 @@ int sbus_tty_init(void)
 
 	if(AddDrv(&tty_fsd) != 0) { return(-1); }
 
-    open("tty:", O_RDONLY);
-    open("tty:", O_WRONLY);
+    open("tty:", IO_RDONLY);
+    open("tty:", IO_WRONLY);
 
     KprintfSet(&_kPrintf, NULL);
 

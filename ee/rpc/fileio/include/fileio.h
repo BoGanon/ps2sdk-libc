@@ -31,12 +31,13 @@
 #ifndef __FILEIO_H__
 #define __FILEIO_H__
 
-#include <sys/stat.h>
+#include <sys/io_fcntl.h>
+#include <sys/io_stat.h>
 
 #define FIO_PATH_MAX	256
 
-#define FIO_WAIT		0
-#define FIO_NOWAIT		1
+#define FIO_WAIT	0
+#define FIO_NOWAIT	1
 
 #define FIO_COMPLETE	1
 #define FIO_INCOMPLETE	0

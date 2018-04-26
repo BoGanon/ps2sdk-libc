@@ -28,8 +28,8 @@ int _start(int argc, char *argv[])
 
 	if(AddDrv(&tty_device)<0) return MODULE_NO_RESIDENT_END;
 
-	open(DEVNAME"00:", O_RDWR);
-	open(DEVNAME"00:", O_WRONLY);
+	open(DEVNAME"00:", IO_RDWR);
+	open(DEVNAME"00:", IO_WRONLY);
 
 	return MODULE_RESIDENT_END;
 }

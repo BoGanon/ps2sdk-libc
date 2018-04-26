@@ -61,7 +61,7 @@ static inline unsigned int GetBIOSVersion(void){
 	char romver_str[5];
 	int fd;
 
-	fd=open("rom0:ROMVER", O_RDONLY);
+	fd=open("rom0:ROMVER", IO_RDONLY);
 	read(fd, romver_str, 4);
 	close(fd);
 

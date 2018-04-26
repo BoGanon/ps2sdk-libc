@@ -14,10 +14,6 @@
  * EE FILE IO handling
  */
 
-#include <stdarg.h>
-#include <sys/fcntl.h>
-#include <sys/stat.h>
-
 #include <tamtypes.h>
 #include <ps2lib_err.h>
 #include <kernel.h>
@@ -570,12 +566,12 @@ int fioGets(int fd, char* buff, int n)
 		switch (buff[i])
 		{
 		case '\n':
-			fioLseek(fd, (i + 1) - read, SEEK_CUR);
+			fioLseek(fd, (i + 1) - read, IO_SEEK_CUR);
 			buff[i]=0;	// terminate after newline
 			return i;
 
 		case 0:
-			fioLseek(fd, i-read, SEEK_CUR);
+			fioLseek(fd, i-read, IO_SEEK_CUR);
 			return i;
 		}
 	}

@@ -1204,6 +1204,7 @@ query:
 }
 
 //-------------------------------------------------------------------------
+/* Called through smb_open in smb_fio.c so mode uses IO_* access flags */
 int smb_NTCreateAndX(int UID, int TID, char *filename, s64 *filesize, int mode)
 {
 	struct NTCreateAndXRequest_t *NTCR = (struct NTCreateAndXRequest_t *)SMB_buf.u8buff;
@@ -1223,12 +1224,12 @@ int smb_NTCreateAndX(int UID, int TID, char *filename, s64 *filesize, int mode)
 	NTCR->smbH.TID = (u16)TID;
 	NTCR->smbWordcount = 24;
 	NTCR->smbAndxCmd = SMB_COM_NONE;	// no ANDX command
-	NTCR->AccessMask = ((mode & O_RDWR) == O_RDWR || (mode & O_WRONLY)) ? 0x2019f : 0x20089;
-	NTCR->FileAttributes = ((mode & O_RDWR) == O_RDWR || (mode & O_WRONLY)) ? EXT_ATTR_NORMAL : EXT_ATTR_READONLY;
+	NTCR->AccessMask = ((mode & IO_RDWR) == IO_RDWR || (mode & IO_WRONLY)) ? 0x2019f : 0x20089;
+	NTCR->FileAttributes = ((mode & IO_RDWR) == IO_RDWR || (mode & IO_WRONLY)) ? EXT_ATTR_NORMAL : EXT_ATTR_READONLY;
 	NTCR->ShareAccess = 0x01; // Share in read mode only
-	if (mode & O_CREAT)
+	if (mode & IO_CREAT)
 		NTCR->CreateDisposition |= 0x02;
-	if (mode & O_TRUNC)
+	if (mode & IO_TRUNC)
 		NTCR->CreateDisposition |= 0x04;
 	else
 		NTCR->CreateDisposition |= 0x01;
@@ -1281,6 +1282,7 @@ int smb_NTCreateAndX(int UID, int TID, char *filename, s64 *filesize, int mode)
 }
 
 //-------------------------------------------------------------------------
+/* Called by smb_open in smb_fio.c so mode uses IO_* access flags */
 int smb_OpenAndX(int UID, int TID, char *filename, s64 *filesize, int mode)
 {
 	// does not supports filesize > 4Gb, so we'll have to use
@@ -1309,11 +1311,11 @@ int smb_OpenAndX(int UID, int TID, char *filename, s64 *filesize, int mode)
 	OR->smbH.TID = (u16)TID;
 	OR->smbWordcount = 15;
 	OR->smbAndxCmd = SMB_COM_NONE;		// no ANDX command
-	OR->AccessMask = ((mode & O_RDWR) == O_RDWR || (mode & O_WRONLY)) ? 0x02 : 0x00;
-	OR->FileAttributes = ((mode & O_RDWR) == O_RDWR || (mode & O_WRONLY)) ? EXT_ATTR_NORMAL : EXT_ATTR_READONLY;
-	if (mode & O_CREAT)
+	OR->AccessMask = ((mode & IO_RDWR) == IO_RDWR || (mode & IO_WRONLY)) ? 0x02 : 0x00;
+	OR->FileAttributes = ((mode & IO_RDWR) == IO_RDWR || (mode & IO_WRONLY)) ? EXT_ATTR_NORMAL : EXT_ATTR_READONLY;
+	if (mode & IO_CREAT)
 		OR->CreateOptions |= 0x10;
-	if (mode & O_TRUNC)
+	if (mode & IO_TRUNC)
 		OR->CreateOptions |= 0x02;
 	else
 		OR->CreateOptions |= 0x01;

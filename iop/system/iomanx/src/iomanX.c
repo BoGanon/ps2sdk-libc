@@ -264,7 +264,7 @@ int read(int fd, void *ptr, int size)
 {
 	iop_file_t *f = get_file(fd);
 
-	if (f == NULL || !(f->mode & O_RDONLY))
+	if (f == NULL || !(f->mode & IO_RDONLY))
 		return -EBADF;
 
 	return f->device->ops->read(f, ptr, size);
@@ -274,7 +274,7 @@ int write(int fd, void *ptr, int size)
 {
 	iop_file_t *f = get_file(fd);
 
-	if (f == NULL || !(f->mode & O_WRONLY))
+	if (f == NULL || !(f->mode & IO_WRONLY))
 		return -EBADF;
 
 	return f->device->ops->write(f, ptr, size);
@@ -287,7 +287,7 @@ int lseek(int fd, int offset, int whence)
 	if (f == NULL)
 		return -EBADF;
 
-	if (whence < SEEK_SET || whence > SEEK_END)
+	if (whence < IO_SEEK_SET || whence > IO_SEEK_END)
 		return -EINVAL;
 
 	return f->device->ops->lseek(f, offset, whence);
@@ -589,7 +589,7 @@ long long lseek64(int fd, long long offset, int whence)
 	if (f == NULL)
 		return -EBADF;
 
-	if (whence < SEEK_SET || whence > SEEK_END)
+	if (whence < IO_SEEK_SET || whence > IO_SEEK_END)
 		return -EINVAL;
 
 	if ((f->device->type & 0xf0000000) != IOP_DT_FSEXT)

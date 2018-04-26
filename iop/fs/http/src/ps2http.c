@@ -491,15 +491,15 @@ int httpLseek(iop_io_file_t *f, int offset, int mode)
 
 	switch(mode)
 	{
-		case SEEK_SET:
+		case IO_SEEK_SET:
 			privData->filePos = offset;
 			break;
 
-		case SEEK_CUR:
+		case IO_SEEK_CUR:
 			privData->filePos += offset;
 			break;
 
-		case SEEK_END:
+		case IO_SEEK_END:
 			privData->filePos = privData->fileSize + offset;
 			break;
 

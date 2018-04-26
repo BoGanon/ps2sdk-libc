@@ -786,13 +786,13 @@ int McSeek(int fd, int offset, int origin) // Export #10
 
 	switch (origin) {
 		default:
-		case SEEK_CUR:
+		case IO_SEEK_CUR:
 			r = fh->position + offset;
 			break;
-		case SEEK_SET:
+		case IO_SEEK_SET:
 			r = offset;
 			break;
-		case SEEK_END:
+		case IO_SEEK_END:
 			r = fh->filesize + offset;
 			break;
 	}

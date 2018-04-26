@@ -242,20 +242,20 @@ static int fs_open(iop_file_t* fd, const char *name, int mode) {
 		//File exists. Check if the file is already open
 		rec2 = fs_findFileSlotByCluster(rec->dirent.fatdir.startCluster);
 		if (rec2 != NULL) {
-			if ((mode & O_WRONLY) || //current file is opened for write
-				(rec2->mode & O_WRONLY) ) {//other file is opened for write
+			if ((mode & IO_WRONLY) || //current file is opened for write
+				(rec2->mode & IO_WRONLY) ) {//other file is opened for write
 				_fs_unlock();
 				return -EACCES;
 			}
 		}
 	}
 
-	if(mode & O_WRONLY)  { //dlanor: corrected bad test condition
+	if(mode & IO_WRONLY)  { //dlanor: corrected bad test condition
 		cluster = 0; //start from root
 
 		escapeNotExist = 1;
-		if (mode & O_CREAT) {
-			XPRINTF("USBHDFSD: FAT I: O_CREAT detected!\n");
+		if (mode & IO_CREAT) {
+			XPRINTF("USBHDFSD: FAT I: IO_CREAT detected!\n");
 			escapeNotExist = 0;
 		}
 
@@ -267,7 +267,7 @@ static int fs_open(iop_file_t* fd, const char *name, int mode) {
 			return ret;
 		}
 		//the file already exist but mode is set to truncate
-		if (ret == 2 && (mode & O_TRUNC)) {
+		if (ret == 2 && (mode & IO_TRUNC)) {
 			XPRINTF("USBHDFSD: FAT I: O_TRUNC detected!\n");
 			fat_truncateFile(fatd, cluster, rec->sfnSector, rec->sfnOffset);
 		}
@@ -294,7 +294,7 @@ static int fs_open(iop_file_t* fd, const char *name, int mode) {
 	rec->filePos = 0;
 	rec->sizeChange  = 0;
 
-	if ((mode & O_APPEND) && (mode & O_WRONLY)) {
+	if ((mode & IO_APPEND) && (mode & IO_WRONLY)) {
 		XPRINTF("USBHDFSD: FAT I: O_APPEND detected!\n");
 		rec->filePos = rec->dirent.fatdir.size;
 	}
@@ -327,7 +327,7 @@ static int fs_close(iop_file_t* fd) {
 	fatd = fat_getData(fd->unit);
 	if (fatd == NULL) { _fs_unlock(); return -ENODEV; }
 
-	if ((rec->mode & O_WRONLY)) {
+	if ((rec->mode & IO_WRONLY)) {
 		//update direntry size and time
 		if (rec->sizeChange) {
 			fat_updateSfn(fatd, rec->dirent.fatdir.size, rec->sfnSector, rec->sfnOffset);
@@ -359,13 +359,13 @@ static int fs_lseek(iop_file_t* fd, int offset, int whence) {
 	}
 
 	switch(whence) {
-		case SEEK_SET:
+		case IO_SEEK_SET:
 			rec->filePos = offset;
 			break;
-		case SEEK_CUR:
+		case IO_SEEK_CUR:
 			rec->filePos += offset;
 			break;
-		case SEEK_END:
+		case IO_SEEK_END:
 			rec->filePos = rec->dirent.fatdir.size + offset;
 			break;
 		default:
@@ -404,7 +404,7 @@ static int fs_write(iop_file_t* fd, void * buffer, int size )
 		return -EISDIR;
 	}
 
-	if (!(rec->mode & O_WRONLY)) {
+	if (!(rec->mode & IO_WRONLY)) {
 		_fs_unlock();
 		return -EACCES;
 	}
@@ -447,7 +447,7 @@ static int fs_read(iop_file_t* fd, void * buffer, int size ) {
 		return -EISDIR;
 	}
 
-	if (!(rec->mode & O_RDONLY)) {
+	if (!(rec->mode & IO_RDONLY)) {
 		_fs_unlock();
 		return -EACCES;
 	}

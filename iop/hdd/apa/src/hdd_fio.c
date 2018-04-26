@@ -368,7 +368,7 @@ static int apaOpen(s32 device, hdd_file_slot_t *fileSlot, apa_params_t *params, 
 		return rv;
 	rv=-ENOENT;
 
-	if(clink==NULL && (mode & O_CREAT))
+	if(clink==NULL && (mode & IO_CREAT))
 	{
 		if((rv=hddCheckPartitionMax(device, params->size))>=0) {
 			if((clink=hddAddPartitionHere(device, params, emptyBlocks, sector, &rv))!=NULL)
@@ -393,7 +393,7 @@ static int apaOpen(s32 device, hdd_file_slot_t *fileSlot, apa_params_t *params, 
 	apaCacheFree(clink);
 	if(apaPassCmp(clink->header->fpwd, params->fpwd)!=0)
 	{
-		rv = (!(mode & O_WRONLY)) ? apaPassCmp(clink->header->rpwd, params->rpwd) : -EACCES;
+		rv = (!(mode & IO_WRONLY)) ? apaPassCmp(clink->header->rpwd, params->rpwd) : -EACCES;
 	} else
 		rv = 0;
 
@@ -528,13 +528,13 @@ int hddOpen(iop_file_t *f, const char *name, int flags, int mode)
 	if(f->unit >= 2 || hddDevices[f->unit].status!=0)
 		return -ENODEV;
 
-	if(!(f->mode & O_DIROPEN))
+	if(!(f->mode & IO_DIROPEN))
 		if((rv=fioGetInput(name, &params)) < 0)
 			return rv;
 
 	WaitSema(fioSema);
 	if((rv=getFileSlot(&params, &fileSlot))==0) {
-		if(!(f->mode & O_DIROPEN)) {
+		if(!(f->mode & IO_DIROPEN)) {
 			if((rv=apaOpen(f->unit, fileSlot, &params, flags))==0){
 				fileSlot->f=f;
 				f->privdata=fileSlot;
@@ -565,7 +565,7 @@ int hddRead(iop_file_t *f, void *buf, int size)
 
 int hddWrite(iop_file_t *f, void *buf, int size)
 {
-	if(!(f->mode & O_WRONLY))
+	if(!(f->mode & IO_WRONLY))
 		return -EACCES;
 	return fioDataTransfer(f, buf, size, ATA_DIR_WRITE);
 }
@@ -576,7 +576,7 @@ int hddLseek(iop_file_t *f, int post, int whence)
 	hdd_file_slot_t *fileSlot;
 
 	// test input( no seeking to end point less :P )
-	if(whence==SEEK_END)
+	if(whence==IO_SEEK_END)
 		return -EINVAL;
 	if((post & 0x1FF))
 		return -EINVAL;
@@ -585,7 +585,7 @@ int hddLseek(iop_file_t *f, int post, int whence)
 
 	WaitSema(fioSema);
 	fileSlot=f->privdata;
-	if(whence==SEEK_CUR)
+	if(whence==IO_SEEK_CUR)
 	{
 		if((fileSlot->post+post) < 0 || (fileSlot->post+post)>=0x1FF9)
 			rv=-EINVAL;
@@ -595,7 +595,7 @@ int hddLseek(iop_file_t *f, int post, int whence)
 			rv=fileSlot->post<<9;
 		}
 	}
-	else if(whence==SEEK_SET)
+	else if(whence==IO_SEEK_SET)
 	{
 		if(post < 0 || post>=0x1FF9)
 			rv=-EINVAL;
@@ -664,7 +664,7 @@ int hddDread(iop_file_t *f, iox_dirent_t *dirent)
 	hdd_file_slot_t *fileSlot=f->privdata;
 	apa_cache_t 		*clink;
 
-	if(!(f->mode & O_DIROPEN))
+	if(!(f->mode & IO_DIROPEN))
 		return -ENOTDIR;
 
 	if(fileSlot->parts[0].start==-1)
@@ -740,7 +740,7 @@ static int ioctl2AddSub(hdd_file_slot_t *fileSlot, char *argp)
 	u32			sector=0;
 	u32			length;
 
-	if(!(fileSlot->f->mode & O_WRONLY))
+	if(!(fileSlot->f->mode & IO_WRONLY))
 		return -EACCES;
 
 	if(!(fileSlot->nsub < APA_MAXSUB))
@@ -798,7 +798,7 @@ static int ioctl2DeleteLastSub(hdd_file_slot_t *fileSlot)
 	apa_cache_t	*mainPart;
 	apa_cache_t	*subPart;
 
-	if(!(fileSlot->f->mode & O_WRONLY))
+	if(!(fileSlot->f->mode & IO_WRONLY))
 		return -EACCES;
 
 	if(fileSlot->nsub==0)

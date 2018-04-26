@@ -20,7 +20,7 @@
 #include <malloc.h>
 
 // PS2DRV includes
-#include "sys/ioctl.h"
+#include "sys/libhdd_ioctl.h"
 #include "fileXio_rpc.h"
 #include "errno.h"
 

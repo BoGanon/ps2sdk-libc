@@ -121,11 +121,11 @@ int pfsFioIoctl2(iop_file_t *f, int cmd, void *arg, size_t arglen,	void *buf, si
 	pfs_file_slot_t *fileSlot = (pfs_file_slot_t *)f->privdata;
 	pfs_mount_t *pfsMount;
 
-	if(f->mode & O_DIROPEN)
+	if(f->mode & IO_DIROPEN)
 		if(cmd==PIOCATTRREAD)
 			return -EISDIR;
 
-	if(!(f->mode & O_WRONLY))
+	if(!(f->mode & IO_WRONLY))
 	{
 		switch(cmd)
 		{

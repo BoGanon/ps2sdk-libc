@@ -340,9 +340,9 @@ int smb_open(iop_file_t *f, const char *filename, int mode, int flags)
 			fh->mode = mode;
 			fh->filesize = filesize;
 			fh->position = 0;
-			if (fh->mode & O_TRUNC)
+			if (fh->mode & IO_TRUNC)
 				fh->filesize = 0;
-			else if (fh->mode & O_APPEND)
+			else if (fh->mode & IO_APPEND)
 				fh->position = filesize;
 			strncpy(fh->name, path, 256);
 			r = 0;
@@ -368,7 +368,7 @@ int smb_close(iop_file_t *f)
 	smb_io_lock();
 
 	if (fh) {
-		if (fh->mode != O_DIROPEN) {
+		if (fh->mode != IO_DIROPEN) {
 			r = smb_Close(UID, TID, fh->smb_fid);
 			if (r != 0) {
 				goto io_unlock;
@@ -452,7 +452,7 @@ int smb_write(iop_file_t *f, void *buf, int size)
 	if ((UID == -1) || (TID == -1) || (fh->smb_fid == -1))
 		return -EBADF;
 
-	if ((!(fh->mode & O_RDWR)) && (!(fh->mode & O_WRONLY)))
+	if ((!(fh->mode & IO_RDWR)) && (!(fh->mode & IO_WRONLY)))
 		return -EACCES;
 
 	smb_io_lock();
@@ -664,7 +664,7 @@ int smb_dopen(iop_file_t *f, const char *dirname)
 	if (fh) {
 		f->privdata = fh;
 		fh->f = f;
-		fh->mode = O_DIROPEN;
+		fh->mode = IO_DIROPEN;
 		fh->filesize = 0;
 		fh->position = 0;
 
@@ -846,21 +846,21 @@ s64 smb_lseek64(iop_file_t *f, s64 pos, int where)
 	smb_io_lock();
 
 	switch (where) {
-		case SEEK_CUR:
+		case IO_SEEK_CUR:
 			r = fh->position + pos;
 			if (r > fh->filesize) {
 				r = -EINVAL;
 				goto io_unlock;
 			}
 			break;
-		case SEEK_SET:
+		case IO_SEEK_SET:
 			r = pos;
 			if (fh->filesize < pos) {
 				r = -EINVAL;
 				goto io_unlock;
 			}
 			break;
-		case SEEK_END:
+		case IO_SEEK_END:
 			r = fh->filesize;
 			break;
 		default:

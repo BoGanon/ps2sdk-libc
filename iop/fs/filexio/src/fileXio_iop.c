@@ -165,15 +165,15 @@ static int fileXio_CopyFile_RPC(const char *src, const char *dest, int mode)
   iox_stat_t stat;
   int infd, outfd, size, remain, i, retval = 0;
 
-  if ((infd = open(src, O_RDONLY, 0666)) < 0) {
+  if ((infd = open(src, IO_RDONLY, 0666)) < 0) {
     return infd;
   }
-  if ((outfd = open(dest, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0) {
+  if ((outfd = open(dest, IO_RDWR|IO_CREAT|IO_TRUNC, 0666)) < 0) {
     close(infd);
     return outfd;
   }
-  size = lseek(infd, 0, SEEK_END);
-  lseek(infd, 0, SEEK_SET);
+  size = lseek(infd, 0, IO_SEEK_END);
+  lseek(infd, 0, IO_SEEK_SET);
   if (!size)
     return retval;
 

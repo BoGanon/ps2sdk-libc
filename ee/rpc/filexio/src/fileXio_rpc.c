@@ -13,8 +13,14 @@
  * fileXio RPC client
  */
 
+#include <fileXio_rpc.h>
+
+/* Needed for unistd glue functions */
+#if 0
 #define __need__va_list
 #include <stdarg.h>
+#endif
+
 #include <limits.h>
 #include <errno.h>
 
@@ -24,9 +30,6 @@
 
 #include <kernel/string.h>
 #include <kernel/dirent.h>
-#include <sys/fcntl.h>
-
-#include <fileXio_rpc.h>
 
 extern int _iop_reboot_count;
 static SifRpcClientData_t cd0;
@@ -1018,6 +1021,7 @@ int fileXioSetRWBufferSize(int size){
 }
 
 /* The unistd glue functions*/
+#if 0
 int mkdir(const char *path, mode_t mode)
 {
   return fileXioMkdir(path,mode);
@@ -1195,3 +1199,4 @@ int write(int fd, const void *buf, size_t count)
 
   return fileXioWrite(fd, buf, (int)count);
 }
+#endif

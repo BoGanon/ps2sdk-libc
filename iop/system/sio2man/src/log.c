@@ -40,7 +40,7 @@ static int log_init(void)
 {
 	logging = 1;
 
-	if ((logfd = open(logfile, O_WRONLY | O_CREAT | O_TRUNC)) < 0)
+	if ((logfd = open(logfile, IO_WRONLY | IO_CREAT | IO_TRUNC)) < 0)
 		logging = 0;
 
 	init = 1;
@@ -156,7 +156,7 @@ void log_flush(int now)
 	if (now || flushcount >= FLUSH_COUNT_MAX) {
 		write(logfd, log, writesize);
 		close(logfd);
-		logfd = open(logfile, O_WRONLY | O_APPEND);
+		logfd = open(logfile, IO_WRONLY | IO_APPEND);
 		if (logfd < 0)
 			logging = 0;
 

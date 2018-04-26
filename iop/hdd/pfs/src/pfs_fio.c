@@ -81,7 +81,7 @@ void pfsFioCloseFileSlot(pfs_file_slot_t *fileSlot)
 {
 	pfs_mount_t *pfsMount=fileSlot->clink->pfsMount;
 
-	if(fileSlot->fd->mode & O_WRONLY)
+	if(fileSlot->fd->mode & IO_WRONLY)
 	{
 		if(fileSlot->unaligned.dirty!=0)
 		{
@@ -163,11 +163,11 @@ static int openFile(pfs_mount_t *pfsMount, pfs_file_slot_t *freeSlot, const char
 		u32 count;
 
 		// Setup flags
-		flags=openFlagArray[openFlags & O_RDWR];
-		if (openFlags & O_TRUNC)	flags |= 2;
+		flags=openFlagArray[openFlags & IO_RDWR];
+		if (openFlags & IO_TRUNC)	flags |= 2;
 		if (openFlags & PFS_FDIRO)		flags |= 4;
 		if ((mode & 0x10000) ||
-		   ((openFlags & (O_CREAT|O_EXCL)) == (O_CREAT|O_EXCL))){
+		   ((openFlags & (IO_CREAT|IO_EXCL)) == (IO_CREAT|IO_EXCL))){
 			result=-EEXIST;
 		}
 		else
@@ -205,7 +205,7 @@ static int openFile(pfs_mount_t *pfsMount, pfs_file_slot_t *freeSlot, const char
 			// Truncate file if required
 			if ((result==0) &&
 			    ((result=pfsCheckAccess(fileInode, flags & 0xFFFF))==0) &&
-			    (openFlags & O_TRUNC))
+			    (openFlags & IO_TRUNC))
 			{
 				cached=pfsCacheGetData(fileInode->pfsMount, fileInode->sub, fileInode->block+1, PFS_CACHE_FLAG_NOLOAD | PFS_CACHE_FLAG_NOTHING, &result2);
 				if (cached)
@@ -227,7 +227,7 @@ static int openFile(pfs_mount_t *pfsMount, pfs_file_slot_t *freeSlot, const char
 
 	// Otherwise, if file doesnt already exist..
 	}else{
-		if ((openFlags & O_CREAT) && (result==-ENOENT) &&
+		if ((openFlags & IO_CREAT) && (result==-ENOENT) &&
 		    ((result=pfsCheckAccess(parentInode, 2))==0) &&
 		    (fileInode=pfsInodeCreate(parentInode, mode, pfsMount->uid,
 						  pfsMount->gid, &result)))
@@ -282,7 +282,7 @@ label:
 	if ((result==0) && freeSlot && fileInode)
 	{
 		freeSlot->clink=fileInode;
-		if (openFlags & O_APPEND)
+		if (openFlags & IO_APPEND)
 			freeSlot->position = fileInode->u.inode->size;
 		else
 			freeSlot->position = 0;
@@ -290,7 +290,7 @@ label:
 		result=pfsBlockInitPos(freeSlot->clink, &freeSlot->block_pos, freeSlot->position);
 		if (result==0)
 		{
-			if ((openFlags & O_WRONLY) &&
+			if ((openFlags & IO_WRONLY) &&
 			    (fileInode->u.inode->attr & PFS_FIO_ATTR_CLOSED)){
 				fileInode->u.inode->attr &= ~PFS_FIO_ATTR_CLOSED;
 				fileInode->flags |= PFS_CACHE_FLAG_DIRTY;
@@ -560,7 +560,7 @@ int	pfsFioFormat(iop_file_t *t, const char *dev, const char *blockdev, void *arg
 
 	WaitSema(pfsFioSema);
 
-	fd = open(blockdev, O_RDWR);
+	fd = open(blockdev, IO_RDWR);
 
 	if(fd < 0)
 		rv = fd;
@@ -688,20 +688,20 @@ static s64 _seek(pfs_file_slot_t *fileSlot, s64 offset, int whence, int mode)
 	int rv;
 	s64 startPos, newPos;
 
-	if (mode & O_DIROPEN)
+	if (mode & IO_DIROPEN)
 	{
 		return -EISDIR;
 	}
 
 	switch (whence)
 	{
-	case SEEK_SET:
+	case IO_SEEK_SET:
 		startPos = 0;
 		break;
-	case SEEK_CUR:
+	case IO_SEEK_CUR:
 		startPos= fileSlot->position;
 		break;
-	case SEEK_END:
+	case IO_SEEK_END:
 		startPos = fileSlot->clink->u.inode->size;
 		break;
 	default:
@@ -830,7 +830,7 @@ int	pfsFioMkdir(iop_file_t *f, const char *path, int mode)
 	if(!(pfsMount = pfsFioGetMountedUnit(f->unit)))
 		return -ENODEV;
 
-	rv = openFile(pfsMount, NULL, path, O_CREAT | O_WRONLY, mode);
+	rv = openFile(pfsMount, NULL, path, IO_CREAT | IO_WRONLY, mode);
 
 	SignalSema(pfsFioSema);
 
@@ -1229,7 +1229,7 @@ int pfsFioMount(iop_file_t *f, const char *fsname, const char *devname, int flag
 
 	WaitSema(pfsFioSema);
 
-	fd = open(devname, (flag & FILEXIO_MOUNTFLAG_READONLY) ? O_RDONLY : O_RDWR, 0644); // ps2hdd.irx fd
+	fd = open(devname, (flag & FILEXIO_MOUNTFLAG_READONLY) ? IO_RDONLY : IO_RDWR, 0644); // ps2hdd.irx fd
 	if(fd < 0)
 		rv = fd;
 	else {
@@ -1283,7 +1283,7 @@ int pfsFioSymlink(iop_file_t *f, const char *old, const char *new)
 	if(!(pfsMount=pfsFioGetMountedUnit(f->unit)))
 		return -ENODEV;
 
-	rv = openFile(pfsMount, (pfs_file_slot_t *)old, (const char *)new, O_CREAT|O_WRONLY, mode);
+	rv = openFile(pfsMount, (pfs_file_slot_t *)old, (const char *)new, IO_CREAT|IO_WRONLY, mode);
 	SignalSema(pfsFioSema);
 	return rv;
 }
