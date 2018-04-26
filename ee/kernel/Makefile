@@ -112,7 +112,7 @@ GETKERNEL_OBJS = GetSyscallHandler.o GetSyscall.o GetExceptionHandler.o GetInter
 
 ### System initialization objects
 
-INITSYS_OBJS = _InitSys.o TerminateLibrary.o
+INITSYS_OBJS = _InitSys.o TerminateLibrary.o ps2_sbrk.o
 
 ### SYSCALL OBJECTS
 

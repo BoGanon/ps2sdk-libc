@@ -14,31 +14,11 @@
    .weak  _fini
    .type  _fini, @function
 
-   .extern   _heap_size
-   .extern   _stack
-   .extern   _stack_size
-
-   .weakext _ps2sdk_args_parse_weak, _ps2sdk_args_parse
-   .globl   _ps2sdk_args_parse_weak
-   .type    _ps2sdk_args_parse_weak, @function
-
-   .weakext _ps2sdk_libc_init_weak, _ps2sdk_libc_init
-   .globl   _ps2sdk_libc_init_weak
-   .type    _ps2sdk_libc_init_weak, @function
-
-   .weakext _ps2sdk_libc_deinit_weak, _ps2sdk_libc_deinit
-   .globl   _ps2sdk_libc_deinit_weak
-   .type    _ps2sdk_libc_deinit_weak, @function
-
-   .extern _InitSys
-   .extern Exit
-   .extern FlushCache
-
    .set   noat
    .set   noreorder
 
    .text
-   .align   2
+   .align   3
 
    .globl  _start
    .ent    _start
@@ -83,12 +63,13 @@ setupthread:
    # writeback data cache
    jal FlushCache  # FlushCache(0)
    move   $4, $0
-
+/*
 parseargs:
-   # call ps2sdk argument parsing (weak)
+   # call ps2sdk argument parsing
 
    la   $16, _args
-   la   $8, _ps2sdk_args_parse_weak
+
+   la   $8, _ps2sdk_args_parse
    beqz   $8, 1f
    lw   $4, ($16)
 
@@ -97,15 +78,15 @@ parseargs:
 1:
 
 libc_init:
-   # initialize ps2sdk libc (weak)
+   # initialize ps2sdk libc
 
-   la   $8, _ps2sdk_libc_init_weak
+   la   $8, _ps2sdk_libc_init
    beqz   $8, 1f
    nop
    jalr   $8      # _ps2sdk_libc_init()
    nop
 1:
-
+*/
 ctors:
    # call global constructors (weak)
 
@@ -122,10 +103,12 @@ ctors:
    # call main
    ei
 
+   la $16, _args
    lw   $4, ($16)
+   
+1:
    jal   main      # main(argc, argv)
-   addiu   $5, $16, 4
-
+   addiu $5, $16, 4
    # call _exit
 
    j   _exit      # _exit(retval)
@@ -148,17 +131,17 @@ dtors:
    jalr   $8      # _fini()
    nop
 1:
-
+/*
 libc_uninit:
-   # uninitialize ps2sdk libc (weak)
+   # uninitialize ps2sdk libc
 
-   la   $8, _ps2sdk_libc_deinit_weak
+   la   $8, _ps2sdk_libc_deinit
    beqz   $8, 1f
    nop
    jalr   $8      # _ps2sdk_libc_deinit()
    nop
 1:
-
+*/
    j Exit         # Exit(retval) (noreturn)
    move   $4, $16
 
