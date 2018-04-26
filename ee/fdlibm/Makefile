@@ -64,4 +64,37 @@ EE_OBJS = k_rem_pio2.o   k_cos.o          k_sin.o          k_tan.o        \
 include $(PS2SDKSRC)/Defs.make
 include $(PS2SDKSRC)/ee/Rules.lib.make
 include $(PS2SDKSRC)/ee/Rules.make
-include $(PS2SDKSRC)/ee/Rules.release
+
+release-libm-dirs:
+	$(MKDIR) -p $(PS2SDK)/ee/libc
+	$(MKDIR) -p $(PS2SDK)/ee/libc/lib
+	$(MKDIR) -p $(PS2SDK)/ee/libc/include
+	$(MKDIR) -p $(PS2SDK)/ee/libc/include/sys
+
+
+release-libm-lib:
+	@if test $(EE_LIB) ; then \
+	   $(ECHO) Installing $(EE_LIB) to $(PS2SDK)/ee/libc/lib ; \
+	   cp -f $(EE_LIB) $(PS2SDK)/ee/libc/lib ; \
+	   cp -f $(EE_LIB:%.a=%.erl) $(PS2SDK)/ee/libc/lib ; \
+	   chmod 644 $(PS2SDK)/ee/libc/lib/`basename $(EE_LIB)` $(PS2SDK)/ee/libc/lib/`basename $(EE_LIB:%.a=%.erl)`; \
+	fi;
+
+release-libm-include:
+	@if test -d include ; then \
+	   for file in include/*; do \
+	      if test -f $$file ; then \
+	         $(ECHO) Installing $$file to $(PS2SDK)/ee/libc/include ; \
+	         cp -f $$file $(PS2SDK)/ee/libc/include ; \
+	         chmod 644 $(PS2SDK)/ee/libc/include/`basename $$file` ; \
+	      fi \
+	   done; \
+	fi;
+
+release: release-libm-dirs release-libm-lib release-libm-include
+
+release-libm-clean:
+	rm -f $(PS2SDK)/ee/libc/include/sys/*.h
+	rm -f $(PS2SDK)/ee/libc/include/*.h
+	rm -f $(PS2SDK)/ee/libc/lib/*
+

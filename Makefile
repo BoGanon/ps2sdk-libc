@@ -111,27 +111,35 @@ release: build release-clean release_base release_ports_dir $(subdir_release)
 
 # install-headers rules
 headers_clean: env_release_check
-	$(MAKE) -C ee release-ee-clean
-	$(MAKE) -C common release-clean
+	$(MAKE) -C ee/libc release-libc-clean
 	rm -f $(PS2SDK)/README.md
 	rm -f $(PS2SDK)/CHANGELOG
 	rm -f $(PS2SDK)/AUTHORS
 	rm -f $(PS2SDK)/LICENSE.md
 	rm -f $(PS2SDK)/ID
 
-header_dirs: release_base
-	$(MKDIR) -p $(PS2SDK)/ee
-	$(MKDIR) -p $(PS2SDK)/ee/include
-	$(MAKE) -C common release-dirs
-
-install-headers: headers_clean header_dirs
-	$(MAKE) -C ee/libc release-ee-include
-	$(MAKE) -C ee/fdlibm release-ee-include
-	$(MAKE) -C common install-include
-	$(MAKE) -C common link-ee-include
+install-headers: headers_clean libc_dirs
+	$(MAKE) -C ee/libc release-libc-include
+	$(MAKE) -C ee/fdlibm release-libm-include
 	@$(ECHO) .;
 	@$(ECHO) PS2SDK LIBC headers installed.;
 	@$(ECHO) .;
+
+# libc rules
+libc_dirs: release_base
+	$(MAKE) -C ee/libc release-libc-dirs
+
+libc-clean: env_build_check
+	$(MAKE) -C ee/libc clean
+	$(MAKE) -C ee/fdlibm clean
+
+libc: env_build_check
+	$(MAKE) -C ee/libc all
+	$(MAKE) -C ee/fdlibm all
+
+libc-install: libc_dirs headers_clean libc
+	$(MAKE) -C ee/libc release
+	$(MAKE) -C ee/fdlibm release
 
 # Miscellaneous rules
 help:
@@ -145,13 +153,12 @@ help:
 	@$(ECHO) "    all               Build ps2sdk";
 	@$(ECHO) "    install           Install ps2sdk";
 	@$(ECHO) "    clean             Clean source directory";
-	@$(ECHO) "    ee                Build only EE libraries";
-	@$(ECHO) "    iop               Build only IOP libraries";
-	@$(ECHO) "    common            Build only common libraries";
-	@$(ECHO) "    tools             Build only ps2sdk tools";
 	@$(ECHO) "    rebuild           Clean then build ps2sdk";
 	@$(ECHO) "    release-clean     Clean installed files";
 	@$(ECHO) "    install-headers   Install libc headers";
+	@$(ECHO) "    libc              Build libc and libm";
+	@$(ECHO) "    libc-clean        Clean libc and libm sources;"
+	@$(ECHO) "    libc-install      Install libc and libm";
 	@$(ECHO) "    help              Print this message";
 
 include Defs.make

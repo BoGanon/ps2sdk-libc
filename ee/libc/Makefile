@@ -70,7 +70,6 @@ EE_OBJS = $(CORE_OBJS) $(XPRINTF_OBJS) $(WXPRINTF_OBJS) $(XSCANF_OBJS) \
 include $(PS2SDKSRC)/Defs.make
 include $(PS2SDKSRC)/ee/Rules.lib.make
 include $(PS2SDKSRC)/ee/Rules.make
-include $(PS2SDKSRC)/ee/Rules.release
 
 $(XPRINTF_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)xprintf.c
 	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
@@ -113,4 +112,48 @@ $(LIBGEN_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)libgen.c
 
 $(INIT_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)init.c
 	$(EE_C_COMPILE) -DF_$(@:$(EE_OBJS_DIR)%.o=%) $< -c -o $@
+
+release-libc-dirs:
+	$(MKDIR) -p $(PS2SDK)/ee/libc
+	$(MKDIR) -p $(PS2SDK)/ee/libc/lib
+	$(MKDIR) -p $(PS2SDK)/ee/libc/include
+	$(MKDIR) -p $(PS2SDK)/ee/libc/include/sys
+
+release-libc-lib:
+	@if test $(EE_LIB) ; then \
+	   $(ECHO) Installing $(EE_LIB) to $(PS2SDK)/ee/libc/lib ; \
+	   cp -f $(EE_LIB) $(PS2SDK)/ee/libc/lib ; \
+	   cp -f $(EE_LIB:%.a=%.erl) $(PS2SDK)/ee/libc/lib ; \
+	   chmod 644 $(PS2SDK)/ee/libc/lib/`basename $(EE_LIB)` $(PS2SDK)/ee/libc/lib/`basename $(EE_LIB:%.a=%.erl)`; \
+	fi;
+
+release-libc-include:
+	@if test -d include ; then \
+	   for file in include/*; do \
+	      if test -f $$file ; then \
+	         $(ECHO) Installing $$file to $(PS2SDK)/ee/libc/include ; \
+	         cp -f $$file $(PS2SDK)/ee/libc/include ; \
+	         chmod 644 $(PS2SDK)/ee/libc/include/`basename $$file` ; \
+	      fi \
+	   done; \
+	   for file in include/sys/*; do \
+	      if test -f $$file ; then \
+	         $(ECHO) Installing $$file to $(PS2SDK)/ee/libc/include/sys ; \
+	         cp -f $$file $(PS2SDK)/ee/libc/include/sys ; \
+	         chmod 644 $(PS2SDK)/ee/libc/include/sys/`basename $$file` ; \
+	      fi \
+	   done; \
+	fi;
+
+release-libc-samples:
+	@if test -f samples/Makefile ; then \
+	   $(MAKE) -C samples release ; \
+	fi;
+
+release: release-libc-dirs release-libc-lib release-libc-include release-libc-samples
+
+release-libc-clean:
+	rm -f $(PS2SDK)/ee/libc/include/sys/*.h
+	rm -f $(PS2SDK)/ee/libc/include/*.h
+	rm -f $(PS2SDK)/ee/libc/lib/*
 
