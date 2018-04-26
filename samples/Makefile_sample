@@ -7,8 +7,8 @@
 # Review ps2sdk README & LICENSE files for further details.
 
 SUBDIRS =
-SUBDIRS += cpp-hello
-SUBDIRS += hello
+SUBDIRS += erl/cpp-hello
+SUBDIRS += erl/hello
 SUBDIRS += debug/callstacktest
 SUBDIRS += draw/cube
 SUBDIRS += draw/teapot
