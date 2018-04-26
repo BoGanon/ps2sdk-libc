@@ -17,7 +17,6 @@
 #define __STDIO_H__
 
 #define __need__va_list
-
 #include <stdarg.h>
 
 #define __need_size_t
@@ -148,8 +147,6 @@ int asprintf(char **strp, const char *format, ...)
     __attribute__((format(printf,2,3)));
 
 int putchar(int);
-
-int sio_printf(const char *format, ...);
 
 #ifdef __cplusplus
 }

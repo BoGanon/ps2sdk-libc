@@ -17,13 +17,7 @@
 #define __SYS_PARAM_H__
 
 /* Ticks per second. */
-#ifndef HZ
- #ifndef _IOP
-  #define HZ		294912000
- #else
-  #define HZ		36864000
- #endif
-#endif
+#define HZ		294912000
 
 /* Max number of open files. */
 #define NOFILE		16

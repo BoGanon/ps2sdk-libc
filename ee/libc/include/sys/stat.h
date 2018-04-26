@@ -10,162 +10,62 @@
 
 /**
  * @file
- * File attributes and directory entries.
- *
- * @warning The standard symbols used for ioman/X's interface functions cause
- *	    standard POSIX namespace conflicts on the IOP side.
+ * POSIX stat defines, types, and symbols.
  */
 
 #ifndef __SYS_STAT_H__
 #define __SYS_STAT_H__
 
+#ifndef __time_t_defined
+typedef unsigned long time_t;
+#define __time_t_defined
+#endif
 
-#include <sys/types.h>
-#include <sys/time.h>
+#ifndef __blkcnt_t_defined
+typedef long long blkcnt_t;
+#define __blkcnt_t_defined
+#endif
 
-/* The following defines and types are only supported by iomanX.  */
+#ifndef __blksize_t_defined
+typedef signed blksize_t;
+#define __blksize_t_defined
+#endif
 
-/** @addtogroup libfileXio
-    @{
-*/
+#ifndef __dev_t_defined
+typedef int dev_t;
+#define __dev_t_defined
+#endif
 
-// Flags for chstat 'statmask'
-#define FIO_CST_MODE	0x0001
-#define FIO_CST_ATTR	0x0002
-#define FIO_CST_SIZE	0x0004
-#define FIO_CST_CT	0x0008
-#define FIO_CST_AT	0x0010
-#define FIO_CST_MT	0x0020
-#define FIO_CST_PRVT	0x0040
+#ifndef __gid_t_defined
+typedef int gid_t;
+#define __gid_t_defined
+#endif
 
-// File mode flags
-/** Format mask */
-#define FIO_S_IFMT		0xF000
-/** Symbolic link */
-#define FIO_S_IFLNK		0x4000
-/** Regular file */
-#define FIO_S_IFREG		0x2000
-/** Directory */
-#define FIO_S_IFDIR		0x1000
+#ifndef __uid_t_defined
+typedef int uid_t;
+#define __uid_t_defined
+#endif
 
-// Access rights
-/** SUID */
-#define FIO_S_ISUID		0x0800
-/** SGID */
-#define FIO_S_ISGID		0x0400
-/** Sticky bit */
-#define FIO_S_ISVTX		0x0200
+#ifndef __ino_t_defined
+typedef unsigned ino_t;
+#define __ino_t_defined
+#endif
 
-/** User access rights mask */
-#define FIO_S_IRWXU		0x01C0
-/** read */
-#define FIO_S_IRUSR		0x0100
-/** write */
-#define FIO_S_IWUSR		0x0080
-/** execute */
-#define FIO_S_IXUSR		0x0040
+#ifndef __mode_t_defined
+typedef int mode_t;
+#define __mode_t_defined
+#endif
 
-/** Group access rights mask */
-#define FIO_S_IRWXG		0x0038
-/** read */
-#define FIO_S_IRGRP		0x0020
-/** write */
-#define FIO_S_IWGRP		0x0010
-/** execute */
-#define FIO_S_IXGRP		0x0008
+#ifndef __nlink_t_defined
+typedef int nlink_t;
+#define __nlink_t_defined
+#endif
 
-/** Others access rights mask */
-#define FIO_S_IRWXO		0x0007
-/** read */
-#define FIO_S_IROTH		0x0004
-/** write */
-#define FIO_S_IWOTH		0x0002
-/** execute */
-#define FIO_S_IXOTH		0x0001
+#ifndef __off_t_defined
+typedef long long off_t;
+#define __off_t_defined
+#endif
 
-// File mode checking macros
-#define FIO_S_ISLNK(m)	(((m) & FIO_S_IFMT) == FIO_S_IFLNK)
-#define FIO_S_ISREG(m)	(((m) & FIO_S_IFMT) == FIO_S_IFREG)
-#define FIO_S_ISDIR(m)	(((m) & FIO_S_IFMT) == FIO_S_IFDIR)
-
-typedef struct {
-	unsigned int	mode;
-	unsigned int	attr;
-	unsigned int	size;
-	unsigned char	ctime[8];
-	unsigned char	atime[8];
-	unsigned char	mtime[8];
-	unsigned int	hisize;
-	/** Number of subs (main) / subpart number (sub) */
-	unsigned int	private_0;
-	unsigned int	private_1;
-	unsigned int	private_2;
-	unsigned int	private_3;
-	unsigned int	private_4;
-	/** Sector start.  */
-	unsigned int	private_5;
-} iox_stat_t;
-
-typedef struct {
-	iox_stat_t	stat;
-	char		name[256];
-	unsigned int	unknown;
-} iox_dirent_t;
-
-/** End of addtogroup libfileXio
- *  @}
- */
-
-/* The following defines and types are only supported by ioman.  */
-
-/** @addtogroup libfileio
-    @{
-*/
-// File mode flags (for mode in io_stat_t)
-/** Format mask */
-#define FIO_SO_IFMT		0x0038
-/** Symbolic link */
-#define FIO_SO_IFLNK		0x0008
-/** Regular file */
-#define FIO_SO_IFREG		0x0010
-/** Directory */
-#define FIO_SO_IFDIR		0x0020
-
-/** rwx */
-#define FIO_SO_IRWXO		0x0007
-/** read */
-#define FIO_SO_IROTH		0x0004
-/** write */
-#define FIO_SO_IWOTH		0x0002
-/** execute */
-#define FIO_SO_IXOTH		0x0001
-
-// File mode checking macros
-#define FIO_SO_ISLNK(m)	(((m) & FIO_SO_IFMT) == FIO_SO_IFLNK)
-#define FIO_SO_ISREG(m)	(((m) & FIO_SO_IFMT) == FIO_SO_IFREG)
-#define FIO_SO_ISDIR(m)	(((m) & FIO_SO_IFMT) == FIO_SO_IFDIR)
-
-typedef struct {
-	unsigned int mode;
-	unsigned int attr;
-	unsigned int size;
-	unsigned char ctime[8];
-	unsigned char atime[8];
-	unsigned char mtime[8];
-	unsigned int hisize;
-} io_stat_t;
-
-typedef struct {
-	io_stat_t stat;
-	char name[256];
-	unsigned int unknown;
-} io_dirent_t;
-
-/** End of addtogroup libfileio
- *  @}
- */
-
-/* ANSI C stat defines, types, and symbols. */
 /** type of file */
 #define	S_IFMT		0170000
 /** directory */
@@ -214,20 +114,10 @@ struct stat {
 	blkcnt_t st_blocks;	/* Number of blocks */
 };
 
-/* smbman's ioman_add.h */
-#if !defined(_IOMAN_ADD_H_)
-/* iomanX */
-#if !defined(__IOMANX_H__)
-/* ioman */
-#if !defined(__IOMAN_H__)
 	/* Unimplemented. Use stat() */
 int     fstat(int fd, struct stat *sbuf);
 int     mkdir(const char *path, mode_t mode);
 int     stat(const char *path, struct stat *sbuf);
-
-#endif /* __IOMAN_H__ */
-#endif /* __IOMANX_H__ */
-#endif /* _IOMAN_ADD_H_ */
 
 
 #endif /* SYS_STAT_H */
