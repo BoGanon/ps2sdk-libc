@@ -8,8 +8,13 @@ This file contains all common code for both EE and IOP SIF management.
 
 #include <tamtypes.h>
 #include <ps2_reg_defs.h>
+#ifdef _EE
+#include <sio.h>
+#endif
+
 #include "ps2_sbus.h"
 #include "sbus_priv.h"
+
 
 #define SBUS_IRQ_XFER (30)
 #define SBUS_IRQ_EXEC (31)

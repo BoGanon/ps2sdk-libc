@@ -15,7 +15,9 @@
  * turned off or reset!
  */
 
-#include <sys/fcntl.h>
+#if defined(F_GetRomName) || defined(DOXYGEN)
+#include <fcntl.h>
+#endif
 
 #include <tamtypes.h>
 #include <kernel.h>

@@ -118,6 +118,9 @@ char *sio_gets(char *str);
 /** Flushes the input buffer. */
 void sio_flush(void);
 
+/** Prints formatted string (requires vsnprintf() ) */
+int sio_printf(const char *format, ...);
+
 #ifdef __cplusplus
 }
 #endif

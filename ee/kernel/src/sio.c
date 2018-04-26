@@ -14,6 +14,8 @@
  */
 
 #include <stddef.h>
+
+#define __need__va_list
 #include <stdarg.h>
 
 #include "tamtypes.h"
@@ -182,5 +184,39 @@ void sio_flush()
 {
     while (_lw(SIO_ISR) & 0xf00)
 	_lb(SIO_RXFIFO);
+}
+#endif
+
+#if defined(F_sio_printf) || defined(DOXYGEN)
+int __attribute__((weak)) vsnprintf(char *buf, size_t n, const char *fmt, va_list ap)
+{
+    sio_puts("FIXME: sio_printf (vsnprintf undefined)\n");
+    return -1;
+}
+
+int sio_printf(const char *format, ...)
+{
+        static char buf[PS2LIB_STR_MAX];
+        va_list args;
+        int size;
+
+        va_start(args, format);
+        size = vsnprintf(buf, PS2LIB_STR_MAX, format, args);
+        va_end(args);
+
+        if (size < 0)
+            return size;
+
+        /* A bit hackish, but if the last character is '\n' then strip it off
+           and pass the string to sio_puts().  */
+        if (buf[size - 1] == '\n') {
+                buf[size - 1] = '\0';
+                size++;                 /* Account for the '\r'.  */
+                sio_puts(buf);
+        } else {
+                sio_write(buf, size);
+        }
+
+        return size;
 }
 #endif

@@ -14,6 +14,7 @@
  */
 
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <tamtypes.h>
 #include <kernel.h>
