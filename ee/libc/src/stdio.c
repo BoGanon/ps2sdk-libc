@@ -17,6 +17,8 @@
 #define E_USE_NAMES
 #endif
 
+#include <sys/io_fcntl.h>
+
 #include "errno.h"
 
 #include <fcntl.h>
@@ -372,15 +374,15 @@ FILE *fopen(const char *fname, const char *mode)
       switch(*mode++) {
         case 'r':
           flag = _IOREAD;
-          iomode = O_RDONLY;
+          iomode = IO_RDONLY;
           break;
         case 'w':
           flag = _IOWRT;
-          iomode = (O_WRONLY | O_CREAT | O_TRUNC);
+          iomode = (IO_WRONLY | IO_CREAT | IO_TRUNC);
           break;
         case 'a':
           flag = _IORW;
-          iomode = O_APPEND|O_WRONLY;
+          iomode = IO_APPEND|IO_WRONLY;
           break;
         default:
           errno = EINVAL;
@@ -394,11 +396,11 @@ FILE *fopen(const char *fname, const char *mode)
           case '+':
             flag |= (_IOREAD | _IOWRT);
             if (mode_start == 'r')
-              iomode = (O_RDWR);
+              iomode = (IO_RDWR);
             if (mode_start == 'w')
-              iomode = (O_RDWR | O_CREAT | O_TRUNC);
+              iomode = (IO_RDWR | IO_CREAT | IO_TRUNC);
             if (mode_start == 'a')
-              iomode = (O_RDWR | O_APPEND | O_CREAT);
+              iomode = (IO_RDWR | IO_APPEND | IO_CREAT);
             continue;
           default:
             break;
@@ -506,15 +508,15 @@ FILE *fdopen(int fd, const char *mode)
       switch(*mode++) {
         case 'r':
           flag = _IOREAD;
-          iomode = O_RDONLY;
+          iomode = IO_RDONLY;
           break;
         case 'w':
           flag = _IOWRT;
-          iomode = (O_WRONLY | O_CREAT);
+          iomode = (IO_WRONLY | IO_CREAT);
           break;
         case 'a':
           flag = _IORW;
-          iomode = O_APPEND;
+          iomode = IO_APPEND;
           break;
       }
       /* test the extended file mode. */
@@ -524,7 +526,7 @@ FILE *fdopen(int fd, const char *mode)
             continue;
           case '+':
             flag |= (_IOREAD | _IOWRT);
-            iomode |= (O_RDWR | O_CREAT | O_TRUNC);
+            iomode |= (IO_RDWR | IO_CREAT | IO_TRUNC);
             continue;
           default:
             break;
@@ -642,14 +644,14 @@ int fseek(FILE *stream, long offset, int origin)
       return -1;
     default:
       /* attempt to seek to offset from origin. */
-      if (origin == SEEK_CUR)
+      if (origin == IO_SEEK_CUR)
         cur = lseek(stream->fd, 0, origin);
 
       ret = lseek(stream->fd, (int)offset, origin);
       break;
   }
 
-  if (origin == SEEK_CUR) {
+  if (origin == IO_SEEK_CUR) {
     if (cur + offset == ret)
       return 0;
     else
@@ -696,7 +698,7 @@ long ftell(FILE *stream)
         ret = -1L;
       }
       else {
-        if ((n = lseek(stream->fd, 0, SEEK_CUR)) >= 0)
+        if ((n = lseek(stream->fd, 0, IO_SEEK_CUR)) >= 0)
              ret = (long)n;
         else if (n < 0) {
               errno = (n * -1);
@@ -718,7 +720,7 @@ size_t fwrite(const void *buf, size_t r, size_t n, FILE *stream)
 
   if (stream->has_putback)
   {
-      fseek(stream, -1, SEEK_CUR);
+      fseek(stream, -1, IO_SEEK_CUR);
       stream->has_putback = 0;
   }
 
@@ -987,7 +989,7 @@ int puts(const char *s)
 #if defined(F_rewind) || defined(DOXYGEN)
 void rewind(FILE *stream)
 {
-  fseek(stream, 0, SEEK_SET);
+  fseek(stream, 0, IO_SEEK_SET);
 }
 #endif
 
