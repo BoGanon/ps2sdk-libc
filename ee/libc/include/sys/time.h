@@ -16,10 +16,6 @@
 #ifndef __SYS_TIME_H__
 #define __SYS_TIME_H__
 
-#ifndef __clock_t_defined
-typedef unsigned long long clock_t;
-#define __clock_t_defined
-#endif
 
 #ifndef __time_t_defined
 typedef unsigned long time_t;

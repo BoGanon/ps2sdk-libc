@@ -10,16 +10,25 @@
 
 /**
  * @file
- * Struct and function declarations for dealing with time
+ * ANSI C Struct and function declarations for dealing with time
  */
 
 #ifndef __TIME_H__
 #define __TIME_H__
 
 #include <stddef.h>
-#include <sys/time.h>
 
 #define CLOCKS_PER_SEC (147456000 / 256)    // ie kBUSCLKBY256  from <timer.h>
+
+#ifndef __clock_t_defined
+typedef unsigned long long clock_t;
+#define __clock_t_defined
+#endif
+
+#ifndef __time_t_defined
+typedef unsigned long time_t;
+#define __time_t_defined
+#endif
 
 struct tm
 {

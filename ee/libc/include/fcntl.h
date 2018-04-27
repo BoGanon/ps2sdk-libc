@@ -18,7 +18,33 @@
 
 #include <sys/stat.h>
 
+#ifndef __pid_t_defined
+typedef int pid_t;
+#define __pid_t_defined
+#endif
+
+#ifndef __mode_t_defined
+typedef int mode_t;
+#define __mode_t_defined
+#endif
+
+#ifndef __off_t_defined
+typedef long long off_t;
+#define __off_t_defined
+#endif
+
 #include <unistd.h>
+
+#define O_RDONLY	0x0001
+#define O_WRONLY	0x0002
+#define O_RDWR		0x0003
+
+#define O_NONBLOCK	0x0010
+
+#define O_APPEND	0x0100
+#define O_CREAT		0x0200
+#define O_TRUNC		0x0400
+#define	O_EXCL		0x0800
 
 #ifdef __cplusplus
 extern "C" {

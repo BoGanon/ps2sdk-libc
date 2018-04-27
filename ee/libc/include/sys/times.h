@@ -6,13 +6,20 @@
 # Copyright 2001-2005, ps2dev - http://www.ps2dev.org
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
-#
-# POSIX declarations for times
 */
+
+/**
+ * @file
+ * POSIX declarations for times
+ */
+
 #ifndef __SYS_TIMES_H__
 #define __SYS_TIMES_H__
 
-#include <sys/time.h>
+#ifndef __clock_t_defined
+typedef unsigned long long clock_t;
+#define __clock_t_defined
+#endif
 
 struct tms {
   clock_t tms_utime;  /* user time */
