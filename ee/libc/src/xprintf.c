@@ -168,45 +168,62 @@ static int getdigit(long double *val, int *cnt){
 ** will run.
 */
 
+enum e_pf_flags {
+/* True if "-" flag is present */
+PF_FLAG_LEFTJUSTIFY    = 1,
+/* True if "+" flag is present */
+PF_FLAG_PLUSSIGN       = 2,
+/* True if " " flag is present */
+PF_FLAG_BLANKSIGN      = 4,
+/* True if "#" flag is present */
+PF_FLAG_ALTERNATEFORM  = 8,
+/* True if field width constant starts with zero */
+PF_FLAG_ZEROPAD        = 16,
+/* True if "l" flag is present */
+PF_FLAG_LONG           = 32,
+/* True if "ll" flag is present */
+PF_FLAG_LONGLONG       = 64,
+/* True if "=" flag is present */
+PF_FLAG_CENTER         = 128,
+/* True if decimal point should be shown */
+PF_FLAG_DP             = 256,
+/* True if trailing zeros should be removed */
+PF_FLAG_RTZ            = 512,
+/* True to force display of the exponent */
+PF_FLAG_EXP            = 1024,
+/* True if an error is encountered */
+PF_FLAG_ERROR          = 2048
+};
+
 int vxprintf(func,arg,format,ap)
   void (*func)(char*,int,void*);
   void *arg;
   const char *format;
   va_list ap;
 {
-  register const char *fmt; /* The format string. */
-  register int c;           /* Next character in the format string */
-  register char *bufpt;     /* Pointer to the conversion buffer */
-  register int  precision;  /* Precision of the current field */
-  register int  length;     /* Length of the field */
-  register int  idx;        /* A general purpose loop counter */
-  int count;                /* Total number of characters output */
-  int width;                /* Width of the current field */
-  int flag_leftjustify;     /* True if "-" flag is present */
-  int flag_plussign;        /* True if "+" flag is present */
-  int flag_blanksign;       /* True if " " flag is present */
-  int flag_alternateform;   /* True if "#" flag is present */
-  int flag_zeropad;         /* True if field width constant starts with zero */
-  int flag_long;            /* True if "l" flag is present */
-  int flag_center;          /* True if "=" flag is present */
-  unsigned long longvalue;  /* Value for integer types */
+  register const char *fmt;   /* The format string. */
+  register int c;             /* Next character in the format string */
+  register char *bufpt;       /* Pointer to the conversion buffer */
+  register int  precision;    /* Precision of the current field */
+  register int  length;       /* Length of the field */
+  register int  idx;          /* A general purpose loop counter */
+  register enum e_pf_flags flags = 0;  /* Flags */
+  int count;                  /* Total number of characters output */
+  int width;                  /* Width of the current field */
+  unsigned long long llvalue; /* Value for integer types */
 
-  long double realvalue;    /* Value for real types */
-  info *infop;              /* Pointer to the appropriate info structure */
-  char buf[BUFSIZE];        /* Conversion buffer */
-  char prefix;              /* Prefix character.  "+" or "-" or " " or '\0'. */
-  int  errorflag = 0;       /* True if an error is encountered */
-  enum e_type xtype;        /* Conversion paradigm */
-  char *zMem = 0;           /* String to be freed */
+  long double realvalue;      /* Value for real types */
+  info *infop;                /* Pointer to the appropriate info structure */
+  char buf[BUFSIZE];          /* Conversion buffer */
+  char prefix;                /* Prefix character. "+" or "-" or " " or '\0'. */
+  enum e_type xtype;          /* Conversion paradigm */
+  char *zMem = 0;             /* String to be freed */
   static char spaces[] =
      "                                                    ";
 #define SPACESIZE (sizeof(spaces)-1)
 #ifndef NOFLOATINGPOINT
   int  exp;                 /* exponent of real numbers */
   long double rounder;      /* Used for rounding floating point values */
-  int flag_dp;              /* True if decimal point should be shown */
-  int flag_rtz;             /* True if trailing zeros should be removed */
-  int flag_exp;             /* True to force display of the exponent */
   int nsd;                  /* Number of significant digits returned */
 #endif
 
@@ -214,6 +231,7 @@ int vxprintf(func,arg,format,ap)
   count = length = 0;
   bufpt = 0;
   for(; (c=(*fmt))!=0; ++fmt){
+    flags = 0;
     if( c!='%' ){
       register int amt;
       bufpt = (char *)fmt;
@@ -224,32 +242,31 @@ int vxprintf(func,arg,format,ap)
       if( c==0 ) break;
     }
     if( (c=(*++fmt))==0 ){
-      errorflag = 1;
+      flags = (flags & ~PF_FLAG_ERROR) | PF_FLAG_ERROR;
       (*func)("%",1,arg);
       count++;
       break;
     }
     /* Find out what flags are present */
-    flag_leftjustify = flag_plussign = flag_blanksign =
-     flag_alternateform = flag_zeropad = flag_center = 0;
     do{
       switch( c ){
-        case '-':   flag_leftjustify = 1;     c = 0;   break;
-        case '+':   flag_plussign = 1;        c = 0;   break;
-        case ' ':   flag_blanksign = 1;       c = 0;   break;
-        case '#':   flag_alternateform = 1;   c = 0;   break;
-        case '0':   flag_zeropad = 1;         c = 0;   break;
-        case '=':   flag_center = 1;          c = 0;   break;
+        case '-':   flags = (flags & ~PF_FLAG_LEFTJUSTIFY) | PF_FLAG_LEFTJUSTIFY;     c = 0;   break;
+        case '+':   flags = (flags & ~PF_FLAG_PLUSSIGN) | PF_FLAG_PLUSSIGN;           c = 0;   break;
+        case ' ':   flags = (flags & ~PF_FLAG_BLANKSIGN) | PF_FLAG_BLANKSIGN;         c = 0;   break;
+        case '#':   flags = (flags & ~PF_FLAG_ALTERNATEFORM) | PF_FLAG_ALTERNATEFORM; c = 0;   break;
+        case '0':   flags = (flags & ~PF_FLAG_ZEROPAD) | PF_FLAG_ZEROPAD;             c = 0;   break;
+        case '=':   flags = (flags & ~PF_FLAG_CENTER) | PF_FLAG_CENTER;               c = 0;   break;
         default:                                       break;
       }
     }while( c==0 && (c=(*++fmt))!=0 );
-    if( flag_center ) flag_leftjustify = 0;
+    if( (flags & PF_FLAG_CENTER) )
+      flags &= ~PF_FLAG_LEFTJUSTIFY;
     /* Get the field width */
     width = 0;
     if( c=='*' ){
       width = va_arg(ap,int);
       if( width<0 ){
-        flag_leftjustify = 1;
+        flags = (flags & ~PF_FLAG_LEFTJUSTIFY) | PF_FLAG_LEFTJUSTIFY;
         width = -width;
       }
       c = *++fmt;
@@ -286,14 +303,16 @@ int vxprintf(func,arg,format,ap)
     }
     /* Get the conversion type modifier */
     if( c=='l' ){
-      flag_long = 1;
       c = *++fmt;
+      /* Support to parse %ll */
       if (c=='l' ){
+        flags = (flags & ~PF_FLAG_LONGLONG) | PF_FLAG_LONGLONG;
         c = *++fmt;
+      }else{
+        flags = (flags & ~PF_FLAG_LONG) | PF_FLAG_LONG;
       }
-    }else{
-      flag_long = 0;
     }
+
     /* Fetch the info entry for the field */
     infop = 0;
     for(idx=0; idx<NINFO; idx++){
@@ -330,44 +349,56 @@ int vxprintf(func,arg,format,ap)
     switch( xtype ){
       case ORDINAL:
       case RADIX:
-        if(( flag_long )&&( infop->flag_signed )){
-	    signed long t = va_arg(ap,signed long);
-	    longvalue = t;
-	}else if(( flag_long )&&( !infop->flag_signed )){
-	    unsigned long t = va_arg(ap,unsigned long);
-	    longvalue = t;
-	}else if(( !flag_long )&&( infop->flag_signed )){
-	    signed int t = va_arg(ap,signed int) & ((unsigned long) 0xffffffff);
-	    longvalue = t;
+        if( flags & PF_FLAG_LONG ){
+            if( infop->flag_signed ){
+	      signed long t = va_arg(ap,signed long);
+	      llvalue = t;
+	    }else{
+	      unsigned long t = va_arg(ap,unsigned long);
+	      llvalue = t;
+	    }
+	}else if( flags & PF_FLAG_LONGLONG ){
+            if( infop->flag_signed ){
+	      signed long long t = va_arg(ap,signed long long);
+	      llvalue = t;
+	    }else{
+	      unsigned long long t = va_arg(ap,unsigned long long);
+	      llvalue = t;
+	    }
 	}else{
-	    unsigned int t = va_arg(ap,unsigned int) & ((unsigned long) 0xffffffff);
-	    longvalue = t;
+	  if( infop->flag_signed ){
+	    signed int t = va_arg(ap,signed int) & 0xffffffffUL;
+	    llvalue = t;
+	  }else{
+	    unsigned int t = va_arg(ap,unsigned int) & 0xffffffffUL;
+	    llvalue = t;
+	  }
 	}
 #ifdef COMPATIBILITY
         /* For the format %#x, the value zero is printed "0" not "0x0".
         ** I think this is stupid. */
-        if( longvalue==0 ) flag_alternateform = 0;
+        if( llvalue==0 ) flags &= ~PF_FLAG_ALTERNATEFORM;
 #else
         /* More sensible: turn off the prefix for octal (to prevent "00"),
         ** but leave the prefix for hex. */
-        if( longvalue==0 && infop->base==8 ) flag_alternateform = 0;
+        if( llvalue==0 && infop->base==8 ) flags &= ~PF_FLAG_ALTERNATEFORM;
 #endif
         if( infop->flag_signed ){
-          if( *(long*)&longvalue<0 ){
-	    longvalue = -*(long*)&longvalue;
+          if( *(long long*)&llvalue<0 ){
+	    llvalue = -*(long long*)&llvalue;
             prefix = '-';
-          }else if( flag_plussign )  prefix = '+';
-          else if( flag_blanksign )  prefix = ' ';
+          }else if( flags & PF_FLAG_PLUSSIGN )  prefix = '+';
+          else if( flags & PF_FLAG_BLANKSIGN )  prefix = ' ';
           else                       prefix = 0;
         }else                        prefix = 0;
-        if( flag_zeropad && precision<width-(prefix!=0) ){
+        if( (flags & PF_FLAG_ZEROPAD) && (precision<width-(prefix!=0)) ){
           precision = width-(prefix!=0);
 	}
         bufpt = &buf[BUFSIZE];
         if( xtype==ORDINAL ){
           long a,b;
-          a = longvalue%10;
-          b = longvalue%100;
+          a = llvalue%10;
+          b = llvalue%100;
           bufpt -= 2;
           if( a==0 || a>3 || (b>10 && b<14) ){
             bufpt[0] = 't';
@@ -389,22 +420,21 @@ int vxprintf(func,arg,format,ap)
           cset = infop->charset;
           base = infop->base;
           do{                                           /* Convert to ascii */
-            *(--bufpt) = cset[longvalue%base];
-            longvalue = longvalue/base;
-          }while( longvalue>0 );
+            *(--bufpt) = cset[llvalue%base];
+            llvalue = llvalue/base;
+          }while( llvalue>0 );
 	}
         length = (int)(&buf[BUFSIZE]-bufpt);
-	if(infop->fmttype == 'p')
-        {
-		precision = 8;
-		flag_alternateform = 1;
+	if(infop->fmttype == 'p'){
+	  precision = 8;
+	  if (!(flags & PF_FLAG_ALTERNATEFORM)) flags |= PF_FLAG_ALTERNATEFORM;
         }
 
         for(idx=precision-length; idx>0; idx--){
           *(--bufpt) = '0';                             /* Zero pad */
 	}
         if( prefix ) *(--bufpt) = prefix;               /* Add sign */
-        if( flag_alternateform && infop->prefix ){      /* Add "0" or "0x" */
+        if( (flags & PF_FLAG_ALTERNATEFORM) && infop->prefix ){  /* Add "0" or "0x" */
           char *pre, x;
           pre = infop->prefix;
           if( *bufpt!=pre[0] ){
@@ -425,8 +455,8 @@ int vxprintf(func,arg,format,ap)
           realvalue = -realvalue;
           prefix = '-';
 	}else{
-          if( flag_plussign )          prefix = '+';
-          else if( flag_blanksign )    prefix = ' ';
+          if( flags & PF_FLAG_PLUSSIGN )          prefix = '+';
+          else if( flags & PF_FLAG_BLANKSIGN )    prefix = ' ';
           else                         prefix = 0;
 	}
         if( infop->type==GENERIC && precision>0 ) precision--;
@@ -460,13 +490,14 @@ int vxprintf(func,arg,format,ap)
         ** If the field type is GENERIC, then convert to either EXP
         ** or FLOAT, as appropriate.
         */
-        flag_exp = xtype==EXP;
+        flags = (flags & ~PF_FLAG_EXP) | ((xtype==EXP) ? PF_FLAG_EXP : 0);
         if( xtype!=FLOAT ){
           realvalue += rounder;
           if( realvalue>=10.0 ){ realvalue *= 0.1; exp++; }
         }
         if( xtype==GENERIC ){
-          flag_rtz = !flag_alternateform;
+          if (!(flags & PF_FLAG_ALTERNATEFORM))
+            flags = (flags & ~PF_FLAG_RTZ) | PF_FLAG_RTZ;
           if( exp<-4 || exp>precision ){
             xtype = EXP;
           }else{
@@ -474,7 +505,7 @@ int vxprintf(func,arg,format,ap)
             xtype = FLOAT;
           }
 	}else{
-          flag_rtz = 0;
+	  flags = (flags & ~PF_FLAG_RTZ);
 	}
         /*
         ** The "exp+precision" test causes output to be of type EXP if
@@ -482,34 +513,36 @@ int vxprintf(func,arg,format,ap)
         */
         nsd = 0;
         if( xtype==FLOAT && exp+precision<BUFSIZE-30 ){
-          flag_dp = (precision>0 || flag_alternateform);
+          flags = flags & ~PF_FLAG_DP;
+          flags |= ((precision>0 || (flags & PF_FLAG_ALTERNATEFORM)) ? PF_FLAG_DP : 0);
           if( prefix ) *(bufpt++) = prefix;         /* Sign */
           if( exp<0 )  *(bufpt++) = '0';            /* Digits before "." */
           else for(; exp>=0; exp--) *(bufpt++) = getdigit(&realvalue,&nsd);
-          if( flag_dp ) *(bufpt++) = '.';           /* The decimal point */
+          if( flags & PF_FLAG_DP ) *(bufpt++) = '.';           /* The decimal point */
           for(exp++; exp<0 && precision>0; precision--, exp++){
             *(bufpt++) = '0';
           }
           while( (precision--)>0 ) *(bufpt++) = getdigit(&realvalue,&nsd);
           *(bufpt--) = 0;                           /* Null terminate */
-          if( flag_rtz && flag_dp ){     /* Remove trailing zeros and "." */
+          if( (flags & PF_FLAG_RTZ) && (flags & PF_FLAG_DP) ){     /* Remove trailing zeros and "." */
             while( bufpt>=buf && *bufpt=='0' ) *(bufpt--) = 0;
             if( bufpt>=buf && *bufpt=='.' ) *(bufpt--) = 0;
           }
           bufpt++;                            /* point to next free slot */
 	}else{    /* EXP or GENERIC */
-          flag_dp = (precision>0 || flag_alternateform);
+          flags = flags & ~PF_FLAG_DP;
+          flags |= ((precision>0 || (flags & PF_FLAG_ALTERNATEFORM)) ? PF_FLAG_DP : 0);
           if( prefix ) *(bufpt++) = prefix;   /* Sign */
           *(bufpt++) = getdigit(&realvalue,&nsd);  /* First digit */
-          if( flag_dp ) *(bufpt++) = '.';     /* Decimal point */
+          if( flags & PF_FLAG_DP ) *(bufpt++) = '.';     /* Decimal point */
           while( (precision--)>0 ) *(bufpt++) = getdigit(&realvalue,&nsd);
           bufpt--;                            /* point to last digit */
-          if( flag_rtz && flag_dp ){          /* Remove tail zeros */
+          if( (flags & PF_FLAG_RTZ) && (flags & PF_FLAG_DP) ){          /* Remove tail zeros */
             while( bufpt>=buf && *bufpt=='0' ) *(bufpt--) = 0;
             if( bufpt>=buf && *bufpt=='.' ) *(bufpt--) = 0;
           }
           bufpt++;                            /* point to next free slot */
-          if( exp || flag_exp ){
+          if( exp || (flags & PF_FLAG_EXP) ){
             *(bufpt++) = infop->charset[0];
             if( exp<0 ){ *(bufpt++) = '-'; exp = -exp; } /* sign of exp */
             else       { *(bufpt++) = '+'; }
@@ -529,7 +562,8 @@ int vxprintf(func,arg,format,ap)
 
         /* Special case:  Add leading zeros if the flag_zeropad flag is
         ** set and we are not left justified */
-        if( flag_zeropad && !flag_leftjustify && length < width){
+        if( (flags & PF_FLAG_ZEROPAD) && !(flags & PF_FLAG_LEFTJUSTIFY)
+            && length < width){
           int i;
           int nPad = width - length;
           for(i=width; i>=nPad; i--){
@@ -589,7 +623,7 @@ int vxprintf(func,arg,format,ap)
       case ERROR:
         buf[0] = '%';
         buf[1] = c;
-        errorflag = 0;
+        flags &= ~PF_FLAG_ERROR;
         idx = 1+(c!=0);
         (*func)("%",idx,arg);
         count += idx;
@@ -601,14 +635,14 @@ int vxprintf(func,arg,format,ap)
     ** "length" characters long.  The field width is "width".  Do
     ** the output.
     */
-    if( !flag_leftjustify ){
+    if( !(flags & PF_FLAG_LEFTJUSTIFY) ){
       register int nspace;
       nspace = width-length;
       if( nspace>0 ){
-        if( flag_center ){
+        if( flags & PF_FLAG_CENTER ){
           nspace = nspace/2;
           width -= nspace;
-          flag_leftjustify = 1;
+          flags = (flags & ~PF_FLAG_LEFTJUSTIFY) | PF_FLAG_LEFTJUSTIFY;
 	}
         count += nspace;
         while( nspace>=SPACESIZE ){
@@ -625,7 +659,7 @@ int vxprintf(func,arg,format,ap)
     if( xtype==MEM_STRING && zMem ){
       free(zMem);
     }
-    if( flag_leftjustify ){
+    if( flags & PF_FLAG_LEFTJUSTIFY ){
       register int nspace;
       nspace = width-length;
       if( nspace>0 ){
@@ -638,7 +672,7 @@ int vxprintf(func,arg,format,ap)
       }
     }
   }/* End for loop over the format string */
-  return errorflag ? -1 : count;
+  return ((flags & PF_FLAG_ERROR) ? -1 : count);
 } /* End of function */
 #endif
 
