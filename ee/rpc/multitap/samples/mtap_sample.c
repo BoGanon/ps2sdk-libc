@@ -15,7 +15,7 @@
 #include <sifrpc.h>
 #include <loadfile.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <malloc.h>
 #include <string.h>
 
 #include "gs_privileged.h"

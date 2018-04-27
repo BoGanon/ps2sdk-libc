@@ -2,7 +2,7 @@
 #include <kernel.h>
 #include <loadfile.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <malloc.h>
 #include <sifrpc.h>
 #include <gs_privileged.h>
 #include <libpad.h>
