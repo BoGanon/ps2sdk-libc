@@ -14,7 +14,7 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <malloc.h>
 #include <string.h>
 #include <kernel.h>
 #include <timer.h>
