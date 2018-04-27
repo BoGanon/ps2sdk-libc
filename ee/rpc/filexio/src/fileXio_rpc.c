@@ -15,11 +15,11 @@
 
 #include <fileXio_rpc.h>
 
-/* Needed for unistd glue functions */
-#if 0
 #define __need__va_list
 #include <stdarg.h>
-#endif
+
+/* Needed for unistd glue functions */
+#include <sys/stat.h>
 
 #include <limits.h>
 #include <errno.h>
