@@ -458,9 +458,7 @@ int  _InitTLB(void);
 void _SyncDCache(void *start, void *end);
 void _InvalidDCache(void *start, void *end);
 
-/* stdlib - program termination */
-void	abort(void) __attribute__((noreturn));
-void	exit(int retval) __attribute__((noreturn));
+/* crt0 - program termination */
 void	_exit(int retval) __attribute__((noreturn));
 
 /* errno.h */

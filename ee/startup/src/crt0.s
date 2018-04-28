@@ -8,10 +8,8 @@
 #
 # Standard startup file.
 
-   .weak  _init
+   # Provided by crtbegin and crtend
    .type  _init, @function
-
-   .weak  _fini
    .type  _fini, @function
 
    .set   noat
@@ -26,7 +24,6 @@ _start:
 
 zerobss:
    # clear bss area
-
    la   $2, _fbss
    la   $3, _end
 
@@ -41,8 +38,7 @@ zerobss:
 2:
 
 setupthread:
-   # setup current thread
-
+   # setup current thread for creating threads
    la   $4, _gp
    la   $5, _stack
    la   $6, _stack_size
@@ -51,10 +47,12 @@ setupthread:
    move   $gp, $4
    addiu   $3, $0, 60
    syscall         # SetupThread(_gp, _stack, _stack_size, _args, _root)
-   move   $sp, $2
+
+   # setup stack and make room for storing arguments
+   move $sp, $2
+   addiu $sp, $sp,-96
 
    # initialize heap
-
    la   $4, _end
    la   $5, _heap_size
    addiu   $3, $0, 61
@@ -63,42 +61,40 @@ setupthread:
    # writeback data cache
    jal FlushCache  # FlushCache(0)
    move   $4, $0
-/*
-parseargs:
-   # call ps2sdk argument parsing
 
-   la   $16, _args
 
-   la   $8, _ps2sdk_args_parse
-   beqz   $8, 1f
-   lw   $4, ($16)
+#parseargs:
+#   # call ps2sdk argument parsing
+#
+#   la   $16, _args
+#
+#   la   $8, _ps2sdk_args_parse
+#   beqz   $8, 1f
+#   lw   $4, ($16)
+#
+#   jalr   $8      # _ps2sdk_args_parse(argc, argv)
+#   addiu   $5, $16, 4
+#1:
 
-   jalr   $8      # _ps2sdk_args_parse(argc, argv)
-   addiu   $5, $16, 4
+   # Initialize the kernel first (Apply necessary patches).
+   jal _InitSys
+   nop
+
+   # add _fini using atexit() for destructors
+   la   $4, _fini
+   beqz   $4, 1f
+   nop
+   jal   atexit
+   nop
 1:
 
-libc_init:
-   # initialize ps2sdk libc
-
-   la   $8, _ps2sdk_libc_init
-   beqz   $8, 1f
-   nop
-   jalr   $8      # _ps2sdk_libc_init()
-   nop
-1:
-*/
-ctors:
-   # call global constructors (weak)
-
+   # call constructors
    la   $8, _init
    beqz   $8, 1f
    nop
    jalr   $8      # _init()
    nop
 1:
-   # Initialize the kernel (Apply necessary patches).
-   jal _InitSys
-   nop
 
    # call main
    ei
@@ -109,9 +105,9 @@ ctors:
 1:
    jal   main      # main(argc, argv)
    addiu $5, $16, 4
-   # call _exit
 
-   j   _exit      # _exit(retval)
+   # fall through to exit 
+   j   exit       # exit(retval) (noreturn)
    move   $4, $2
    .end   _start
 
@@ -120,34 +116,15 @@ ctors:
    .globl _exit
    .ent   _exit
    .text
+
 _exit:
-
-dtors:
-   # call global destructors (weak)
-
-   la   $8, _fini
-   beqz   $8, 1f
-   move $16, $4
-   jalr   $8      # _fini()
-   nop
-1:
-/*
-libc_uninit:
-   # uninitialize ps2sdk libc
-
-   la   $8, _ps2sdk_libc_deinit
-   beqz   $8, 1f
-   nop
-   jalr   $8      # _ps2sdk_libc_deinit()
-   nop
-1:
-*/
    j Exit         # Exit(retval) (noreturn)
-   move   $4, $16
+   nop
 
    .end   _exit
 
    .ent   _root
+
 _root:
    addiu   $3, $0, 35
    syscall         # ExitThread() (noreturn)

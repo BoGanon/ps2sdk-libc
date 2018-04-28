@@ -171,16 +171,20 @@ div_t div(int n, int d)
 #endif
 
 
-#if 0
+#if defined(F_exit) || defined(DOXYGEN)
+void	_exit(int retval) __attribute__((noreturn));
 void exit(int status)
 {
   int i;
 
-  for (i = (__stdlib_exit_index - 1); i <= 0; --i) (__stdlib_exit_func[i])();
-  // wrong... have to do _exit rather... see abort.c
-  // but we should also provide a __process_atexit so the crt0 could call
-  // it when main() returns.
-  Exit(status);
+  for (i = (__stdlib_exit_index-1); i >= 0; --i)
+  {
+    (__stdlib_exit_func[i])();
+  }
+
+  __stdlib_exit_index = 0;
+
+  while(1) _exit(status);
 }
 #endif
 
@@ -561,11 +565,13 @@ void srand(unsigned int seed)
 environvariable_t    __stdlib_env[32];
 #endif
 
-#if defined(F___stdlib_internals) || defined(DOXYGEN)
+#if defined(F_exit) || defined(DOXYGEN)
 /* stdlib data variables. */
 void                 (* __stdlib_exit_func[32])(void);
 int                  __stdlib_exit_index = 0;
-int                  __stdlib_mb_shift = 0;
+#endif
+
+#if defined(F_rand) || defined(DOXYGEN)
 unsigned int         __stdlib_rand_seed = 92384729;
 #endif
 
@@ -982,21 +988,5 @@ int __assert_fail (const char *assertion, const char *file, unsigned int line)
 {
     fprintf(stderr, "Error: assertion `%s' failed in %s:%i\n", assertion, file, line);
     return 0;
-}
-#endif
-
-#if defined(F___stdlib_internals) || defined(DOXYGEN)
-void _ps2sdk_stdlib_init()
-{
-}
-
-void _ps2sdk_stdlib_deinit()
-{
-	int i;
-
-	for (i = (__stdlib_exit_index - 1); i >= 0; --i)
-	{
-		(__stdlib_exit_func[i])();
-	}
 }
 #endif
