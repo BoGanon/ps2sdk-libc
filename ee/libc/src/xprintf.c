@@ -207,7 +207,7 @@ int vxprintf(func,arg,format,ap)
   register int  precision;    /* Precision of the current field */
   register int  length;       /* Length of the field */
   register int  idx;          /* A general purpose loop counter */
-  register enum e_pf_flags flags = 0;  /* Flags */
+  register enum e_pf_flags flags;  /* Flags */
   int count;                  /* Total number of characters output */
   int width;                  /* Width of the current field */
   unsigned long long llvalue; /* Value for integer types */
@@ -230,6 +230,7 @@ int vxprintf(func,arg,format,ap)
   fmt = format;                     /* Put in a register for speed */
   count = length = 0;
   bufpt = 0;
+  flags = 0;
   for(; (c=(*fmt))!=0; ++fmt){
     flags = 0;
     if( c!='%' ){
@@ -769,7 +770,6 @@ int vsprintf(char *buf, const char *fmt, va_list ap){
 #endif
 
 #if defined(F_sprintf) || defined(DOXYGEN)
-__attribute__((weak))
 int sprintf (char *str, const char *format, ...)
 {
 	va_list args;
@@ -795,7 +795,6 @@ int sprintf (char *str, const char *format, ...)
 /* This structure is used to store state information about the
 ** write in progress
 */
-__attribute__((weak))
 struct sgMprintf {
   char *zBase;     /* A base allocation */
   char *zText;     /* The string collected so far */
