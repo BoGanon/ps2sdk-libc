@@ -115,4 +115,37 @@
 #define ULONG_LONG_MAX (LONG_LONG_MAX * 2ULL + 1)
 #endif
 
+/* ee-gcc -dM -E  - < /dev/null | grep TYPE__
+*/
+#if __GNUC__ < 4
+#define __INTMAX_TYPE__ long long
+#define __UINTMAX_TYPE__ unsigned long long
+#define __INT8_TYPE__ char
+#define __INT16_TYPE__ short
+#define __INT32_TYPE__ int
+#define __INT64_TYPE__ long long
+#define __UINT8_TYPE__ unsigned char
+#define __UINT16_TYPE__ unsigned short
+#define __UINT32_TYPE__ unsigned int
+#define __UINT64_TYPE__ unsigned long long
+#define __INT_LEAST8_TYPE__ char
+#define __INT_LEAST16_TYPE__ short
+#define __INT_LEAST32_TYPE__ int
+#define __INT_LEAST64_TYPE__ long
+#define __UINT_LEAST8_TYPE__ unsigned char
+#define __UINT_LEAST16_TYPE__ unsigned short
+#define __UINT_LEAST32_TYPE__ unsigned int
+#define __UINT_LEAST64_TYPE__ unsigned long
+#define __INT_FAST8_TYPE__ long long
+#define __INT_FAST16_TYPE__ long long
+#define __INT_FAST32_TYPE__ long long
+#define __INT_FAST64_TYPE__ long long
+#define __UINT_FAST8_TYPE__ unsigned long long
+#define __UINT_FAST16_TYPE__ unsigned long long
+#define __UINT_FAST32_TYPE__ unsigned long long
+#define __UINT_FAST64_TYPE__ unsigned long long
+#define __INTPTR_TYPE__ int
+#define __UINTPTR_TYPE__ unsigned int
+#endif
+
 #endif /* __LIMITS_H__ */

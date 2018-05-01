@@ -16,7 +16,7 @@
 #define PRIdLEAST8 #hhd
 #define PRIdLEAST16 #hd
 #define PRIdLEAST32 #d
-#define PRIdLEAST64 #lld
+#define PRIdLEAST64 #ld
 
 #define PRIdMAX #jd
 #define PRIdPTR #d
@@ -34,7 +34,7 @@
 #define PRIiLEAST8 #hhi
 #define PRIiLEAST16 #hi
 #define PRIiLEAST32 #i
-#define PRIiLEAST64 #lli
+#define PRIiLEAST64 #li
 
 #define PRIiMAX #ji
 #define PRIiPTR #i
@@ -52,7 +52,7 @@
 #define PRIuLEAST8 #hhu
 #define PRIuLEAST16 #hu
 #define PRIuLEAST32 #u
-#define PRIuLEAST64 #llu
+#define PRIuLEAST64 #lu
 
 #define PRIuMAX #ju
 #define PRIuPTR #u
@@ -70,7 +70,7 @@
 #define PRIoLEAST8 #hho
 #define PRIoLEAST16 #ho
 #define PRIoLEAST32 #o
-#define PRIoLEAST64 #llo
+#define PRIoLEAST64 #lo
 
 #define PRIoMAX #jo
 #define PRIoPTR #o
@@ -88,7 +88,7 @@
 #define PRIxLEAST8 #hhx
 #define PRIxLEAST16 #hx
 #define PRIxLEAST32 #x
-#define PRIxLEAST64 #llx
+#define PRIxLEAST64 #lx
 
 #define PRIxMAX #jx
 #define PRIxPTR #x
@@ -106,7 +106,7 @@
 #define PRIXLEAST8 #hhX
 #define PRIXLEAST16 #hX
 #define PRIXLEAST32 #X
-#define PRIXLEAST64 #llX
+#define PRIXLEAST64 #lX
 
 #define PRIXMAX #jX
 #define PRIXPTR #X
@@ -124,7 +124,7 @@
 #define SCNdLEAST8 #hhd
 #define SCNdLEAST16 #hd
 #define SCNdLEAST32 #d
-#define SCNdLEAST64 #lld
+#define SCNdLEAST64 #ld
 
 #define SCNdMAX #jd
 #define SCNdPTR #d
@@ -142,7 +142,7 @@
 #define SCNiLEAST8 #hhi
 #define SCNiLEAST16 #hi
 #define SCNiLEAST32 #i
-#define SCNiLEAST64 #lli
+#define SCNiLEAST64 #li
 
 #define SCNiMAX #ji
 #define SCNiPTR #i
@@ -160,7 +160,7 @@
 #define SCNuLEAST8 #hhu
 #define SCNuLEAST16 #hu
 #define SCNuLEAST32 #u
-#define SCNuLEAST64 #llu
+#define SCNuLEAST64 #lu
 
 #define SCNuMAX #ju
 #define SCNuPTR #u
@@ -178,7 +178,7 @@
 #define SCNoLEAST8 #hho
 #define SCNoLEAST16 #ho
 #define SCNoLEAST32 #o
-#define SCNoLEAST64 #llo
+#define SCNoLEAST64 #lo
 
 #define SCNoMAX #jo
 #define SCNoPTR #o
@@ -196,7 +196,7 @@
 #define SCNxLEAST8 #hhx
 #define SCNxLEAST16 #hx
 #define SCNxLEAST32 #x
-#define SCNxLEAST64 #llx
+#define SCNxLEAST64 #lx
 
 #define SCNxMAX #jx
 #define SCNxPTR #x
@@ -214,7 +214,7 @@
 #define SCNXLEAST8 #hhX
 #define SCNXLEAST16 #hX
 #define SCNXLEAST32 #X
-#define SCNXLEAST64 #llX
+#define SCNXLEAST64 #lX
 
 #define SCNXMAX #jX
 #define SCNXPTR #X
