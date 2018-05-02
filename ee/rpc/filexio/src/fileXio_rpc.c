@@ -31,6 +31,10 @@
 #include <kernel/string.h>
 #include <kernel/dirent.h>
 
+#ifndef ENOPKG
+#define ENOPKG 65
+#endif
+
 extern int _iop_reboot_count;
 static SifRpcClientData_t cd0;
 static unsigned int sbuff[0x1300] __attribute__((aligned (64)));
@@ -1021,7 +1025,6 @@ int fileXioSetRWBufferSize(int size){
 }
 
 /* The unistd glue functions*/
-#if 0
 int mkdir(const char *path, mode_t mode)
 {
   return fileXioMkdir(path,mode);
@@ -1043,7 +1046,7 @@ off_t lseek(int fd, off_t offset, int whence)
      as a trick to read up to 4 gb sized files using the max value of an
      unsigned int. Otherwise, it would be limited to 2 gb. */
   if (offset > UINT_MAX)
-    return -EOVERFLOW;
+    return -1; //-EOVERFLOW;
 
   return fileXioLseek(fd,offset,whence);
 }
@@ -1199,4 +1202,3 @@ int write(int fd, const void *buf, size_t count)
 
   return fileXioWrite(fd, buf, (int)count);
 }
-#endif
