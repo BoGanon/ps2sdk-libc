@@ -800,9 +800,10 @@ int fioFormat(const char *name)
 /* The unistd glue functions.  */
 #if defined(F_fio_unistd) || defined(DOXYGEN)
 #include <limits.h>
+#include <sys/stat.h>
 #include <kernel/dirent.h>
 
-int mkdir(const char *path, int mode)
+int mkdir(const char *path, mode_t mode)
 {
   return fioMkdir(path);
 }
