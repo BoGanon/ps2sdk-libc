@@ -8,12 +8,37 @@
 #
 # Standard startup file.
 
-   # Provided by crtbegin and crtend
-   .type  _init, @function
-   .type  _fini, @function
+   # Check weak symbols
+   # Usage: ckwk $8,sym,1f
+   .macro ckwk reg,sym,lbl
+   la   \reg, \sym
+   beqz   \reg, \lbl
+   nop
+   jalr   \reg
+   nop
+   .endm
+   
+   # Provided by libc
+   .weak   atexit
+   .type   atexit, @function
+   .weak   exit
+   .type   exit, @function
+
+   # Old C++ ctor and dtor functions
+   .type   _init, @function
+   .type   _fini, @function
+   # New C++ ctor and dtor arrays
+   #.type   __libc_init_array, @function
+   #.type   __libc_fini_array, @function
+
+   # Provided by ps2sdk but reusable for newlib
+   .weak   __libc_init
+   .type   __libc_init, @function
+   .weak   __libc_deinit
+   .type   __libc_deinit, @function
 
    .set   noat
-   .set   noreorder
+   .set	  noreorder
 
    .text
    .align   3
@@ -48,9 +73,10 @@ setupthread:
    addiu   $3, $0, 60
    syscall         # SetupThread(_gp, _stack, _stack_size, _args, _root)
 
+setupmem:
    # setup stack and make room for storing arguments
-   move $sp, $2
-   addiu $sp, $sp,-96
+   move   $sp, $2
+   addiu   $sp, $sp,-96
 
    # initialize heap
    la   $4, _end
@@ -76,49 +102,59 @@ setupthread:
 #   addiu   $5, $16, 4
 #1:
 
+setup_libc:
    # Initialize the kernel first (Apply necessary patches).
    jal _InitSys
    nop
 
-   # add _fini using atexit() for destructors
-   la   $4, _fini
-   beqz   $4, 1f
-   nop
-   jal   atexit
-   nop
+   # init libc
+   ckwk $8,__libc_init,1f
 1:
-
-   # call constructors
-   la   $8, _init
-   beqz   $8, 1f
-   nop
-   jalr   $8      # _init()
-   nop
+   # add destructors using atexit() (weak)
+   # la $4, __libc_fini_array
+   la $4, _fini
+   ckwk   $8,atexit,1f
 1:
+   # call _init for constructors
+   # jal   __libc_init_array
+   jal   _init
+   nop
 
+runmain:
    # call main
    ei
 
-   la $16, _args
+   la   $16, _args
    lw   $4, ($16)
-   
-1:
-   jal   main      # main(argc, argv)
+   jal   main       # main(argc, argv)
    addiu $5, $16, 4
 
-   # fall through to exit 
-   j   exit       # exit(retval) (noreturn)
+destroy_libc:
+   # fall through to libc exit (weak)
+   la   $8, exit
+   beqz   $8, 1f
    move   $4, $2
+
+   jr   $8          # exit(retval) (noreturn)
+   nop
+1:
+   # deinit libc
+   ckwk   $8,__libc_deinit,1f
+1:
+   # no libc exit
+   j   Exit         # Exit(retval) (noreturn)
+   nop
    .end   _start
 
    .align   3
-
-   .globl _exit
+   
+   # _exit(retval) (noreturn) called by libc
+   .globl   _exit
    .ent   _exit
    .text
 
 _exit:
-   j Exit         # Exit(retval) (noreturn)
+   j   Exit           # Exit(retval) (noreturn)
    nop
 
    .end   _exit
@@ -127,7 +163,7 @@ _exit:
 
 _root:
    addiu   $3, $0, 35
-   syscall         # ExitThread() (noreturn)
+   syscall          # ExitThread() (noreturn)
    .end   _root
 
    .bss
