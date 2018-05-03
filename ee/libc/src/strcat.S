@@ -25,7 +25,6 @@
 	.globl	strcat
 	.text
 	.ent	strcat
-	.weak	strcat
 strcat:
 	.frame	$sp,32,$31		# vars= 0, regs= 4/0, args= 0, extra= 0
 	.mask	0x80010000,-16

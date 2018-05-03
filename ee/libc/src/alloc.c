@@ -115,7 +115,6 @@ heap_mem_header_t * _heap_mem_fit(heap_mem_header_t *head, size_t size)
 	return prev_mem;
 }
 
-__attribute__((weak))
 void * malloc(size_t size)
 {
 	void *ptr = NULL, *mem_ptr;
@@ -301,13 +300,11 @@ static void * do_realloc(void *ptr, size_t size, size_t align )
 	return new_ptr;
 }
 
-__attribute__((weak))
 void *realloc(void *ptr, size_t size)
 {
 	return do_realloc(ptr, size, DEFAULT_ALIGNMENT);
 }
 
-__attribute__((weak))
 void *realloc64(void *ptr, size_t size)
 {
 	return do_realloc(ptr, size, 64);
@@ -315,7 +312,6 @@ void *realloc64(void *ptr, size_t size)
 #endif
 
 #if defined(F_calloc) || defined(DOXYGEN)
-__attribute__((weak))
 void * calloc(size_t n, size_t size)
 {
 	void *ptr = NULL;
@@ -331,7 +327,6 @@ void * calloc(size_t n, size_t size)
 #endif
 
 #if defined(F_memalign) || defined(DOXYGEN)
-__attribute__((weak))
 void * memalign(size_t align, size_t size)
 {
 	heap_mem_header_t new_mem;
@@ -385,7 +380,6 @@ void * memalign(size_t align, size_t size)
 #endif
 
 #if defined(F_free) || defined(DOXYGEN)
-__attribute__((weak))
 void free(void *ptr)
 {
 	heap_mem_header_t *cur;
@@ -464,10 +458,8 @@ void free(void *ptr)
 
 /* These are here in case C++ needs them.  */
 #if defined(F___builtin_alloc) || defined(DOXYGEN)
-__attribute__((weak))
 void * __builtin_new(size_t size) { return malloc(size); }
 
-__attribute__((weak))
 void __builtin_delete(void *ptr) { free(ptr); }
 #endif
 
