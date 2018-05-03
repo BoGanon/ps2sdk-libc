@@ -195,14 +195,14 @@ int AHX_LoadSong(char* filename)
 	int fd, fdSize;
 	char* buffer;
 
-	fd = fioOpen(filename, O_RDONLY);
+	fd = fioOpen(filename, IO_RDONLY);
 	if(fd < 0)
 	{
 		 printf("ERROR LOADING SONG\n");
 		 return -1;
 	}
-	fdSize = fioLseek(fd, 0, SEEK_END);
-	fioLseek(fd, 0, SEEK_SET);
+	fdSize = fioLseek(fd, 0, IO_SEEK_END);
+	fioLseek(fd, 0, IO_SEEK_SET);
 	buffer = malloc(fdSize);
 	if(!buffer)
 	{

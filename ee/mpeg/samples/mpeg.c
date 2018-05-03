@@ -60,7 +60,7 @@ int main ( void ) {
  framebuffer_t frame;
  zbuffer_t z;
  InitCBParam lInfo;
- int         lFD = fioOpen ( MPEG_BITSTREAM_FILE, O_RDONLY );
+ int         lFD = fioOpen ( MPEG_BITSTREAM_FILE, IO_RDONLY );
  long        lSize;
  s64         lPTS, lCurPTS;
 
@@ -83,8 +83,8 @@ int main ( void ) {
   goto end;
  }  /* end if */
 
- lSize = fioLseek ( lFD, 0, SEEK_END );
- fioLseek ( lFD, 0, SEEK_SET );
+ lSize = fioLseek ( lFD, 0, IO_SEEK_END );
+ fioLseek ( lFD, 0, IO_SEEK_SET );
 
  if ( lSize <= 0 ) {
   printf ( "test_mpeg: could not obtain file size (%ld)\n", lSize );

@@ -117,7 +117,7 @@ int main (int argc, char *argv[])
 	{
 		printf("frame captured\n");
 
-		fh = fioOpen("host:image.jpg", O_WRONLY|O_CREAT|O_TRUNC);
+		fh = fioOpen("host:image.jpg", IO_WRONLY|IO_CREAT|IO_TRUNC);
 
 
 		fioWrite(fh, jpg_buffer, ret);

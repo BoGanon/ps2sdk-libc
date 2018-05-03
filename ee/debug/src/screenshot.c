@@ -100,7 +100,7 @@ int ps2_screenshot_file( const char* pFilename,unsigned int VramAdress,
 
   s16 *p_header = (s16 *)&header;
 
-  file_handle = fioOpen( pFilename, O_CREAT|O_WRONLY );
+  file_handle = fioOpen( pFilename, IO_CREAT|IO_WRONLY );
 
   // make sure we could open the file for output
 

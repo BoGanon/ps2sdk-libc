@@ -114,7 +114,7 @@ int main() {
 	}
 
 	// Check if existing save is present
-	fd = fioOpen("mc0:PS2DEV/icon.sys", O_RDONLY);
+	fd = fioOpen("mc0:PS2DEV/icon.sys", IO_RDONLY);
 	if(fd <= 0) {
 
 		printf("\nNo previous save exists, creating...\n");
@@ -195,7 +195,7 @@ int CreateSave(void)
 	strcpy(icon_sys.del, "ps2dev.icn");
 
 	// Write icon.sys to the memory card (Note that this filename is fixed)
-	mc_fd = fioOpen("mc0:PS2DEV/icon.sys",O_WRONLY | O_CREAT);
+	mc_fd = fioOpen("mc0:PS2DEV/icon.sys",IO_WRONLY | IO_CREAT);
 	if(mc_fd < 0) return -2;
 
 	fioWrite(mc_fd, &icon_sys, sizeof(icon_sys));
@@ -205,18 +205,18 @@ int CreateSave(void)
 	// Write icon file to the memory card.
 	// Note: The icon file was created with my bmp2icon tool, available for download at
 	//       http://www.ps2dev.org
-	icon_fd = fioOpen("host:ps2dev.icn",O_RDONLY);
+	icon_fd = fioOpen("host:ps2dev.icn",IO_RDONLY);
 	if(icon_fd < 0) return -3;
 
-	icon_size = fioLseek(icon_fd,0,SEEK_END);
-	fioLseek(icon_fd,0,SEEK_SET);
+	icon_size = fioLseek(icon_fd,0,IO_SEEK_END);
+	fioLseek(icon_fd,0,IO_SEEK_SET);
 
 	icon_buffer = malloc(icon_size);
 	if(icon_buffer == NULL) return -4;
 	if(fioRead(icon_fd, icon_buffer, icon_size) != icon_size) return -5;
 	fioClose(icon_fd);
 
-	icon_fd = fioOpen("mc0:PS2DEV/ps2dev.icn",O_WRONLY | O_CREAT);
+	icon_fd = fioOpen("mc0:PS2DEV/ps2dev.icn",IO_WRONLY | IO_CREAT);
 	if(icon_fd < 0) return -6;
 
 	fioWrite(icon_fd,icon_buffer,icon_size);

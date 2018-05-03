@@ -85,5 +85,5 @@ static int imgdrv_read(iop_file_t *f, void *buf, int size)
 
 static int imgdrv_lseek(iop_file_t *f, int offset, int whence)
 {
-	return(whence == SEEK_SET ? 0 : img_size[f->unit]);
+	return(whence == IO_SEEK_SET ? 0 : img_size[f->unit]);
 }

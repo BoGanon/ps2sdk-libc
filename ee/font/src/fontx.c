@@ -109,7 +109,7 @@ int fontx_load_single_krom(fontx_t *fontx)
 	int fd = 0;
 	int size;
 
-	fd = fioOpen("rom0:KROM", O_RDONLY);
+	fd = fioOpen("rom0:KROM", IO_RDONLY);
 
 	if (fd < 0)
 	{
@@ -137,7 +137,7 @@ int fontx_load_single_krom(fontx_t *fontx)
 	memset(fontx->font,0,size);
 
 	// The offset for the ASCII characters
-	fioLseek(fd, 0x198DE, SEEK_SET);
+	fioLseek(fd, 0x198DE, IO_SEEK_SET);
 
 	// 17 bytes of header and 15 bytes per 33 characters
 	// Read in 95 characters
@@ -168,7 +168,7 @@ int fontx_load_single_krom(fontx_t *fontx)
 	fontx_header->type = SINGLE_BYTE;
 
 	// Save it as a font
-	//fd=fioOpen("host:KROM_ascii.fnt",O_WRONLY | O_TRUNC | O_CREAT);
+	//fd=fioOpen("host:KROM_ascii.fnt",IO_WRONLY | IO_TRUNC | IO_CREAT);
 	//fioWrite(fd, fontx->font, size);
 	//fioClose(fd);
 
@@ -191,7 +191,7 @@ int fontx_load_double_krom(fontx_t *fontx)
 	int char_size = 30;
 	int char_num = 3489;
 
-	fd = fioOpen("rom0:KROM", O_RDONLY);
+	fd = fioOpen("rom0:KROM", IO_RDONLY);
 
 	if (fd < 0)
 	{
@@ -217,7 +217,7 @@ int fontx_load_double_krom(fontx_t *fontx)
 	memset(fontx->font,0,size);
 
 	// Make sure we're at the beginning
-	fioLseek(fd, 0, SEEK_SET);
+	fioLseek(fd, 0, IO_SEEK_SET);
 
 	// Read in 95 characters
 	if (fioRead(fd, fontx->font+header_size+table_num*table_size, char_size*char_num) < 0)

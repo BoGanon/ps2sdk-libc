@@ -234,7 +234,7 @@ int mcGetInfo(int port, int slot, int* type, int* free, int* format);
  * @param port port number
  * @param slot slot number
  * @param name filename to open
- * @param mode open file mode (O_RDWR, O_CREAT, etc)
+ * @param mode open file mode (IO_RDWR, IO_CREAT, etc)
  * @return 0 = successful; < 0 = error
  */
 int mcOpen(int port, int slot, const char *name, int mode);
