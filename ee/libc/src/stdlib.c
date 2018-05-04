@@ -173,6 +173,7 @@ div_t div(int n, int d)
 
 #if defined(F_exit) || defined(DOXYGEN)
 void	_exit(int retval) __attribute__((noreturn));
+void __libc_fini_array();
 void exit(int status)
 {
   int i;
@@ -183,6 +184,8 @@ void exit(int status)
   }
 
   __stdlib_exit_index = 0;
+
+  __libc_fini_array();
 
   while(1) _exit(status);
 }

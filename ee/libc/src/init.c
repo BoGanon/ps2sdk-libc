@@ -25,20 +25,52 @@ void _ps2sdk_time_deinit();
 int chdir(const char *path);
 
 #if defined(F_init_libc) || defined(DOXYGEN)
-void _ps2sdk_libc_deinit()
+extern void (*__preinit_array_end [])(void) __attribute__((weak));
+extern void (*__preinit_array_start [])(void) __attribute((weak));
+extern void (*__init_array_start [])(void) __attribute((weak));
+extern void (*__init_array_end [])(void) __attribute((weak));
+extern void (*__fini_array_start [])(void) __attribute((weak));
+extern void (*__fini_array_end [])(void) __attribute((weak));
+
+void _init();
+void _fini();
+
+void __libc_init()
+{
+    _ps2sdk_alloc_init();
+    _ps2sdk_stdio_init();
+    _ps2sdk_time_init();
+}
+
+void __libc_deinit()
 {
     _ps2sdk_time_deinit();
     _ps2sdk_stdio_deinit();
     _ps2sdk_alloc_deinit();
 }
 
-void _ps2sdk_libc_init()
+void __libc_init_array()
 {
-    _ps2sdk_alloc_init();
-    _ps2sdk_stdio_init();
-    _ps2sdk_time_init();
-    atexit(_ps2sdk_libc_deinit);
- 
+    int i;
+
+    for (i = 0; i < (__preinit_array_end - __preinit_array_start); i++)
+      __preinit_array_start[i]();
+
+    _init();
+
+    for (i = 0; i < (__init_array_end - __init_array_start); i++)
+      __init_array_start[i]();
+}
+
+void __libc_fini_array()
+{
+    int i;
+
+    /* Run through destructors in reverse order. */
+    for (i = (__fini_array_end - __fini_array_start) - 1; i >=0; --i)
+      __fini_array_start[i]();
+
+    _fini();
 }
 #endif
 
