@@ -9,6 +9,7 @@
 # Standard startup file.
 
    # Check weak symbols
+   # jump and link if defined
    # Usage: ckwk $8,sym,1f
    .macro ckwk reg,sym,lbl
    la   \reg, \sym

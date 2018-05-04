@@ -26,18 +26,65 @@ SECTIONS {
 	PROVIDE(_etext = .);
 	PROVIDE(etext = .);
 
-	.reginfo : { *(.reginfo) }
+	/*.reginfo : { *(.reginfo) } */
 
+	/* Newer linking standard for C++ constructors.
+	   SORT_BY_INIT_PRIORITY isn't supported by ld 2.14 but is by recent
+	   versions of ld as of 2018.
+	   This allows execution of constructors based on priority instead of
+	   linking order. Configure gcc with --disable-initfini-array to use
+	   old .ctors/.dtors behavior.
+	.preinit_array : {
+		PROVIDE_HIDDEN (__preinit_array_start = .);
+		KEEP (*(.preinit_array))
+		PROVIDE_HIDDEN (__preinit_array_end = .);
+	}
+	.init_array : {
+		PROVIDE_HIDDEN (__init_array_start = .);
+		KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
+		KEEP (*(.init_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .ctors))
+		PROVIDE_HIDDEN (__init_array_end = .);
+	}
+	.fini_array : {
+		PROVIDE_HIDDEN (__fini_array_start = .);
+		KEEP (*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
+		KEEP (*(.fini_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
+		PROVIDE_HIDDEN (__fini_array_end = .);
+	}
+	
+	/* 2.14 compatible version. */
+	/*
+	PROVIDE(__preinit_array_start = .);
+	.preinit_array ALIGN(16) : {
+		KEEP (*(.preinit_array))
+	}
+	PROVIDE(__preinit_array_end = .);
+	PROVIDE(__init_array_start = .);
+	.init_array ALIGN(16): {
+		KEEP (*(SORT(.init_array.*) SORT(.ctors.*)))
+		KEEP (*(.init_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .ctors))
+	}
+	PROVIDE(__init_array_end = .);
+	PROVIDE(__fini_array_start = .);
+	.fini_array ALIGN(16): {
+		KEEP (*(SORT(.fini_array.*) SORT(.dtors.*)))
+		KEEP (*(.fini_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
+	}
+	PROVIDE(__fini_array_end = .);
+	*/
+	
 	/* Global/static constructors and deconstructors. */
 	.ctors ALIGN(16): {
-		KEEP(*crtbegin*.o(.ctors))
-		KEEP(*(EXCLUDE_FILE(*crtend*.o) .ctors))
+		KEEP(*crtbegin.o(.ctors))
+		KEEP(*crtbegin?.o(.ctors))
+		KEEP(*(EXCLUDE_FILE(*crtend.o *crtend?.o) .ctors))
 		KEEP(*(SORT(.ctors.*)))
 		KEEP(*(.ctors))
 	}
 	.dtors ALIGN(16): {
-		KEEP(*crtbegin*.o(.dtors))
-		KEEP(*(EXCLUDE_FILE(*crtend*.o) .dtors))
+		KEEP(*crtbegin.o(.dtors))
+		KEEP(*crtbegin?.o(.dtors))
+		KEEP(*(EXCLUDE_FILE(*crtend.o *crtend?.o) .dtors))
 		KEEP(*(SORT(.dtors.*)))
 		KEEP(*(.dtors))
 	}
