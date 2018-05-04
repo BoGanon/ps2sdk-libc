@@ -18,11 +18,11 @@
 #include <string.h>
 
 #if defined(F_getcwd) || defined(DOXYGEN)
-extern char __direct_pwd[256];
+extern char direct_pwd_[256];
 
 char *getcwd(char *buf, int len)
 {
-	strncpy(buf, __direct_pwd, len);
+	strncpy(buf, direct_pwd_, len);
 	return buf;
 }
 #endif

@@ -10,7 +10,7 @@
 
 /**
  * @file
- * LIBC (stdio) type, constant and function declarations.
+ * Standard I/O type, constant, and function declarations.
  */
 
 #ifndef __STDIO_H__
@@ -31,8 +31,8 @@ extern "C" {
 
 #define _NFILE                         16
 
-#define _IOFBF                         0x0000
-#define _IOLBF                         0x0100
+#define _IOFBF                         0x0001
+#define _IOLBF                         0x0002
 #define _IONBF                         0x0004
 
 /* ensure EOF is defined. */
@@ -51,21 +51,12 @@ typedef long fpos_t;
 
 #ifndef __FILE_DEFINED
 #define __FILE_DEFINED
-typedef struct {
-  int  type;
-  int  fd;
-  int  cnt;
-  int  flag;
-  int  has_putback;
-  int  putback;
-} FILE;
+typedef void FILE;
 #endif
 
-extern FILE __iob[_NFILE];
-
-#define stdin                          (&__iob[0])
-#define stdout                         (&__iob[1])
-#define stderr                         (&__iob[2])
+extern FILE *stdin;
+extern FILE *stdout;
+extern FILE *stderr;
 
 #define	SEEK_SET	0
 #define	SEEK_CUR	1
@@ -113,40 +104,40 @@ int    vxscanf(int (*xgetc)(void **), void (*xungetc)(int, void **), void *strea
 int    xscanf(int (*xgetc)(void **), void (*xungetc)(int, void **), void *stream, const char *, ...);
 int    ungetc(int, FILE *);
 
-int    _fcloseall(void);
+int    fcloseall_(void);
 /** all open non-system files with write-access are flushed.
  * attempts to flush all the open files with write-access.
  * @return int; the number of files flushed if successful. else -1.
  */
-int    _fflushall(void);
+int    fflushall_(void);
 
 int    chdir(const char *path);
 
 /* from xprintf */
-int vxprintf(void (*func)(char*, int, void *), void * arg, const char * format, va_list ap);
-int vsnprintf(char *buf, size_t n, const char *fmt, va_list ap);
-int vsprintf(char *buf, const char *fmt, va_list ap);
-char *vmprintf(const char *zFormat, va_list ap);
-int vfprintf(FILE *pOut, const char *zFormat, va_list ap);
-int vprintf(const char *format, va_list ap);
-int vasprintf(char **strp, const char *format, va_list ap);
+int    vxprintf(void (*func)(char*, int, void *), void * arg, const char * format, va_list ap);
+int    vsnprintf(char *buf, size_t n, const char *fmt, va_list ap);
+int    vsprintf(char *buf, const char *fmt, va_list ap);
+char   *vmprintf(const char *zFormat, va_list ap);
+int    vfprintf(FILE *pOut, const char *zFormat, va_list ap);
+int    vprintf(const char *format, va_list ap);
+int    vasprintf(char **strp, const char *format, va_list ap);
 
-int xprintf(void (*func)(char*, int, void *), void * arg, const char * format, ...)
+int    xprintf(void (*func)(char*, int, void *), void * arg, const char * format, ...)
     __attribute__((format(printf,3,4)));
-int snprintf(char *str, size_t sz, const char *format, ...)
+int    snprintf(char *str, size_t sz, const char *format, ...)
     __attribute__((format(printf,3,4)));
-int sprintf(char *buf, const char *fmt, ...)
+int    sprintf(char *buf, const char *fmt, ...)
     __attribute__((format(printf,2,3)));
-char *mprintf(const char *zFormat, ...)
+char   *mprintf(const char *zFormat, ...)
     __attribute__((format(printf,1,2)));
-int fprintf(FILE *pOut, const char *zFormat, ...)
+int    fprintf(FILE *pOut, const char *zFormat, ...)
     __attribute__((format(printf,2,3)));
-int printf(const char *format, ...)
+int    printf(const char *format, ...)
     __attribute__((format(printf,1,2)));
-int asprintf(char **strp, const char *format, ...)
+int    asprintf(char **strp, const char *format, ...)
     __attribute__((format(printf,2,3)));
 
-int putchar(int);
+int    putchar(int);
 
 #ifdef __cplusplus
 }

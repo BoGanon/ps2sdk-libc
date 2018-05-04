@@ -48,12 +48,13 @@ WXPRINTF_OBJS = vxwprintf.o __swout.o vsnwprintf.o snwprintf.o vswprintf.o \
 XSCANF_OBJS = vxscanf.o xscanf.o scanf.o vscanf.o sscanf.o vsscanf.o fscanf.o \
 	vfscanf.o _xscanf_internals.o
 
-STDIO_OBJS = clearerr.o fclose.o fcloseall.o feof.o ferror.o fflush.o \
+STDIO_OBJS = chdir.o clearerr.o fclose.o fcloseall.o feof.o ferror.o fflush.o \
 	fflushall.o fgetc.o fgetpos.o fgets.o fopen.o fputc.o fputs.o fread.o \
 	fseek.o fsetpos.o ftell.o fwrite.o fileno.o getc.o getchar.o \
 	getfdtype.o gets.o perror.o putc.o puts.o remove.o fdopen.o rewind.o \
-	skipatoi.o stdio.o tmpfile.o tmpnam.o ungetc.o updatestdoutxy.o \
-	strerror.o __stdio_internals.o __stdio_helper_internals.o chdir.o
+	setbuf.o setvbuf.o skipatoi.o tmpfile.o tmpnam.o ungetc.o \
+	updatestdoutxy.o strerror.o stdio_internals.o \
+	__stdio_helper_internals.o
 
 STDLIB_OBJS = abs.o atexit.o atof.o atoi.o atol.o bsearch.o div.o exit.o \
 	getenv.o _itoa.o labs.o ldiv.o llabs.o lldiv.o _lltoa.o _ltoa.o rand.o \
