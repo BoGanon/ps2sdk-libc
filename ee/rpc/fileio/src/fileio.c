@@ -882,11 +882,10 @@ DIR *opendir (const char *path)
 
   return &dir;
 }
-
+struct dirent entry;
 struct dirent *readdir(DIR *d)
 {
   io_dirent_t __fio_entry;
-  static struct dirent entry;
 
   if (d == NULL)
     return NULL;

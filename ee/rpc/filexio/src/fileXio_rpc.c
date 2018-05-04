@@ -1112,10 +1112,11 @@ DIR *opendir (const char *path)
   return &dir;
 }
 
+static struct dirent entry;
 struct dirent *readdir(DIR *d)
 {
   iox_dirent_t __iox_entry;
-  static struct dirent entry;
+
 
   if (d == NULL)
     return NULL;
