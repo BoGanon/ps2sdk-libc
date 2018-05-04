@@ -7,8 +7,11 @@
 # Review ps2sdk README & LICENSE files for further details.
 
 ifeq (x$(PS2SDKSRC), x)
-  export PS2SDKSRC=$(shell pwd)
+  export PS2SDKSRC := $(shell pwd)
 endif
+
+export PS2SDK := $(abspath $(PS2SDK))
+
 
 all: build
 	@$(ECHO) .;
@@ -21,6 +24,7 @@ env_build_check:
 	@if test -z $(PS2SDKSRC) ; \
 	then \
 	  $(ECHO) PS2SDKSRC environment variable should be defined. ; \
+	  exit 1; \
 	fi
 
 env_release_check:
@@ -104,23 +108,17 @@ release-clean: env_release_check
 	rm -f $(PS2SDK)/LICENSE.md
 	rm -f $(PS2SDK)/ID
 
-release: build release-clean release_base release_ports_dir $(subdir_release)
+release: env_release_check build release-clean release_base release_ports_dir $(subdir_release)
 	@$(ECHO) .;
 	@$(ECHO) .PS2SDK Installed.;
 	@$(ECHO) .;
 
 # install-headers rules
-headers_clean: env_release_check
-	$(MAKE) -C ee/libc release-libc-clean
-	rm -f $(PS2SDK)/README.md
-	rm -f $(PS2SDK)/CHANGELOG
-	rm -f $(PS2SDK)/AUTHORS
-	rm -f $(PS2SDK)/LICENSE.md
-	rm -f $(PS2SDK)/ID
-
-install-headers: headers_clean libc_dirs
+install-headers: libc_dirs
 	$(MAKE) -C ee/libc release-libc-include
 	$(MAKE) -C ee/fdlibm release-libm-include
+	$(MAKE) -C ee/startup all
+	$(MAKE) -C ee/startup release
 	@$(ECHO) .;
 	@$(ECHO) PS2SDK LIBC headers installed.;
 	@$(ECHO) .;
@@ -130,6 +128,7 @@ libc_dirs: release_base
 	$(MAKE) -C ee/libc release-libc-dirs
 
 libc-clean: env_build_check
+	$(MAKE) -C ee/startup clean
 	$(MAKE) -C ee/libc clean
 	$(MAKE) -C ee/fdlibm clean
 
@@ -137,7 +136,7 @@ libc: env_build_check
 	$(MAKE) -C ee/libc all
 	$(MAKE) -C ee/fdlibm all
 
-libc-install: libc_dirs headers_clean libc
+libc-install: libc_dirs libc
 	$(MAKE) -C ee/libc release
 	$(MAKE) -C ee/fdlibm release
 
