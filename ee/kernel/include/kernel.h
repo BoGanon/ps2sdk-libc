@@ -24,7 +24,7 @@
 #define DI	DIntr
 #define EI	EIntr
 
-#define ExitHandler() asm volatile("sync\nei\n")
+#define ExitHandler() __asm__ volatile("sync\nei\n")
 
 // note: 'sync' is the same as 'sync.l'
 #define EE_SYNC()	__asm__ volatile ("sync")
