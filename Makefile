@@ -15,7 +15,7 @@ export PS2SDK := $(abspath $(PS2SDK))
 
 all: build
 	@$(ECHO) .;
-	@$(ECHO) .PS2SDK Built.;
+	@$(ECHO) .PS2SDK Standard C Library Built.;
 	@$(ECHO) .;
 
 # Environment rules
@@ -26,22 +26,18 @@ env_build_check:
 	  $(ECHO) PS2SDKSRC environment variable should be defined. ; \
 	  exit 1; \
 	fi
-
-env_release_check:
 	@if test -z $(PS2SDK) ; \
 	then \
 	  $(ECHO) PS2SDK environment variable must be defined. ; \
 	  exit 1; \
 	fi
 
+
 # Common rules shared by all build targets.
-SUBDIRS = tools
-SUBDIRS += iop
 SUBDIRS += ee
-SUBDIRS += common
 SUBDIRS += samples
 
-.PHONY: dummy tools iop ee common samples
+.PHONY: dummy ee samples
 
 # Use SUBDIRS to descend into subdirectories.
 subdir_clean = $(patsubst %,clean-%,$(SUBDIRS))
@@ -50,30 +46,17 @@ subdirs: dummy $(subdir_list)
 
 $(subdir_clean): dummy
 	$(MAKE) -C $(patsubst clean-%,%,$@) clean
-	$(MAKE) -C ee/erl-loader clean
 $(subdir_release): dummy
 	$(MAKE) -C $(patsubst release-%,%,$@) release
-	$(MAKE) -C ee/erl-loader release
 
 # Build rules
-tools: env_build_check
-	$(MAKE) -C tools all
 
-ee_lib: tools
+ee_lib: env_build_check
 	$(MAKE) -C ee all
 
 ee: ee_lib
-	$(MAKE) -C ee/erl-loader all
 
-iop_lib: tools
-	$(MAKE) -C iop all
-
-iop: iop_lib
-
-common: tools
-	$(MAKE) -C common all
-
-build: common ee iop
+build: ee
 
 rebuild: env_build_check $(subdir_clean) build
 
@@ -83,10 +66,10 @@ clean: env_build_check $(subdir_clean)
 # Release rules
 install: release
 
-release_base_dir: env_release_check
+release_base_dir: env_build_check
 	$(MKDIR) -p $(PS2SDK)
 
-release_ports_dir: env_release_check
+release_ports_dir: env_build_check
 	$(MKDIR) -p $(PS2SDK)/ports
 
 release_base: release_base_dir
@@ -96,9 +79,7 @@ release_base: release_base_dir
 	cp -f LICENSE.md $(PS2SDK)
 	cp -f ID $(PS2SDK)
 
-release-clean: env_release_check
-	$(MAKE) -C common release-clean
-	$(MAKE) -C iop release-iop-clean
+release-clean: env_build_check
 	$(MAKE) -C ee release-ee-clean
 	$(MAKE) -C samples release-clean
 	$(MAKE) -C tools release-clean
@@ -108,12 +89,15 @@ release-clean: env_release_check
 	rm -f $(PS2SDK)/LICENSE.md
 	rm -f $(PS2SDK)/ID
 
-release: env_release_check build release-clean release_base release_ports_dir $(subdir_release)
+release: env_build_check build release-clean release_base release_ports_dir $(subdir_release)
 	@$(ECHO) .;
-	@$(ECHO) .PS2SDK Installed.;
+	@$(ECHO) .PS2SDK Standard C Library Installed.;
 	@$(ECHO) .;
 
 # install-headers rules
+libc_dirs: release_base
+	$(MAKE) -C ee/libc release-libc-dirs
+
 install-headers: libc_dirs
 	$(MAKE) -C ee/libc release-libc-include
 	$(MAKE) -C ee/fdlibm release-libm-include
@@ -123,22 +107,6 @@ install-headers: libc_dirs
 	@$(ECHO) PS2SDK LIBC headers installed.;
 	@$(ECHO) .;
 
-# libc rules
-libc_dirs: release_base
-	$(MAKE) -C ee/libc release-libc-dirs
-
-libc-clean: env_build_check
-	$(MAKE) -C ee/startup clean
-	$(MAKE) -C ee/libc clean
-	$(MAKE) -C ee/fdlibm clean
-
-libc: env_build_check
-	$(MAKE) -C ee/libc all
-	$(MAKE) -C ee/fdlibm all
-
-libc-install: libc_dirs libc
-	$(MAKE) -C ee/libc release
-	$(MAKE) -C ee/fdlibm release
 
 # Miscellaneous rules
 help:
@@ -154,10 +122,7 @@ help:
 	@$(ECHO) "    clean             Clean source directory";
 	@$(ECHO) "    rebuild           Clean then build ps2sdk";
 	@$(ECHO) "    release-clean     Clean installed files";
-	@$(ECHO) "    install-headers   Install libc headers";
-	@$(ECHO) "    libc              Build libc and libm";
-	@$(ECHO) "    libc-clean        Clean libc and libm sources;"
-	@$(ECHO) "    libc-install      Install libc and libm";
+	@$(ECHO) "    install-headers   Install LIBC headers";
 	@$(ECHO) "    help              Print this message";
 
 include Defs.make
