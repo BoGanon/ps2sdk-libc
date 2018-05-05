@@ -8,9 +8,11 @@
 
 static const char *test_init(void *arg)
 {
-  // _ps2sdk_args_parse should setup the initial cwd called from crt0.s
   char cwd[256];
   if (getcwd(cwd, 256)[0] == '\0')
+    chdir("host:");
+
+  if (strcmp(getcwd(cwd, 256),"host:"))
     return "failed to setup cwd";
 
   return NULL;
@@ -156,12 +158,11 @@ static const char *test_fseek_ftell(void *arg)
     goto failed;
   }
 
-  /* seek to end of file */
+  /* seek to end of file, "hello world" = 12 bytes */
   ret = fseek(fp, 0, SEEK_END);
   off = ftell(fp);
-  if (ret != 0 || off < 8)
+  if (ret != 0 || off != 12)
   {
-    /* fixme: what's the real size of ''arg'' file? */
     error = "error seeking end of file";
     goto failed;
   }
@@ -269,6 +270,8 @@ static const char *test_fwrite(void *arg)
   return NULL;
 }
 
+/* These do not work via host: on ps2client.
+   The hostfs protocol doesn't implement stat(). */
 static const char *test_stat_file(void *arg)
 {
   struct stat st;
@@ -350,9 +353,8 @@ static const char *test_readdir_rewinddir(void *arg)
     }
     if (!strlen(de->d_name)) {
       closedir(dd);
-      return "dirent with no name returned";
+      return "empty dirent returned";
     }
-    printf("entry[%d] = %s\n", i, de->d_name);
     i++;
   }
 
@@ -361,11 +363,11 @@ static const char *test_readdir_rewinddir(void *arg)
   while((de = readdir(dd)) != NULL) {
     if (de->d_name == NULL) {
       closedir(dd);
-      return "bad dirent returned";
+      return "bad dirent returned after rewind";
     }
     if (!strlen(de->d_name)) {
       closedir(dd);
-      return "dirent with no name returned";
+      return "empty dirent returned after rewind";
     }
     j++;
   }
