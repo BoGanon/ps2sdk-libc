@@ -35,9 +35,8 @@ env_build_check:
 
 # Common rules shared by all build targets.
 SUBDIRS += ee
-SUBDIRS += samples
 
-.PHONY: dummy ee samples
+.PHONY: dummy ee
 
 # Use SUBDIRS to descend into subdirectories.
 subdir_clean = $(patsubst %,clean-%,$(SUBDIRS))
